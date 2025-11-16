@@ -1,0 +1,223 @@
+
+
+credentials <- as.data.frame(do.call(rbind, list(
+  c(user = "brian",  password = "bcx",   role = "user",        admin=F, expire=NA),
+  c(user = "brianx", password = "bcx",   role = "admin",       admin=T, expire=NA),
+  c(user = "briant", password = "bcx",   role = "admintester", admin=T, expire=NA),
+  c(user = "agf24",  password = "agf24", role = "user",        admin=F, expire=NA),
+  c(user = "guest",  password = "guest", role = "user",        admin=F, expire=NA)
+)), stringsAsFactors = FALSE)
+
+# -----------------------------------------------------------------------------
+
+permissions <- list(
+  set_advanced_paddock_settings = "set_advanced_paddock_settings",
+  view_abs_irrig_num = "view_abs_irrig_num",
+  view_abs_irrig_op_cost_pd = "view_abs_irrig_op_cost_pd",
+  view_abs_sugar_value_pd = "view_abs_sugar_value_pd",
+  view_abs_net_income_pd = "view_abs_net_income_pd",
+  view_abs_total_ch4_burn_pd = "view_abs_total_ch4_burn_pd",
+  view_abs_total_co2e_pd = "view_abs_total_co2e_pd",
+  view_abs_total_co2_pd = "view_abs_total_co2_pd",
+  view_abs_total_cost_pd = "view_abs_total_cost_pd",
+  view_abs_total_de_nit_pd = "view_abs_total_de_nit_pd",
+  view_abs_total_energy_cost_pd = "view_abs_total_energy_cost_pd",
+  view_abs_total_energy_used_pd = "view_abs_total_energy_used_pd",
+  view_abs_total_irrig_pd = "view_abs_total_irrig_pd",
+  view_abs_total_n2_o_all_pd = "view_abs_total_n2_o_all_pd",
+  view_abs_total_n_loss_pd = "view_abs_total_n_loss_pd",
+  view_abs_total_no3_leach_pd = "view_abs_total_no3_leach_pd",
+  view_abs_total_no3_runoff_pd = "view_abs_total_no3_runoff_pd",
+  view_abs_total_pump_co2e_pd = "view_abs_total_pump_co2e_pd",
+  view_abs_total_sediment_pd = "view_abs_total_sediment_pd",
+  view_abs_total_water_cost_pd = "view_abs_total_water_cost_pd",
+  view_abs_total_water_energy_cost_pd = "view_abs_total_water_energy_cost_pd",
+  view_cane_and_sucrose_yield_tab = "view_cane_and_sucrose_yield_tab",
+  view_c_balance_tab = "view_c_balance_tab",
+  view_yield_section = "view_yield_section",
+  view_ghg_emission_tab = "view_ghg_emission_tab",
+  view_nutrition_stress_section = "view_nutrition_stress_section",
+  view_lineburnt_org_c = "view_lineburnt_org_c",
+  view_lineburnt_org_n = "view_lineburnt_org_n",
+  view_linecanefw = "view_linecanefw",
+  view_line_gpwui = "view_line_gpwui",
+  view_lineirrig_num = "view_lineirrig_num",
+  view_line_nue = "view_line_nue",
+  view_linesucrose_wt = "view_linesucrose_wt",
+  view_linesurfaceom_wt = "view_linesurfaceom_wt",
+  view_linetotal_ch4_burn_emission = "view_linetotal_ch4_burn_emission",
+  view_linetotal_co2e_emission = "view_linetotal_co2e_emission",
+  view_linetotal_co2_emission = "view_linetotal_co2_emission",
+  view_linetotal_de_nit = "view_linetotal_de_nit",
+  view_linetotal_drain = "view_linetotal_drain",
+  view_linetotal_evap = "view_linetotal_evap",
+  view_linetotal_evap_tr = "view_linetotal_evap_tr",
+  view_linetotal_irrig = "view_linetotal_irrig",
+  view_linetotal_n2_o = "view_linetotal_n2_o",
+  view_linetotal_n2_o_burn = "view_linetotal_n2_o_burn",
+  view_linetotal_n2_o_burn_emission = "view_linetotal_n2_o_burn_emission",
+  view_linetotal_n2_o_emission = "view_linetotal_n2_o_emission",
+  view_linetotal_ng_cane = "view_linetotal_ng_cane",
+  view_linetotal_nit = "view_linetotal_nit",
+  view_linetotal_n_loss = "view_linetotal_n_loss",
+  view_linetotal_no3_leach = "view_linetotal_no3_leach",
+  view_linetotal_no3_runoff = "view_linetotal_no3_runoff",
+  view_linetotal_n_pol = "view_linetotal_n_pol",
+  view_linetotal_n_uptake = "view_linetotal_n_uptake",
+  view_linetotal_pump_emission = "view_linetotal_pump_emission",
+  view_linetotal_rain = "view_linetotal_rain",
+  view_linetotal_runoff = "view_linetotal_runoff",
+  view_linetotal_soil_c = "view_linetotal_soil_c",
+  view_linetotal_soil_inorg_n = "view_linetotal_soil_inorg_n",
+  view_linetotal_soil_org_n = "view_linetotal_soil_org_n",
+  view_linetotal_transp = "view_linetotal_transp",
+  view_n_balance_tab = "view_n_balance_tab",
+  view_temperature_stress_section = "view_temperature_stress_section",
+  view_productivity_tab = "view_productivity_tab",
+  view_rel_canefw = "view_rel_canefw",
+  view_rel_gpwui = "view_rel_gpwui",
+  view_rel_nue = "view_rel_nue",
+  view_rel_sucrose_wt = "view_rel_sucrose_wt",
+  view_water_stress_section = "view_water_stress_section",
+  view_water_balance_tab = "view_water_balance_tab",
+  view_phenology_section = "view_phenology_section"
+)
+
+# -----------------------------------------------------------------------------
+
+roles <- list(
+  user = list(
+    permissions = c(
+      permissions$view_abs_irrig_num,
+      permissions$view_abs_total_de_nit_pd,
+      permissions$view_abs_total_energy_cost_pd,
+      permissions$view_abs_total_energy_used_pd,
+      permissions$view_abs_total_irrig_pd,
+      permissions$view_abs_total_n_loss_pd,
+      permissions$view_abs_total_no3_leach_pd,
+      permissions$view_abs_total_no3_runoff_pd,
+      permissions$view_abs_total_water_cost_pd,
+      permissions$view_abs_total_water_energy_cost_pd,
+      permissions$view_cane_and_sucrose_yield_tab,
+      permissions$view_yield_section,
+      permissions$view_linecanefw,
+      permissions$view_line_gpwui,
+      permissions$view_lineirrig_num,
+      permissions$view_line_nue,
+      permissions$view_linesucrose_wt,
+      permissions$view_linetotal_drain,
+      permissions$view_linetotal_evap_tr,
+      permissions$view_linetotal_irrig,
+      permissions$view_linetotal_rain,
+      permissions$view_linetotal_runoff,
+      permissions$view_temperature_stress_section,
+      permissions$view_productivity_tab,
+      permissions$view_rel_canefw,
+      permissions$view_rel_gpwui,
+      permissions$view_rel_nue,
+      permissions$view_rel_sucrose_wt,
+      permissions$view_water_stress_section,
+      permissions$view_water_balance_tab,
+      permissions$view_phenology_section,
+      permissions$view_n_balance_tab,
+      permissions$view_linetotal_n_loss,
+      permissions$view_linetotal_no3_leach,
+      permissions$view_linetotal_no3_runoff,
+      permissions$view_linetotal_n_pol,
+      permissions$view_linetotal_de_nit,
+      permissions$view_linetotal_n_uptake
+    )
+  ),
+  admin = list(
+    permissions = c(
+      permissions$set_advanced_paddock_settings,
+      permissions$view_abs_irrig_num,
+      permissions$view_abs_irrig_op_cost_pd,
+      permissions$view_abs_sugar_value_pd,
+      permissions$view_abs_net_income_pd,
+      permissions$view_abs_total_ch4_burn_pd,
+      permissions$view_abs_total_co2e_pd,
+      permissions$view_abs_total_co2_pd,
+      permissions$view_abs_total_cost_pd,
+      permissions$view_abs_total_de_nit_pd,
+      permissions$view_abs_total_energy_cost_pd,
+      permissions$view_abs_total_energy_used_pd,
+      permissions$view_abs_total_irrig_pd,
+      permissions$view_abs_total_n2_o_all_pd,
+      permissions$view_abs_total_n_loss_pd,
+      permissions$view_abs_total_no3_leach_pd,
+      permissions$view_abs_total_no3_runoff_pd,
+      permissions$view_abs_total_pump_co2e_pd,
+      permissions$view_abs_total_sediment_pd,
+      permissions$view_abs_total_water_cost_pd,
+      permissions$view_abs_total_water_energy_cost_pd,
+      permissions$view_cane_and_sucrose_yield_tab,
+      permissions$view_c_balance_tab,
+      permissions$view_yield_section,
+      permissions$view_ghg_emission_tab,
+      permissions$view_nutrition_stress_section,
+      permissions$view_lineburnt_org_c,
+      permissions$view_lineburnt_org_n,
+      permissions$view_linecanefw,
+      permissions$view_line_gpwui,
+      permissions$view_lineirrig_num,
+      permissions$view_line_nue,
+      permissions$view_linesucrose_wt,
+      permissions$view_linesurfaceom_wt,
+      permissions$view_linetotal_ch4_burn_emission,
+      permissions$view_linetotal_co2e_emission,
+      permissions$view_linetotal_co2_emission,
+      permissions$view_linetotal_drain,
+      permissions$view_linetotal_evap,
+      permissions$view_linetotal_evap_tr,
+      permissions$view_linetotal_irrig,
+      permissions$view_linetotal_n2_o,
+      permissions$view_linetotal_n2_o_burn,
+      permissions$view_linetotal_n2_o_burn_emission,
+      permissions$view_linetotal_n2_o_emission,
+      permissions$view_linetotal_ng_cane,
+      permissions$view_linetotal_nit,
+      permissions$view_linetotal_n_loss,
+      permissions$view_linetotal_no3_leach,
+      permissions$view_linetotal_no3_runoff,
+      permissions$view_linetotal_n_pol,
+      permissions$view_linetotal_de_nit,
+      permissions$view_linetotal_n_uptake,
+      permissions$view_linetotal_pump_emission,
+      permissions$view_linetotal_rain,
+      permissions$view_linetotal_runoff,
+      permissions$view_linetotal_soil_c,
+      permissions$view_linetotal_soil_inorg_n,
+      permissions$view_linetotal_soil_org_n,
+      permissions$view_linetotal_transp,
+      permissions$view_n_balance_tab,
+      permissions$view_temperature_stress_section,
+      permissions$view_productivity_tab,
+      permissions$view_rel_canefw,
+      permissions$view_rel_gpwui,
+      permissions$view_rel_nue,
+      permissions$view_rel_sucrose_wt,
+      permissions$view_water_stress_section,
+      permissions$view_water_balance_tab,
+      permissions$view_phenology_section
+    )
+  )
+)
+
+roles[['usertester']]  <- roles[['user']]
+roles[['admintester']] <- roles[['admin']]
+
+# -----------------------------------------------------------------------------
+
+has_permission <- function(role, permission) {
+  permission %in% roles[[role]]$permissions
+  return(T)
+}
+
+# -----------------------------------------------------------------------------
+
+
+
+
+
+

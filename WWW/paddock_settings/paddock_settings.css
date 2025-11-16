@@ -1,0 +1,19 @@
+.myapp-paddock-settings__title {
+  margin: 0;
+}
+
+.myapp-paddock-settings__paddock {
+  display: flex;
+  justify-content: center;
+  margin: 3px 0;
+}
+
+.myapp-paddock-settings__button {
+  display: flex;	
+  margin: 3px 0;
+  justify-content: left;
+}
+
+.myapp-paddock-settings .panel-collapse {
+  background-color: #f8f8f8;
+}

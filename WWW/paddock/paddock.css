@@ -1,0 +1,25 @@
+.myapp-paddock {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.myapp-paddock__title {
+  color: SaddleBrown;
+  font-size: 140%;
+}
+
+.myapp-paddock__content {
+  flex-grow: 1;
+  flex-shrink: 1;
+  max-width: 100%;
+}
+
+@media screen and (min-width: 768px) {
+  .myapp-paddock {
+    flex-wrap: nowrap;
+  }
+
+  .myapp-paddock__content {
+    margin-left: 15px;
+  }
+}

@@ -1,2 +1,0 @@
-# MySampleWork
-My sample work

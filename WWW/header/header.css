@@ -1,0 +1,41 @@
+.myapp-header {
+  background-image: url(/header/background-image-dark.png);
+  background-position: center;
+  background-size: cover;
+  margin-bottom: 1em;
+  padding: 45px 22px;
+}
+
+.myapp-header__title {
+  font-size: 54px !important;
+  line-height: 1;
+  margin-bottom: 0;
+}
+
+.myapp-header__link {
+  color: orange;
+}
+
+.myapp-header__link:focus,
+.myapp-header__link:hover {
+  color: #cc8500;
+}
+
+.myapp-header__subtitle {
+  color: white;
+  font-size: 20px !important;
+}
+
+@media screen and (min-width: 768px) {
+  .myapp-header {
+    padding: 72px 36px;
+  }
+
+  .myapp-header__title {
+    font-size: 94px !important;
+  }
+
+  .myapp-header__subtitle {
+    font-size: 30px !important;
+  }
+}

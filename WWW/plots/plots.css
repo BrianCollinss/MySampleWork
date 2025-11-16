@@ -1,0 +1,34 @@
+.myapp-plots__item {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  overflow: hidden;
+}
+
+.myapp-plots__item-heading {
+  border-bottom: 1px solid lightgray;
+}
+
+.myapp-plots__item-subtitlte {
+  font-size: 14px;
+  text-align: left;
+  padding-left: 40px;
+  color: #544F4F !important;
+}
+
+.myapp-plots__buttons {
+  display: inline-block; 
+  padding-right: 10px;
+  max-width: 100%;
+}
+
+.shiny-notification {
+  font-size: 16px !important;
+}
+			 
+@media only screen and (max-width: 768px) {
+  .myapp-plots__item-subtitlte {
+    font-size: 10px !important;
+	text-align: center !important;
+    padding-left: 0px !important;
+  }  
+}
