@@ -1,0 +1,201 @@
+ProductKey,ProductName,Category,Subcategory,Brand,UnitCost,UnitPrice
+1,Sports Cycling Item 1,Sports,Cycling,Pulse,451.26,633.89
+2,Sports Outdoor Item 2,Sports,Outdoor,Aurora,429.68,610.65
+3,Beauty Haircare Item 3,Beauty,Haircare,Aurora,16.05,25.46
+4,Home & Garden Bedding Item 4,Home & Garden,Bedding,Zenith,417.92,567.02
+5,Electronics Phone Item 5,Electronics,Phone,NovaTech,222.21,285.53
+6,Home & Garden Furniture Item 6,Home & Garden,Furniture,Mosaic,79.38,94.4
+7,Electronics Phone Item 7,Electronics,Phone,UrbanStyle,44.91,70.3
+8,Home & Garden Decor Item 8,Home & Garden,Decor,Skyline,37.92,48.08
+9,Electronics Tablet Item 9,Electronics,Tablet,Acme,390.32,492.64
+10,Home & Garden Furniture Item 10,Home & Garden,Furniture,Mosaic,348.81,536.88
+11,Sports Outdoor Item 11,Sports,Outdoor,Summit,445.75,581.38
+12,Fashion Menswear Item 12,Fashion,Menswear,NovaTech,59.97,95.33
+13,Home & Garden Furniture Item 13,Home & Garden,Furniture,Aurora,141.54,182
+14,Home & Garden Bedding Item 14,Home & Garden,Bedding,GreenLeaf,201.7,284.01
+15,Home & Garden Decor Item 15,Home & Garden,Decor,NovaTech,159.16,223.88
+16,Beauty Fragrance Item 16,Beauty,Fragrance,Skyline,389.58,449.35
+17,Electronics Laptop Item 17,Electronics,Laptop,Mosaic,35.7,51.4
+18,Fashion Womenswear Item 18,Fashion,Womenswear,Aurora,478.49,526.59
+19,Home & Garden Kitchen Item 19,Home & Garden,Kitchen,UrbanStyle,394.9,544.51
+20,Electronics Camera Item 20,Electronics,Camera,Skyline,343.97,471.15
+21,Home & Garden Kitchen Item 21,Home & Garden,Kitchen,Aurora,464.75,679.82
+22,Beauty Makeup Item 22,Beauty,Makeup,GreenLeaf,214.27,271.9
+23,Electronics Camera Item 23,Electronics,Camera,Skyline,31.84,38.48
+24,Beauty Skincare Item 24,Beauty,Skincare,UrbanStyle,427.82,514.44
+25,Beauty Fragrance Item 25,Beauty,Fragrance,Summit,27.13,35.34
+26,Sports Team Sports Item 26,Sports,Team Sports,Zenith,42.55,47.77
+27,Sports Cycling Item 27,Sports,Cycling,Zenith,438.12,644.66
+28,Fashion Accessories Item 28,Fashion,Accessories,Mosaic,152.83,237.13
+29,Home & Garden Decor Item 29,Home & Garden,Decor,GreenLeaf,456.52,696.27
+30,Electronics Phone Item 30,Electronics,Phone,NovaTech,97.46,121.32
+31,Home & Garden Furniture Item 31,Home & Garden,Furniture,Skyline,326,461.68
+32,Fashion Womenswear Item 32,Fashion,Womenswear,Aurora,277.67,329.96
+33,Sports Team Sports Item 33,Sports,Team Sports,UrbanStyle,301.9,446.95
+34,Home & Garden Furniture Item 34,Home & Garden,Furniture,Zenith,155.63,235.31
+35,Electronics Camera Item 35,Electronics,Camera,Summit,140.94,211.37
+36,Sports Fitness Item 36,Sports,Fitness,GreenLeaf,85.03,126.26
+37,Sports Cycling Item 37,Sports,Cycling,Skyline,320.03,468.65
+38,Home & Garden Decor Item 38,Home & Garden,Decor,GreenLeaf,95.51,135.34
+39,Sports Cycling Item 39,Sports,Cycling,UrbanStyle,169.54,221.37
+40,Fashion Menswear Item 40,Fashion,Menswear,UrbanStyle,168.75,220.53
+41,Home & Garden Kitchen Item 41,Home & Garden,Kitchen,Pulse,489.95,645.44
+42,Sports Cycling Item 42,Sports,Cycling,Aurora,221.63,288.05
+43,Home & Garden Furniture Item 43,Home & Garden,Furniture,Pulse,170.03,249.35
+44,Beauty Haircare Item 44,Beauty,Haircare,Pulse,397.9,563.82
+45,Beauty Skincare Item 45,Beauty,Skincare,Mosaic,10.42,13.15
+46,Sports Fitness Item 46,Sports,Fitness,NovaTech,197.74,251.03
+47,Fashion Accessories Item 47,Fashion,Accessories,Mosaic,348.81,461.74
+48,Sports Team Sports Item 48,Sports,Team Sports,UrbanStyle,393.5,490.94
+49,Home & Garden Furniture Item 49,Home & Garden,Furniture,UrbanStyle,61.13,81.41
+50,Electronics Headphones Item 50,Electronics,Headphones,Mosaic,467.84,732.04
+51,Fashion Footwear Item 51,Fashion,Footwear,Aurora,399.39,450.57
+52,Home & Garden Decor Item 52,Home & Garden,Decor,Summit,227.36,266.36
+53,Beauty Skincare Item 53,Beauty,Skincare,GreenLeaf,39.91,56.49
+54,Sports Team Sports Item 54,Sports,Team Sports,Aurora,364.87,430.19
+55,Beauty Makeup Item 55,Beauty,Makeup,UrbanStyle,204.97,298.81
+56,Electronics Phone Item 56,Electronics,Phone,UrbanStyle,277.59,325.94
+57,Beauty Fragrance Item 57,Beauty,Fragrance,Zenith,329.42,440.71
+58,Beauty Fragrance Item 58,Beauty,Fragrance,Aurora,343.77,426.28
+59,Sports Outdoor Item 59,Sports,Outdoor,Summit,216.69,342.75
+60,Fashion Accessories Item 60,Fashion,Accessories,NovaTech,417.36,608.55
+61,Beauty Fragrance Item 61,Beauty,Fragrance,Mosaic,22.63,29.76
+62,Beauty Fragrance Item 62,Beauty,Fragrance,Aurora,493.22,636.61
+63,Sports Team Sports Item 63,Sports,Team Sports,GreenLeaf,47.58,69.44
+64,Beauty Haircare Item 64,Beauty,Haircare,Summit,170.2,208.47
+65,Fashion Womenswear Item 65,Fashion,Womenswear,Zenith,106.8,155.01
+66,Sports Team Sports Item 66,Sports,Team Sports,Mosaic,428.62,550.19
+67,Fashion Menswear Item 67,Fashion,Menswear,Mosaic,474.45,707.81
+68,Sports Outdoor Item 68,Sports,Outdoor,Skyline,68.09,97.76
+69,Electronics Headphones Item 69,Electronics,Headphones,Summit,230.31,329.57
+70,Home & Garden Garden Item 70,Home & Garden,Garden,Mosaic,238.51,297.05
+71,Electronics Headphones Item 71,Electronics,Headphones,Pulse,450.49,591.07
+72,Fashion Womenswear Item 72,Fashion,Womenswear,GreenLeaf,65.63,100.64
+73,Home & Garden Furniture Item 73,Home & Garden,Furniture,Aurora,289.9,422.3
+74,Home & Garden Kitchen Item 74,Home & Garden,Kitchen,Summit,451.29,565.34
+75,Sports Cycling Item 75,Sports,Cycling,GreenLeaf,162.19,227.07
+76,Fashion Menswear Item 76,Fashion,Menswear,Acme,169.01,217.67
+77,Sports Team Sports Item 77,Sports,Team Sports,GreenLeaf,436.42,610.17
+78,Home & Garden Bedding Item 78,Home & Garden,Bedding,Mosaic,171.05,241.86
+79,Sports Cycling Item 79,Sports,Cycling,Pulse,71.59,106.11
+80,Electronics Camera Item 80,Electronics,Camera,Acme,184.55,221.45
+81,Sports Team Sports Item 81,Sports,Team Sports,Zenith,466.04,694.44
+82,Electronics Phone Item 82,Electronics,Phone,NovaTech,438.84,530.12
+83,Home & Garden Bedding Item 83,Home & Garden,Bedding,GreenLeaf,411.91,555.37
+84,Electronics Laptop Item 84,Electronics,Laptop,UrbanStyle,20.67,29.75
+85,Fashion Menswear Item 85,Fashion,Menswear,Zenith,319.31,406.89
+86,Fashion Accessories Item 86,Fashion,Accessories,Pulse,392.65,439.77
+87,Electronics Headphones Item 87,Electronics,Headphones,Aurora,361.45,561.68
+88,Fashion Menswear Item 88,Fashion,Menswear,Summit,101.04,115.85
+89,Home & Garden Bedding Item 89,Home & Garden,Bedding,Zenith,294.53,400.73
+90,Sports Fitness Item 90,Sports,Fitness,Aurora,212.76,321.86
+91,Home & Garden Furniture Item 91,Home & Garden,Furniture,Pulse,170.44,217.59
+92,Fashion Accessories Item 92,Fashion,Accessories,Aurora,216.21,297.13
+93,Electronics Laptop Item 93,Electronics,Laptop,Skyline,189.14,224.33
+94,Fashion Womenswear Item 94,Fashion,Womenswear,Zenith,436.65,538.39
+95,Electronics Camera Item 95,Electronics,Camera,NovaTech,143.76,201.72
+96,Electronics Laptop Item 96,Electronics,Laptop,UrbanStyle,202.73,287.11
+97,Home & Garden Kitchen Item 97,Home & Garden,Kitchen,Acme,447.21,637.43
+98,Fashion Menswear Item 98,Fashion,Menswear,NovaTech,413.3,643.66
+99,Fashion Womenswear Item 99,Fashion,Womenswear,Summit,365.53,425.4
+100,Home & Garden Decor Item 100,Home & Garden,Decor,Skyline,225.52,336.9
+101,Electronics Camera Item 101,Electronics,Camera,Aurora,233.79,267.54
+102,Beauty Makeup Item 102,Beauty,Makeup,UrbanStyle,245.41,344.3
+103,Home & Garden Furniture Item 103,Home & Garden,Furniture,Acme,72.42,100.41
+104,Beauty Fragrance Item 104,Beauty,Fragrance,Zenith,150.18,212.81
+105,Sports Team Sports Item 105,Sports,Team Sports,Pulse,316.48,380.79
+106,Electronics Laptop Item 106,Electronics,Laptop,Mosaic,347.26,464.43
+107,Sports Fitness Item 107,Sports,Fitness,UrbanStyle,86.97,135.29
+108,Electronics Headphones Item 108,Electronics,Headphones,Skyline,402.04,475.03
+109,Home & Garden Decor Item 109,Home & Garden,Decor,Aurora,106.64,124.45
+110,Beauty Haircare Item 110,Beauty,Haircare,Acme,274.26,404.66
+111,Home & Garden Decor Item 111,Home & Garden,Decor,Mosaic,489.84,553.69
+112,Beauty Haircare Item 112,Beauty,Haircare,Pulse,214.34,283.91
+113,Electronics Phone Item 113,Electronics,Phone,Skyline,49.87,66.63
+114,Beauty Skincare Item 114,Beauty,Skincare,GreenLeaf,93.21,106.26
+115,Electronics Headphones Item 115,Electronics,Headphones,Aurora,102.42,147.5
+116,Fashion Accessories Item 116,Fashion,Accessories,Skyline,24.21,29.95
+117,Fashion Menswear Item 117,Fashion,Menswear,NovaTech,147.54,203.77
+118,Home & Garden Decor Item 118,Home & Garden,Decor,NovaTech,188.35,240.15
+119,Electronics Headphones Item 119,Electronics,Headphones,NovaTech,145.08,192.37
+120,Electronics Camera Item 120,Electronics,Camera,Summit,68.48,101.47
+121,Fashion Accessories Item 121,Fashion,Accessories,Acme,73.79,105.06
+122,Sports Fitness Item 122,Sports,Fitness,Pulse,437.34,671.35
+123,Home & Garden Garden Item 123,Home & Garden,Garden,UrbanStyle,218.52,264.53
+124,Sports Team Sports Item 124,Sports,Team Sports,Mosaic,59.12,69.19
+125,Home & Garden Bedding Item 125,Home & Garden,Bedding,Skyline,83.32,116.22
+126,Sports Team Sports Item 126,Sports,Team Sports,Aurora,446.49,653.09
+127,Fashion Menswear Item 127,Fashion,Menswear,Skyline,456.04,547.75
+128,Beauty Makeup Item 128,Beauty,Makeup,UrbanStyle,422.74,591.02
+129,Sports Team Sports Item 129,Sports,Team Sports,Mosaic,279.08,336.38
+130,Home & Garden Furniture Item 130,Home & Garden,Furniture,Skyline,139.79,171.1
+131,Fashion Womenswear Item 131,Fashion,Womenswear,Mosaic,404.25,554.33
+132,Sports Team Sports Item 132,Sports,Team Sports,GreenLeaf,42.55,51.77
+133,Fashion Menswear Item 133,Fashion,Menswear,Pulse,49.17,70.31
+134,Fashion Menswear Item 134,Fashion,Menswear,Pulse,146.37,169.13
+135,Home & Garden Garden Item 135,Home & Garden,Garden,Zenith,252.17,301.65
+136,Fashion Menswear Item 136,Fashion,Menswear,Acme,429.46,646.48
+137,Sports Outdoor Item 137,Sports,Outdoor,Aurora,356.59,403.02
+138,Beauty Makeup Item 138,Beauty,Makeup,Acme,213.73,308
+139,Fashion Accessories Item 139,Fashion,Accessories,Acme,274.15,322.45
+140,Beauty Haircare Item 140,Beauty,Haircare,Acme,80.2,94.22
+141,Sports Fitness Item 141,Sports,Fitness,NovaTech,258.44,287.22
+142,Beauty Skincare Item 142,Beauty,Skincare,Pulse,65.14,83.37
+143,Sports Cycling Item 143,Sports,Cycling,Zenith,83.75,115.21
+144,Home & Garden Furniture Item 144,Home & Garden,Furniture,Skyline,449.68,528.48
+145,Sports Outdoor Item 145,Sports,Outdoor,Aurora,139.74,204.06
+146,Sports Fitness Item 146,Sports,Fitness,Pulse,377.69,517.9
+147,Fashion Footwear Item 147,Fashion,Footwear,GreenLeaf,177.96,281.55
+148,Home & Garden Decor Item 148,Home & Garden,Decor,NovaTech,321.47,505.7
+149,Electronics Phone Item 149,Electronics,Phone,UrbanStyle,113.47,135.34
+150,Electronics Tablet Item 150,Electronics,Tablet,Pulse,363.84,488.53
+151,Electronics Phone Item 151,Electronics,Phone,GreenLeaf,390.98,492.3
+152,Beauty Fragrance Item 152,Beauty,Fragrance,Acme,480.25,726.69
+153,Fashion Menswear Item 153,Fashion,Menswear,Summit,480.77,638.66
+154,Fashion Womenswear Item 154,Fashion,Womenswear,Pulse,238.38,377.79
+155,Electronics Tablet Item 155,Electronics,Tablet,Summit,453.83,633.98
+156,Electronics Phone Item 156,Electronics,Phone,Skyline,340.39,542.73
+157,Beauty Makeup Item 157,Beauty,Makeup,GreenLeaf,335.26,404.38
+158,Sports Cycling Item 158,Sports,Cycling,Skyline,329.04,377.54
+159,Home & Garden Furniture Item 159,Home & Garden,Furniture,GreenLeaf,231.93,350.63
+160,Fashion Menswear Item 160,Fashion,Menswear,Acme,261.92,325.15
+161,Electronics Laptop Item 161,Electronics,Laptop,Aurora,361.67,461.51
+162,Sports Outdoor Item 162,Sports,Outdoor,NovaTech,207.64,297.43
+163,Electronics Camera Item 163,Electronics,Camera,Summit,115.43,175.33
+164,Beauty Skincare Item 164,Beauty,Skincare,Zenith,212.03,306.85
+165,Fashion Womenswear Item 165,Fashion,Womenswear,Mosaic,306.19,344.71
+166,Sports Outdoor Item 166,Sports,Outdoor,UrbanStyle,239.45,322.48
+167,Electronics Tablet Item 167,Electronics,Tablet,Aurora,287.39,378.72
+168,Fashion Menswear Item 168,Fashion,Menswear,Summit,207.01,321.29
+169,Electronics Camera Item 169,Electronics,Camera,UrbanStyle,14.66,20.78
+170,Sports Team Sports Item 170,Sports,Team Sports,Aurora,106.64,131.7
+171,Sports Outdoor Item 171,Sports,Outdoor,Pulse,485.82,610.02
+172,Fashion Menswear Item 172,Fashion,Menswear,Summit,354.75,472.56
+173,Sports Fitness Item 173,Sports,Fitness,UrbanStyle,54.84,68.99
+174,Sports Cycling Item 174,Sports,Cycling,Mosaic,342.16,502.2
+175,Home & Garden Kitchen Item 175,Home & Garden,Kitchen,Acme,12.12,14.92
+176,Beauty Makeup Item 176,Beauty,Makeup,Aurora,136.95,206.27
+177,Beauty Skincare Item 177,Beauty,Skincare,Pulse,254.93,349.41
+178,Electronics Laptop Item 178,Electronics,Laptop,Summit,150.1,237.39
+179,Fashion Footwear Item 179,Fashion,Footwear,Aurora,275.96,427.26
+180,Sports Outdoor Item 180,Sports,Outdoor,Acme,323.66,432.4
+181,Home & Garden Bedding Item 181,Home & Garden,Bedding,UrbanStyle,253.44,298.15
+182,Home & Garden Furniture Item 182,Home & Garden,Furniture,Skyline,377.85,462.75
+183,Fashion Menswear Item 183,Fashion,Menswear,Summit,282.39,375.66
+184,Home & Garden Decor Item 184,Home & Garden,Decor,Acme,435.43,606.1
+185,Electronics Tablet Item 185,Electronics,Tablet,NovaTech,67.83,85.29
+186,Home & Garden Furniture Item 186,Home & Garden,Furniture,Mosaic,409.31,494.27
+187,Fashion Accessories Item 187,Fashion,Accessories,UrbanStyle,364.39,568.66
+188,Beauty Skincare Item 188,Beauty,Skincare,Zenith,484.15,735.26
+189,Fashion Womenswear Item 189,Fashion,Womenswear,GreenLeaf,458.99,728.21
+190,Fashion Footwear Item 190,Fashion,Footwear,NovaTech,66.57,77.76
+191,Beauty Skincare Item 191,Beauty,Skincare,Pulse,108.4,156.73
+192,Beauty Skincare Item 192,Beauty,Skincare,Acme,331.26,527.84
+193,Beauty Makeup Item 193,Beauty,Makeup,Pulse,313.87,427.88
+194,Beauty Makeup Item 194,Beauty,Makeup,NovaTech,491.71,741.56
+195,Fashion Menswear Item 195,Fashion,Menswear,Summit,202.68,315.59
+196,Beauty Fragrance Item 196,Beauty,Fragrance,Skyline,484.04,615.69
+197,Beauty Skincare Item 197,Beauty,Skincare,Aurora,243.12,306.6
+198,Home & Garden Furniture Item 198,Home & Garden,Furniture,Pulse,161.79,193.63
+199,Beauty Makeup Item 199,Beauty,Makeup,Zenith,419.34,561.36
+200,Home & Garden Garden Item 200,Home & Garden,Garden,Acme,301.97,455.59

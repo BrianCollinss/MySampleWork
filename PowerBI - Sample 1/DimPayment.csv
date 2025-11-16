@@ -1,0 +1,6 @@
+PaymentKey,PaymentMethod,PaymentProvider,IsOnlinePayment,IsBuyNowPayLater
+1,Credit Card,Amex,TRUE,FALSE
+2,Debit Card,Mastercard Debit,TRUE,FALSE
+3,PayPal,PayPal,TRUE,FALSE
+4,Bank Transfer,Direct Deposit,FALSE,FALSE
+5,Buy Now Pay Later,Klarna,TRUE,TRUE

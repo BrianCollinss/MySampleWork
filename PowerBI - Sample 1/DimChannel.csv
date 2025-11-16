@@ -1,0 +1,5 @@
+ChannelKey,ChannelName,OnlineFlag
+1,Online Store,TRUE
+2,Mobile App,TRUE
+3,Marketplace,TRUE
+4,In-store Pickup,FALSE
