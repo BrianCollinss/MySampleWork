@@ -1,4 +1,4 @@
-<h2><strong>Paper Title:</strong> Envirotyping facilitates understanding of genotype × environment interactions and highlights the potential of stay-green traits in wheat</h2>
+<h2><strong>Paper Title:</strong> A novel approach to accelerate ideotyping using model-aided envirotyping</h2>
 
 <div align="center">
 <img src="Fig13.png" alt="Fig 13. Values of the selected cultivar parameters vs simulated nominal weighted average yield" width="900">
