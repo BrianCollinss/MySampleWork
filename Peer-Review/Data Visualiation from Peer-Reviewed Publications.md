@@ -38,6 +38,14 @@
 <p><strong>Caption:</strong> Impacts of heat-shock on grain number, individual grain weight and grain yield (a), the frequency of impacts >10% (b), and grain yield and heat-shock induced yield loss (c) in four regions (East, South-East, South and West) and the whole Australian wheatbelt over the period from 1985 to 2017 for the mid-maturing cultivar Janz and nine sowing dates. For the boxplots, the middle line of the box represents the median; the upper and lower edges represent the 75th and 25th percentiles and the whiskers show the 10th and 90th percentiles. Black points correspond to the averages.</p>
 </div>
 
+<br><hr>
+<h2><strong>Paper Title:</strong> Contribution of climate models and APSIM phenological parameters to uncertainties in spring wheat simulations: Application of SUFI-­2 algorithm in northeast Australia</h2>
+
+<div align="center">
+<img src="Fig8.png" alt="Fig 8. APSIM-­wheat calibration results" width="700">
+<p><strong>Caption:</strong> APSIM-­wheat calibration results with the SUFI-­2 M algorithm across three locations in northeast Australia (south-­eastern Queensland): (a) calibration for the 10 selected spring wheat cultivars; (b) uncertainty ranges in the simulated phenology along with the observed phenology for all the individual replications. Data were averaged across replications in panel (a). RMSE is the root mean square error, MAE is the mean absolute error and N is the number of data points. Observations included Zadoks growth stages from stem elongation (Z31) up to flowering (Z65). ‘Inside’ and ‘outside’ refer to the 95% prediction uncertainties (95PPU) range and whether the observed values fell within this range or not.</p>
+</div>
+
 
 
 
