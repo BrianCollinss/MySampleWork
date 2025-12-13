@@ -46,6 +46,18 @@
 <p><strong>Caption:</strong> APSIM-­wheat calibration results with the SUFI-­2 M algorithm across three locations in northeast Australia (south-­eastern Queensland): (a) calibration for the 10 selected spring wheat cultivars; (b) uncertainty ranges in the simulated phenology along with the observed phenology for all the individual replications. Data were averaged across replications in panel (a). RMSE is the root mean square error, MAE is the mean absolute error and N is the number of data points. Observations included Zadoks growth stages from stem elongation (Z31) up to flowering (Z65). ‘Inside’ and ‘outside’ refer to the 95% prediction uncertainties (95PPU) range and whether the observed values fell within this range or not.</p>
 </div>
 
+<br><hr>
+<h2><strong>Paper Title:</strong> Frequency of compound hot–­dry weather extremes has significantly increased in Australia since 1889</h2>
+
+<div align="center">
+<img src="Fig9.png" alt="Fig 9. Trends in return periods of annual hot and compound hot-­and-­dry extreme events" width="900">
+<p><strong>Caption:</strong> Trends in return periods of annual hot (a, d), dry (b, e) and compound hot-­and-­dry (CHD; c, f) extreme events over 1889–1989 and 1990–­2019. Dots show significant trends (p < 0.05).</p>
+
+<img src="Fig10.png" alt="Fig 10. Area affected by annual hot, dry and compound hot-­and-­dry (CHD) extreme events" width="900">
+<p><strong>Caption:</strong> Area affected by annual hot, dry and compound hot-­and-­dry (CHD) extreme events over 1889–­2019. ns: not significant, *p < .05, **p < .01, ***p <.001. Dotted lines signify the long-­term average area affected by each type of extremes. In some panels, the long-­term average lines of hot and dry extremes overlap.</p>  
+</div>
+
+
 
 
 
