@@ -1,3 +1,14 @@
+<h2><strong>Paper Title:</strong> Envirotyping facilitates understanding of genotype × environment interactions and highlights the potential of stay-green traits in wheat</h2>
+
+<div align="center">
+<img src="Fig13.png" alt="Fig 13. Values of the selected cultivar parameters vs simulated nominal weighted average yield" width="900">
+<p><strong>Caption:</strong> Values of the selected cultivar parameters vs simulated nominal weighted average yield (NWAY) for the ideotyping scenarios ‘Optim-Global’. Each point indicates the value of a corresponding parameter from a single run among 200,000 simulations performed during the optimisation process. Parameter values were normalised using the pre-defined ranges so that they range between 0 and 1, with 0 designated as ‘Low’, 0.5 as ‘Mid’, and 1 as ‘High’. Cultivar parameters are ranked according to their main effect (ME) in the ‘Optim-Global’ scenario. Simulated grain yields are categorised into three groups based on yield quantiles: 10-75th, 7595th, and above the 95th quantile. The lowest 10% of simulated yields are excluded.</p>
+<br>
+<img src="Fig12.png" alt="Fig 12. Main effect (ME) and total effect (TE) of selected cultivar parameters contributing to simulated crop yield variance" width="900">
+<p><strong>Caption:</strong> Main effect (ME) and total effect (TE) of selected cultivar parameters (Table 2) contributing to simulated crop yield variance for the ideotyping scenarios ‘Optim-Global’, ‘Optim-ET3+’, and ‘Optim-LocationX’. In the ‘Optim- LocationX’ scenarios, optimisation was conducted separately for each of the six locations. Locations are arranged according to latitude. Cultivar parameters are ranked according to their main effect (ME) in the ‘Optim-Global’ scenario. The ME of ‘Residuals’ is not shown.</p>
+</div>
+
+<br><hr>
 <h2><strong>Paper Title:</strong> Evaluating the impact of weather forecasts on productivity and environmental footprint of irrigated maize production systems</h2>
 
 <div align="center">
