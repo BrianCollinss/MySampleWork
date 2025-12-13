@@ -10,7 +10,7 @@
 <p><strong>Caption:</strong> Occurrence probabilities of the four main Environment Types (ETs) over time for Spain (A) and France (B).</p>
 </div>
 
-<hr>
+<br><hr>
 <h2><strong>Paper Title:</strong> Investigating climate change over 1957–2016 in an arid environment with three drought indexes</h2>
 
 <div align="center">
@@ -22,3 +22,14 @@
 <img src="Fig4.png" alt="Fig 4. Area fractions with significant trends for SPI, DMAI, SPEI" width="700">
 <p><strong>Caption:</strong> The portion of the grid cells (i.e., Iran’s total area) where significant trends were detected in the annual, seasonal, and monthly time series of the SPI, DMAI, and SPEI at two confidence levels of 90 and 95%.</p>
 </div>
+
+<br><hr>
+<h2><strong>Paper Title:</strong> Spatio-Temporal Variations of Seven Weather Variables in Iran: Application of CRU TS and GPCC Data Sets</h2>
+
+<div align="center">
+<img src="Fig5.png" alt="Fig 5. Linear trends over the periods 1901–1956, 1957–1986 and 1987–2016" width="700">
+<p><strong>Caption:</strong> Linear trends over the periods 1901–1956, 1957–1986 and 1987–2016 in national annual averages of frost day frequency (FRS), vapour pressure (VAP), cloud cover (CLD) and total potential evapotranspiration (PET). The magnitude of trends was estimated with the Theil–Sen approach after the trend-free pre-whitening (TFPW) procedure was applied.</p>
+</div>
+
+
+
