@@ -10,6 +10,7 @@
 <p><strong>Caption:</strong> Occurrence probabilities of the four main Environment Types (ETs) over time for Spain (A) and France (B).</p>
 </div>
 
+
 ## Paper Title: Investigating climate change over 1957–2016 in an arid environment with three drought indexes
 
 <div align="center">
