@@ -1,4 +1,4 @@
-## Poster Title: Typology of Drought Stress Scenarios at European Level for Wheat
+<h2><strong>Poster Title:</strong> Poster Title: Typology of Drought Stress Scenarios at European Level for Wheat</h2>
 
 <div align="center">
 <img src="Fig1.png" alt="Fig 1. Spatial variability of ET occurrence probabilities" width="700">
@@ -10,8 +10,8 @@
 <p><strong>Caption:</strong> Occurrence probabilities of the four main Environment Types (ETs) over time for Spain (A) and France (B).</p>
 </div>
 
-## 
-## Paper Title: Investigating climate change over 1957–2016 in an arid environment with three drought indexes
+<hr>
+<h2><strong>Paper Title:</strong> Investigating climate change over 1957–2016 in an arid environment with three drought indexes</h2>
 
 <div align="center">
 <img src="Fig3.png" alt="Fig 3. Seasonal DMAI trends across two periods" width="700">
