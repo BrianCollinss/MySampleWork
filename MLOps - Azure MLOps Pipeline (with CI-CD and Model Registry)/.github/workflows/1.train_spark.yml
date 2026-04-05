@@ -1,0 +1,32 @@
+name: train-spark-pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "src/*spark*"
+      - "components/*spark*"
+      - "pipeline/pipeline_spark.yml"
+      - "scripts/2.submit_pipeline_spark.py"
+
+jobs:
+  train_spark:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Azure ML SDK
+        run: |
+          pip install azure-ai-ml azure-identity
+
+      - name: Submit Spark Pipeline
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: python scripts/2.submit_pipeline_spark.py

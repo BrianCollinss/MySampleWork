@@ -1,0 +1,25 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: batch_score_spark_model
+display_name: Batch Score Spark MLlib Model
+type: command
+
+inputs:
+  model_dir:
+    type: uri_folder
+  input_data:
+    type: uri_file
+
+outputs:
+  scored_output:
+    type: uri_folder
+
+code: ../src
+
+command: >-
+  python 2.1.deploy_spark_batch.py
+  --model_dir ${{inputs.model_dir}}
+  --input_data ${{inputs.input_data}}
+  --output_dir ${{outputs.scored_output}}
+
+environment: azureml:spark-py-3.3:1
+compute: azureml:spark-cluster

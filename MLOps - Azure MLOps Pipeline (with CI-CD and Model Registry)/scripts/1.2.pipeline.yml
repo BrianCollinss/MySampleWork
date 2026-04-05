@@ -1,0 +1,75 @@
+# Azure ML Pipeline Definition
+#
+# This pipeline orchestrates an end-to-end house price model workflow in Azure
+# Machine Learning, covering training, evaluation and model registration.
+# It accepts a processed input dataset along with model and workspace parameters,
+# then executes three dependent command jobs in sequence.
+#
+# Workflow:
+# 1. train_job trains a regression model using the supplied input data and
+#    target column, then outputs the trained model artefacts.
+# 2. eval_job evaluates the trained model against the same processed dataset
+#    and writes evaluation outputs such as metrics and validation results.
+# 3. register_job registers the validated model in Azure ML using the supplied
+#    workspace details and model naming configuration.
+#
+# Purpose:
+# Provides a reusable, parameterised Azure ML pipeline for standardised model
+# training and registration, enabling consistent execution across environments
+# and supporting downstream CI/CD and MLOps workflows.
+#
+# Inputs:
+# - input_data: path to the processed dataset
+# - target_column: prediction target used during training
+# - model_name: registered model name in Azure ML
+# - is_mlflow: flag indicating whether MLflow-based registration is used
+#
+# Outputs:
+# - model artefacts from training
+# - evaluation artefacts from validation
+# - registration output confirming model registration step
+
+
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+display_name: House Price Training and Evaluation
+experiment_name: house-price-experiment
+
+inputs:
+  input_data:
+    type: uri_file
+  target_column:
+    type: string
+    default: price
+  model_name:
+    type: string
+    default: house-price-regression
+  is_mlflow:
+    type: string
+    default: "false"
+
+outputs:
+  trained_model:
+    type: uri_folder
+  eval_results:
+    type: uri_folder
+
+jobs:
+  train_job:
+    type: command
+    component: 1.3.train.yml
+    inputs:
+      input_data: ${{parent.inputs.input_data}}
+      target_column: ${{parent.inputs.target_column}}
+    outputs:
+      train_output_dir: ${{parent.outputs.trained_model}}
+
+  eval_job:
+    type: command
+    component: 1.5.evaluate.yml
+    inputs:
+      train_output_dir: ${{jobs.train_job.outputs.train_output_dir}}
+      input_data: ${{parent.inputs.input_data}}
+      target_column: ${{parent.inputs.target_column}}
+    outputs:
+      eval_output_dir: ${{parent.outputs.eval_results}}

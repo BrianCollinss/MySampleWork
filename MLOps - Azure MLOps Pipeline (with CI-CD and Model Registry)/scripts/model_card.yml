@@ -1,0 +1,30 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: generate_model_card
+display_name: Generate Model Card with Azure OpenAI
+type: command
+
+inputs:
+  metadata_path:
+    type: uri_file
+  openai_endpoint:
+    type: string
+  openai_deployment:
+    type: string
+  openai_api_key:
+    type: string
+
+outputs:
+  model_card_output:
+    type: uri_folder
+
+code: ../src
+
+command: >-
+  python model_card.py
+  --metadata_path ${{inputs.metadata_path}}
+  --openai_endpoint ${{inputs.openai_endpoint}}
+  --openai_deployment ${{inputs.openai_deployment}}
+  --openai_api_key ${{inputs.openai_api_key}}
+  --output_dir ${{outputs.model_card_output}}
+
+environment: azureml:python-3.11-ubuntu:1

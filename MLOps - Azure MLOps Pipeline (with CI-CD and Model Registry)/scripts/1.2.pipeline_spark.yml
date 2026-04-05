@@ -1,0 +1,61 @@
+# Azure ML Spark-Based Training Pipeline
+#
+# This pipeline orchestrates a distributed machine learning workflow using
+# Spark compute in Azure Machine Learning. It trains and evaluates a model
+# using a processed dataset stored in external storage.
+#
+# Workflow:
+# 1. train_job – executes a Spark-based training component that reads the
+#    input dataset, trains a model and outputs the trained model artefacts.
+# 2. eval_spark – evaluates the trained model using the same dataset and
+#    produces evaluation results such as performance metrics.
+#
+# The pipeline exposes the trained model and evaluation outputs as pipeline
+# outputs, enabling downstream processes such as model registration,
+# validation pipelines or deployment workflows in an MLOps environment.
+#
+# Inputs:
+# - input_data: path to the processed dataset
+# - target_column: column used as the prediction target
+#
+# Outputs:
+# - trained_model: directory containing trained model artefacts
+# - eval_results: directory containing evaluation metrics and validation outputs
+
+
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+
+inputs:
+  input_data:
+    type: uri_file
+  target_column:
+    type: string
+    default: price
+
+outputs:
+  trained_model:
+    type: uri_folder
+  eval_results:
+    type: uri_folder
+
+jobs:
+  train_job:
+    type: command
+    component: 1.3.train_spark.yml
+    compute: azureml:spark-cluster
+    inputs:
+      input_data: ${{parent.inputs.input_data}}
+      target_column: ${{parent.inputs.target_column}}
+    outputs:
+      train_output_dir:
+
+  eval_spark:
+    type: command
+    component: 1.5.evaluate_spark.yml
+    inputs:
+      model_dir: ${{jobs.train_spark.outputs.model_output}}
+      input_data: ${{parent.inputs.input_data}}
+      target_column: ${{parent.inputs.target_column}}
+    outputs:
+      eval_output: ${{parent.outputs.eval_results}}

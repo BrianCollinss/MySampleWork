@@ -1,0 +1,56 @@
+# GitHub Actions Workflow: Promote Azure ML Deployment
+#
+# This workflow promotes a model deployment within an Azure Machine Learning
+# online endpoint by redirecting 100% of endpoint traffic from one deployment
+# to another, typically from staging to production.
+
+name: promote-model
+
+on:
+  workflow_dispatch:
+  
+    inputs:
+      endpoint_name:
+        description: "Endpoint name"
+        required: true
+        default: "house-price-endpoint"
+      from_deployment:
+        description: "Source deployment (staging)"
+        required: true
+        default: "staging"
+      to_deployment:
+        description: "Target deployment (production)"
+        required: true
+        default: "production"
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    env:
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AZURE_ML_WORKSPACE: ${{ vars.AZURE_ML_WORKSPACE }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Azure ML SDK
+        run: |
+          python -m pip install --upgrade pip
+          pip install azure-ai-ml azure-identity
+
+      - name: Promote deployment
+        run: |
+          python scripts/3.1.promote.py \
+            --endpoint_name "${{ github.event.inputs.endpoint_name }}" \
+            --from_deployment "${{ github.event.inputs.from_deployment }}" \
+            --to_deployment "${{ github.event.inputs.to_deployment }}"
