@@ -30,6 +30,6 @@ A Streamlit-based GenAI application for researching news articles using OpenAI, 
 Run `pytest` in the root directory.
 
 ## License
-All rights reserved.
-
-This project is proprietary to Dr Brian Collins. See the `LICENSE` file for details.
+- All rights reserved.
+- This project is proprietary to Dr Brian Collins.
+- See the `LICENSE` file for details.
