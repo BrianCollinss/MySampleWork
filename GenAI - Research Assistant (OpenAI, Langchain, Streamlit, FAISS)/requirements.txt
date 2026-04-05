@@ -1,0 +1,12 @@
+streamlit==1.28.1
+requests==2.31.0
+beautifulsoup4==4.12.2
+python-dotenv==1.0.0
+langchain==0.1.0
+langchain-openai==0.0.5
+langchain-community==0.0.13
+faiss-cpu==1.7.4
+openai==1.10.0
+tiktoken==0.5.2
+httpx<0.28
+pytest==7.4.0

@@ -1,4 +1,18 @@
 {
     "python-envs.defaultEnvManager": "ms-python.python:conda",
-    "python-envs.defaultPackageManager": "ms-python.python:conda"
+    "python-envs.defaultPackageManager": "ms-python.python:conda",
+    "chat.tools.terminal.autoApprove": {
+        "/^cd \"c:\\\\Users\\\\brcol\\\\My Drive\\\\Documents\\\\!!!Resume\\\\Sample Work\\\\GenAI - Research Assistant \\(OpenAI, Langchain, Streamlit, FAISS\\)\" ; conda activate restool ; python -c \"from src\\.rockybot\\.app import main; print\\('Import successful'\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd \"c:\\\\Users\\\\brcol\\\\My Drive\\\\Documents\\\\!!!Resume\\\\Sample Work\\\\GenAI - Research Assistant \\(OpenAI, Langchain, Streamlit, FAISS\\)\" ; conda activate restool ; python - <<'PY'\nfrom langchain_openai import OpenAIEmbeddings\nprint\\('langchain_openai version:', __import__\\('langchain_openai'\\)\\.__version__\\)\nprint\\('openai version:', __import__\\('openai'\\)\\.__version__\\)\ntry:\n    emb = OpenAIEmbeddings\\(model='text-embedding-3-small'\\)\n    print\\('OpenAIEmbeddings created', emb\\)\nexcept Exception as e:\n    import traceback; traceback\\.print_exc\\(\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd \"c:\\\\Users\\\\brcol\\\\My Drive\\\\Documents\\\\!!!Resume\\\\Sample Work\\\\GenAI - Research Assistant \\(OpenAI, Langchain, Streamlit, FAISS\\)\"; conda activate restool; python -c \"import langchain_openai, openai; print\\('langchain_openai', langchain_openai\\.__version__\\); print\\('openai', openai\\.__version__\\); from langchain_openai import OpenAIEmbeddings; print\\(OpenAIEmbeddings\\(model='text-embedding-3-small'\\)\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
 }
