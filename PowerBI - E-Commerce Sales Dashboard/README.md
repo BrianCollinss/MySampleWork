@@ -1,8 +1,8 @@
-# Power BI Sample 1
+# Power BI E-Commerce Sales Dashboard
 
 ## Overview
 
-This project is a self-contained Power BI analytics sample built on top of a synthetic e-commerce star schema. It includes a Power BI Desktop file, an R script that generates the dummy data, and the exported dimension and fact CSV files used by the report.
+This project is a self-contained Power BI analytics sample built on top of a synthetic e-commerce star schema. It includes a Power BI Desktop dashboard, an R script that generates the dummy data, and the exported dimension and fact CSV files used by the report.
 
 ## Demo Context
 
@@ -45,6 +45,16 @@ README.md
 - The dimensions cover channel, city, customer, date, payment, product, and promotion.
 - `FactSales.csv` contains the transactional fact table used by the Power BI model.
 - `Sample 1.pbix` is the report file built on top of those datasets.
+
+## Screenshots
+
+### Overview Page
+
+![Overview dashboard page](./Screenshots/1.%20First%20Page.png)
+
+### Detail Page
+
+![Detail dashboard page](./Screenshots/2.%20Second%20Page.png)
 
 ## Notes
 

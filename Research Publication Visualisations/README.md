@@ -1,4 +1,4 @@
-# Peer-Review Visualisation Samples
+# Research Publication Visualisations
 
 ## Overview
 
