@@ -1,0 +1,15 @@
+name: churn-analysis
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pandas>=2.2
+  - numpy>=1.26
+  - pyarrow>=16
+  - matplotlib>=3.8
+  - seaborn>=0.13
+  - jupyterlab>=4.2
+  - notebook>=7.2
+  - ipykernel>=6.29
+  - nbformat>=5.10
+
