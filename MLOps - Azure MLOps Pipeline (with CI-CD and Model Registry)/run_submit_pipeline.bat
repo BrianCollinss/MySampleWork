@@ -1,1 +1,0 @@
-python scripts/2.submit_pipeline.py

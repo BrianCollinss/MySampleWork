@@ -1,0 +1,29 @@
+name: azure-mlops-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8                # Core Python runtime
+  - pip                       # Package installer for pip-managed dependencies
+  - pre-commit                # Git hooks for code quality checks
+  - pip:
+    # Azure ML and Cloud SDK
+    - azure-ai-ml             # Azure ML SDK for pipeline orchestration and model management
+    - azure-identity          # Azure authentication
+    - azure-core              # Azure core libraries
+    - azureml-mlflow          # MLflow integration with Azure ML
+    
+    # Data Science and ML
+    - pandas                  # Data manipulation and analysis
+    - scikit-learn            # Machine learning algorithms
+    - mlflow                  # Experiment tracking and model registry
+    - joblib                  # Model serialization and caching
+    
+    # Code Quality and Formatting
+    - black                   # Code formatter (PEP 8 compliant)
+    - flake8                  # Linter for code style violations
+    - isort                   # Import statement sorter
+    
+    # Testing
+    - pytest                  # Testing framework
+    - pytest-cov              # Code coverage measurement for tests

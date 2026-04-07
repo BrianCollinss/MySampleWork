@@ -1,6 +1,0 @@
-export AZURE_SUBSCRIPTION_ID="your-subscription-id"
-export AZURE_RESOURCE_GROUP="your-resource-group"
-export AZURE_ML_WORKSPACE="your-workspace"
-export AZURE_TENANT_ID="your-tenant-id"
-export AZURE_CLIENT_ID="your-client-id"
-export AZURE_CLIENT_SECRET="your-client-secret"
