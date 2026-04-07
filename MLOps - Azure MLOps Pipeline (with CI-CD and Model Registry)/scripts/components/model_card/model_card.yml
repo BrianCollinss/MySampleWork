@@ -1,3 +1,18 @@
+# Azure ML Command Component: Model Card Generation
+#
+# This component generates a model card document using model metadata and an
+# Azure OpenAI deployment. It is used as a documentation step in the MLOps
+# workflow to produce standardized model reporting artifacts.
+#
+# Inputs:
+# - metadata_path: path to a metadata file containing model context and metrics
+# - openai_endpoint: Azure OpenAI endpoint URL
+# - openai_deployment: Azure OpenAI deployment name
+# - openai_api_key: Azure OpenAI API key
+#
+# Outputs:
+# - model_card_output: directory containing generated model card artifacts
+
 $schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
 name: generate_model_card
 display_name: Generate Model Card with Azure OpenAI

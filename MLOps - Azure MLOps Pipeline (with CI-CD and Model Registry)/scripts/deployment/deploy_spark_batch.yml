@@ -1,3 +1,16 @@
+# Azure ML Command Component: Spark Batch Scoring
+#
+# This component performs batch scoring for a Spark MLlib model. It takes a
+# registered model directory and input data, runs batch inference, and writes
+# scored results to an output folder for downstream consumption.
+#
+# Inputs:
+# - model_dir: directory containing the trained Spark model artifacts
+# - input_data: input dataset file used for scoring
+#
+# Outputs:
+# - scored_output: directory containing batch scoring outputs
+
 $schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
 name: batch_score_spark_model
 display_name: Batch Score Spark MLlib Model

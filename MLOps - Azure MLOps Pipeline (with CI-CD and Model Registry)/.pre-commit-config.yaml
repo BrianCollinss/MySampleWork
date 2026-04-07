@@ -1,3 +1,8 @@
+# Pre-commit Hooks Configuration
+#
+# This file defines repository-wide pre-commit checks for formatting, linting,
+# and basic YAML/file hygiene to keep commits consistent and review-friendly.
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0

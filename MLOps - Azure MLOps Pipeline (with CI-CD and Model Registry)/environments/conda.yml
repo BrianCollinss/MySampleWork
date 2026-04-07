@@ -1,3 +1,9 @@
+# Conda Environment Definition: Azure MLOps
+#
+# This environment file defines the Python runtime and core dependencies used
+# for local development, testing, and Azure ML orchestration in this project.
+# It includes ML libraries, Azure SDKs, and code quality tooling.
+
 name: azure-mlops-env
 channels:
   - conda-forge
