@@ -1,4 +1,4 @@
-# UniSQ Short-Term Forecast for Irrigation Management
+# R - Irrigation Forecast Modelling (APSIM, Weather Forecasting, ggplot2)
 
 ## Overview
 
@@ -7,6 +7,13 @@ This project contains R-based research workflow assets used to evaluate how weat
 ## Demo Context
 
 This repository snapshot focuses on the parts of the workflow that can be shared in a portfolio setting: orchestration scripts, model templates, and output figures. It is intended to show the modelling and analysis structure rather than to reproduce the full research data pipeline.
+
+## Tools Used
+
+- R for workflow orchestration, analysis, and result preparation
+- APSIM and APSIM Next Generation templates for crop-system simulation
+- Weather-forecast and SILO-style input preparation scripts for scenario generation
+- ggplot2-style publication visualisation workflows reflected in the exported figures
 
 ## What The Project Does
 

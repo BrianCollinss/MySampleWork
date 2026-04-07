@@ -17,25 +17,18 @@ flowchart LR
 
 ## Projects
 
-| Project | Focus Area | Summary |
-| --- | --- | --- |
-| [Databricks - Lakehouse Data Engineering Pipeline (e-Commerce)](./Databricks%20-%20Lakehouse%20Data%20Engineering%20Pipeline%20(e-Commerce)) | Databricks, Delta Lake, Medallion Architecture | End-to-end e-commerce lakehouse pipeline that ingests CSV data, curates Bronze, Silver, and Gold tables, and prepares analytics-ready outputs. |
-| [Databricks - Lakehouse Data Engineering Pipeline (Retail, Two Companies)](./Databricks%20-%20Lakehouse%20Data%20Engineering%20Pipeline%20(Retail,%20Two%20Companies)) | Databricks, Integration, Incremental Fact Processing | Multi-entity retail integration pipeline that conforms child-company data to a parent reporting model and produces a dashboard-ready serving layer. |
-| [GenAI - Research Assistant (OpenAI, Langchain, Streamlit, FAISS)](./GenAI%20-%20Research%20Assistant%20(OpenAI,%20Langchain,%20Streamlit,%20FAISS)) | GenAI, RAG, Streamlit | Streamlit research assistant that ingests article URLs, builds a FAISS vector store, and answers questions over extracted content. |
-| [MLOps - Azure MLOps Pipeline (with CI-CD and Model Registry)](./MLOps%20-%20Azure%20MLOps%20Pipeline%20(with%20CI-CD%20and%20Model%20Registry)) | Azure ML, CI/CD, Model Governance | Parameterised Azure ML workflow for model training, evaluation, registration, deployment, and promotion through CI/CD. |
-| [Research Publication Visualisations](./Research%20Publication%20Visualisations) | Research Communication | Gallery of selected figures from peer-reviewed publications and posters. |
-| [PowerBI - E-Commerce Sales Dashboard](./PowerBI%20-%20E-Commerce%20Sales%20Dashboard) | Power BI, Data Modelling | Power BI dashboard built on a synthetic e-commerce star schema with dimension and fact tables generated in R. |
-| [UniSQ - Crop Monitoring Vietnam](./UniSQ%20-%20Crop%20Monitoring%20Vietnam) | Remote Sensing, Google Earth Engine | Crop-monitoring extraction scripts used to derive vegetation indices from satellite imagery for multiple crops in Vietnam. |
-| [UniSQ - Short-Term Forecast for Irrigation Management](./UniSQ%20-%20Short-Term%20Forecast%20for%20Irrigation%20Management) | APSIM, R, Environmental Modelling | Research workflow for evaluating how weather forecast reliability affects irrigation decisions and production outcomes at scale. |
-| [UniSQ - SSAT](./UniSQ%20-%20SSAT) | Shiny, Decision Support | R Shiny application for sesame suitability assessment across Australian environments using large simulation datasets. |
-| [UQ - Compound Dry-Hot Extremes](./UQ%20-%20Compound%20Dry-Hot%20Extremes) | Climate Analytics, R | Research analysis workflow studying long-term compound hot-dry weather extremes across Australia. |
-
-## Selected Scale Snapshots
-
-- Related real-world decision-support work represented in this portfolio includes: Phase I (the Burdekin region): +171K scenarios and +61M simulated seasonal records.
-- Related real-world decision-support work represented in this portfolio includes: Phase II (the Mackay-Whitsunday region): +148K scenarios and +50M simulated seasonal records.
-- `UniSQ - SSAT`: V1 includes 864 scenarios, 3.75M simulated seasonal records, and +161M simulated daily records.
-- `UniSQ - Short-Term Forecast for Irrigation Management`: 864 scenarios, 17M simulated seasonal records, and +677M simulated daily records.
+| Project | Focus Area | Key Tools | Summary |
+| --- | --- | --- | --- |
+| [Databricks - Lakehouse Data Engineering Pipeline (e-Commerce)](./Databricks%20-%20Lakehouse%20Data%20Engineering%20Pipeline%20(e-Commerce)) | Databricks, Delta Lake, Medallion Architecture | Databricks, PySpark, Spark SQL, Delta Lake, Unity Catalog | End-to-end e-commerce lakehouse pipeline that ingests CSV data, curates Bronze, Silver, and Gold tables, and prepares analytics-ready outputs. |
+| [Databricks - Lakehouse Data Engineering Pipeline (Retail, Two Companies)](./Databricks%20-%20Lakehouse%20Data%20Engineering%20Pipeline%20(Retail,%20Two%20Companies)) | Databricks, Integration, Incremental Fact Processing | Databricks, PySpark, Spark SQL, Delta Lake, Databricks SQL | Multi-entity retail integration pipeline that conforms child-company data to a parent reporting model and produces a dashboard-ready serving layer. |
+| [GenAI - Research Assistant (OpenAI, Langchain, Streamlit, FAISS)](./GenAI%20-%20Research%20Assistant%20(OpenAI,%20Langchain,%20Streamlit,%20FAISS)) | GenAI, RAG, Streamlit | Python, OpenAI, LangChain, Streamlit, FAISS | Streamlit research assistant that ingests article URLs, builds a FAISS vector store, and answers questions over extracted content. |
+| [MLOps - Azure MLOps Pipeline (with CI-CD and Model Registry)](./MLOps%20-%20Azure%20MLOps%20Pipeline%20(with%20CI-CD%20and%20Model%20Registry)) | Azure ML, CI/CD, Model Governance | Azure ML, MLflow, GitHub Actions, Python, Spark | Parameterised Azure ML workflow for model training, evaluation, registration, deployment, and promotion through CI/CD. |
+| [Research Publication Visualisations](./Research%20Publication%20Visualisations) | Research Communication | Markdown, publication graphics, scientific visualisation | Gallery of selected figures from peer-reviewed publications and posters. |
+| [PowerBI - E-Commerce Sales Dashboard](./PowerBI%20-%20E-Commerce%20Sales%20Dashboard) | Power BI, Data Modelling | Power BI, R, data.table, star schema modelling | Power BI dashboard built on a synthetic e-commerce star schema with dimension and fact tables generated in R. |
+| [Python - Remote Sensing and Image Processing (Google Earth Engine, Landsat, Sentinel-2)](./Python%20-%20Remote%20Sensing%20and%20Image%20Processing%20(Google%20Earth%20Engine,%20Landsat,%20Sentinel-2)) | Remote Sensing, Image Processing | Python, Google Earth Engine, Landsat, Sentinel-2, vegetation indices | Crop-monitoring extraction scripts used to derive vegetation indices from satellite imagery for multiple crops in Vietnam. |
+| [R - Irrigation Forecast Modelling (APSIM, Weather Forecasting, ggplot2)](./R%20-%20Irrigation%20Forecast%20Modelling%20(APSIM,%20Weather%20Forecasting,%20ggplot2)) | Crop Modelling, Forecast Evaluation | R, APSIM, SILO data workflows, ggplot2 | Research workflow for evaluating how weather forecast reliability affects irrigation decisions and production outcomes at scale. |
+| [R - Shiny Dashboard for Irrigation Management (Shiny, CSS, JavaScript)](./R%20-%20Shiny%20Dashboard%20for%20Irrigation%20Management%20(Shiny,%20CSS,%20JavaScript)) | Shiny, Decision Support | R, Shiny, CSS, JavaScript, modular dashboard design | R Shiny application for interactive decision support built on large simulation datasets. |
+| [R - Time Series Analysis and Visualisation (Climate Extremes, ggplot2, SILO)](./R%20-%20Time%20Series%20Analysis%20and%20Visualisation%20(Climate%20Extremes,%20ggplot2,%20SILO)) | Climate Analytics, Time Series | R, time-series analysis, ggplot2, SILO, spatial trend analysis | Research analysis workflow studying long-term compound hot-dry weather extremes across Australia. |
 
 ## Repository Structure
 

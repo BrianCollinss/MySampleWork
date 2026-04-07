@@ -1,4 +1,4 @@
-# UniSQ Crop Monitoring Vietnam
+# Python - Remote Sensing and Image Processing (Google Earth Engine, Landsat, Sentinel-2)
 
 ## Overview
 
@@ -7,6 +7,13 @@ This project contains Google Earth Engine scripts used in a crop-monitoring work
 ## Demo Context
 
 The broader initiative included additional image-processing, machine-learning, and delivery components across multiple partner organisations. This repository snapshot contains the shareable Earth Engine extraction scripts that formed part of that larger workflow.
+
+## Tools Used
+
+- Python for data handling and preprocessing workflows in the wider project context
+- Google Earth Engine for satellite-data access and scripted remote-sensing extraction
+- Landsat and Sentinel-2 imagery as the primary satellite sources represented here
+- Vegetation-index extraction workflows for crop-monitoring feature engineering
 
 ## What The Project Does
 

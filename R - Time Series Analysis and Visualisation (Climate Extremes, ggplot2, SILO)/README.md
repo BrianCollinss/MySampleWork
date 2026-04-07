@@ -1,4 +1,4 @@
-# UQ Compound Dry-Hot Extremes
+# R - Time Series Analysis and Visualisation (Climate Extremes, ggplot2, SILO)
 
 ## Overview
 
@@ -7,6 +7,13 @@ This project contains R scripts and generated analytical outputs used to study l
 ## Demo Context
 
 The folder is a portfolio-ready extract of the research workflow. It includes the shareable analysis scripts and output figures used to communicate results, while avoiding the need to publish a full research data-processing environment.
+
+## Tools Used
+
+- R for time-series analysis, statistical testing, and figure generation
+- SILO climate data as the core gridded weather source referenced by the workflow
+- Trend, return-period, and compound-event analysis methods implemented in script form
+- ggplot2-style visualisation workflows reflected in the exported publication figures
 
 ## What The Project Does
 

@@ -1,4 +1,4 @@
-# UniSQ SSAT
+# R - Shiny Dashboard for Irrigation Management (Shiny, CSS, JavaScript)
 
 ## Overview
 
@@ -7,6 +7,13 @@ This project contains the R Shiny code for the Sesame Suitability Assessment Too
 ## Demo Context
 
 The folder is a portfolio snapshot of the application code and bundled assets that can be shared publicly. It illustrates modular Shiny application design, reusable server-side helpers, static assets, and app-level organisation for an agricultural decision-support tool.
+
+## Tools Used
+
+- R and Shiny for the interactive application layer
+- Modular Shiny architecture across UI, server, and helper modules
+- CSS and JavaScript assets under `WWW/` for custom styling and client-side behaviour
+- Static geographic and location assets to support map-based and site-based interactions
 
 ## What The Project Does
 
@@ -24,6 +31,10 @@ flowchart LR
 
 ## Scale
 
+- Related irrigation decision-support work represented by this portfolio includes:
+  Phase I (the Burdekin region): +171K scenarios and +61M simulated seasonal records.
+- Related irrigation decision-support work represented by this portfolio includes:
+  Phase II (the Mackay-Whitsunday region): +148K scenarios and +50M simulated seasonal records.
 - V1 includes 864 scenarios
 - 3.75M simulated seasonal records
 - +161M simulated daily records
