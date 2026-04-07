@@ -1,3 +1,10 @@
+"""Utility script for generating a quick inventory of this project.
+
+Run from the project root with: `python scripts/project_inventory.py`
+It prints data-folder file counts plus a compact summary of notebook files,
+including cell counts and the first meaningful line from each notebook.
+"""
+
 from __future__ import annotations
 
 import json

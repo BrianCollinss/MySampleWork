@@ -12,12 +12,6 @@ The project is built to showcase a realistic multi-entity data engineering scena
 - Child-company data arrives as raw dimension extracts and daily order files that need cleansing, harmonization, and monthly aggregation.
 - Gold-layer tables reconcile both companies into a common dimensional model for reporting.
 
-This version adds light production-minded polish similar to the e-Commerce project:
-
-- a root README with run order and architecture notes
-- clearer notebook-level context for setup, dimensions, and fact processing
-- a lightweight automation script to inventory the repo structure and notebook estate
-
 ## Resume-Ready Version
 
 Databricks Lakehouse Data Engineering Pipeline (Retail, Two Companies): Built a Databricks lakehouse pipeline that integrated a child retail business into an existing parent-company analytics model. Ingested child-company raw CSV data into Bronze Delta tables, applied PySpark cleansing and standardization in Silver, and merged curated outputs into shared Gold customer, product, price, date, and order models. Implemented incremental fact-processing logic that recalculates only affected months from newly arrived child order files so daily operational data aligns with the parent company’s monthly reporting grain, then exposed a denormalized serving view for downstream BI and dashboarding.
@@ -169,20 +163,6 @@ This repo focuses on the child-company side of the solution. The parent-company 
 - This means the project is not row-level CDC or streaming; it is incremental at the monthly aggregate refresh level for the child-company fact pipeline.
 - Parent-company incremental updates are applied separately through Databricks SQL.
 - The current notebooks are designed as interactive notebook jobs rather than a fully orchestrated production workflow.
-
-## Lightweight Automation
-
-Use the inventory script to generate a quick structure summary from the repo root:
-
-```powershell
-python scripts/project_inventory.py
-```
-
-It reports:
-
-- folder-level file counts for `0_data`
-- notebook cell counts and first non-empty cell previews
-- a compact inventory useful for repo review or README refresh work
 
 ## Technologies Used
 

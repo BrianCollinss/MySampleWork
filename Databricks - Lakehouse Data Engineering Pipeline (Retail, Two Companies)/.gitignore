@@ -1,0 +1,15 @@
+# Windows metadata
+desktop.ini
+Thumbs.db
+
+# Python cache and local tooling artifacts
+__pycache__/
+*.py[cod]
+
+# Jupyter local state
+.ipynb_checkpoints/
+
+# Environment files
+.env
+.venv/
+venv/
