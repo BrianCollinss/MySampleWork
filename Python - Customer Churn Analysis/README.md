@@ -34,7 +34,7 @@ flowchart LR
 3. Open `notebooks/01_customer_churn_analysis.ipynb` for the exploratory analysis and data-quality walkthrough.
 4. Open `notebooks/02_customer_churn_modeling.ipynb` for model tuning, evaluation, and report generation.
 
-If PowerShell raises an activation error, run `conda init powershell`, reopen the terminal, and try `conda activate churn-analysis` again.
+If PowerShell raises an activation error, run `conda init powershell`, reopen the terminal, and try `conda activate churn-analysis` again. You can also use `make setup`, `make notebook`, or `make lab`.
 
 ## Data Assets
 
