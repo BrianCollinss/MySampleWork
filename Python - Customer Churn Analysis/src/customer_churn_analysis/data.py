@@ -9,7 +9,6 @@ import pandas as pd
 
 from customer_churn_analysis.config import (
     DATA_DIR,
-    DATA_QUALITY_TABLE_PATH,
     FIGURES_DIR,
     NOTEBOOKS_DIR,
     OUTPUTS_DIR,
@@ -19,9 +18,6 @@ from customer_churn_analysis.config import (
     RAW_TEST_PATH,
     RAW_TRAIN_PATH,
     REPORTS_DIR,
-    SPLIT_COMPARISON_TABLE_PATH,
-    TABLES_DIR,
-    TARGET_SUMMARY_TABLE_PATH,
 )
 
 
@@ -59,7 +55,7 @@ CATEGORICAL_COLUMNS = ["gender", "subscription_type", "contract_length"]
 
 def ensure_project_directories() -> None:
     """Create the output folders used by the project."""
-    for path in [DATA_DIR, NOTEBOOKS_DIR, OUTPUTS_DIR, FIGURES_DIR, TABLES_DIR, REPORTS_DIR]:
+    for path in [DATA_DIR, NOTEBOOKS_DIR, OUTPUTS_DIR, FIGURES_DIR, REPORTS_DIR]:
         path.mkdir(parents=True, exist_ok=True)
 
 
@@ -130,12 +126,66 @@ def write_table_outputs(
     split_comparison: pd.DataFrame,
     target_summary: pd.DataFrame,
 ) -> None:
-    """Persist summary tables to the outputs directory."""
-    # Save small, portable tables that can be referenced by the report and
-    # inspected without re-running the full notebook.
-    data_quality_table.to_csv(DATA_QUALITY_TABLE_PATH, index=False)
-    split_comparison.to_csv(SPLIT_COMPARISON_TABLE_PATH, index=False)
-    target_summary.to_csv(TARGET_SUMMARY_TABLE_PATH, index=False)
+    """Write summary tables into the executive summary markdown report."""
+    report_path = REPORTS_DIR / "executive_summary.md"
+
+    def _dataframe_to_markdown_table(frame: pd.DataFrame) -> str:
+        display_frame = frame.copy()
+        for column in display_frame.select_dtypes(include="float").columns:
+            display_frame[column] = display_frame[column].map(lambda value: f"{value:.2f}")
+
+        headers = [str(column) for column in display_frame.columns]
+        separator = ["---"] * len(headers)
+        rows = [
+            "| " + " | ".join(headers) + " |",
+            "| " + " | ".join(separator) + " |",
+        ]
+        for row in display_frame.itertuples(index=False, name=None):
+            rows.append("| " + " | ".join(str(value) for value in row) + " |")
+        return "\n".join(rows)
+
+    generated_section = "\n".join(
+        [
+            "## Summary Tables",
+            "",
+            "<!-- AUTO-GENERATED TABLES START -->",
+            "### Data Quality Summary",
+            "",
+            _dataframe_to_markdown_table(data_quality_table),
+            "",
+            "### Split Comparison Summary",
+            "",
+            _dataframe_to_markdown_table(split_comparison),
+            "",
+            "### Churn Summary By Split",
+            "",
+            _dataframe_to_markdown_table(target_summary),
+            "<!-- AUTO-GENERATED TABLES END -->",
+        ]
+    )
+
+    if report_path.exists():
+        report_text = report_path.read_text(encoding="utf-8").rstrip()
+    else:
+        report_text = "# Executive Summary"
+
+    start_marker = "<!-- AUTO-GENERATED TABLES START -->"
+    end_marker = "<!-- AUTO-GENERATED TABLES END -->"
+
+    if start_marker in report_text and end_marker in report_text:
+        start_index = report_text.index("## Summary Tables")
+        end_index = report_text.index(end_marker) + len(end_marker)
+        updated_text = (
+            report_text[:start_index].rstrip()
+            + "\n\n"
+            + generated_section
+            + "\n"
+            + report_text[end_index:]
+        ).rstrip() + "\n"
+    else:
+        updated_text = report_text + "\n\n" + generated_section + "\n"
+
+    report_path.write_text(updated_text, encoding="utf-8")
 
 
 def prepare_and_persist_datasets() -> Dict[str, pd.DataFrame]:

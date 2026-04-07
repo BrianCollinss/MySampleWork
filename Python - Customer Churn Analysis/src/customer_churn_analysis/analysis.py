@@ -52,21 +52,21 @@ def build_target_summary_table(frame: pd.DataFrame) -> pd.DataFrame:
         .agg(customers=("customer_id", "count"), churn_rate=("churn", "mean"))
         .reset_index()
     )
-    summary["churn_rate"] = summary["churn_rate"].round(2)
+    summary["churn_rate"] = summary["churn_rate"].astype(float).round(2)
     return summary
 
 
 def churn_rate_by_category(frame: pd.DataFrame, category_column: str) -> pd.DataFrame:
     """Compute customer counts and churn rates for a categorical segment."""
-    # This function is reusable for dimensions such as gender, subscription
-    # type, and contract length.
     summary = (
-        frame.groupby(category_column)
-        .agg(customers=("customer_id", "count"), churn_rate=("churn", "mean"))
-        .reset_index()
+        frame.groupby(category_column, as_index=False)
+        .agg(
+            customers=("customer_id", "count"),
+            churn_rate=("churn", "mean"),
+        )
         .sort_values("churn_rate", ascending=False)
     )
-    summary["churn_rate"] = summary["churn_rate"].round(2)
+    summary["churn_rate"] = summary["churn_rate"].astype(float).round(2)
     return summary
 
 

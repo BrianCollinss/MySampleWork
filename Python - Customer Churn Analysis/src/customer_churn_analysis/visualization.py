@@ -5,6 +5,8 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from matplotlib.axes import Axes
+from matplotlib.patches import Rectangle
 
 from customer_churn_analysis.analysis import churn_rate_by_category
 from customer_churn_analysis.config import FIGURES_DIR
@@ -26,9 +28,9 @@ def save_current_figure(filename: str) -> None:
     plt.savefig(FIGURES_DIR / filename, dpi=200, bbox_inches="tight")
 
 
-def add_bar_value_labels(ax: plt.Axes, values: pd.Series) -> None:
+def add_bar_value_labels(ax: Axes, values: pd.Series) -> None:
     """Attach formatted percentage labels to a seaborn bar chart."""
-    bars = [patch for patch in ax.patches if patch is not None and pd.notna(patch.get_height())]
+    bars = [patch for patch in ax.patches if isinstance(patch, Rectangle) and pd.notna(patch.get_height())]
     labels = [f"{value:.1f}%" for value in values]
 
     for bar, label in zip(bars, labels):
@@ -46,7 +48,10 @@ def plot_churn_rate_by_split(frame: pd.DataFrame) -> None:
     """Bar chart showing churn rate by source split."""
     # Aggregate churn once so we can both plot it and label the bars using the
     # same values.
-    summary = frame.groupby("source_split", as_index=False)["churn"].mean()
+    summary: pd.DataFrame = (
+        frame.groupby("source_split", as_index=False)
+        .agg(churn=("churn", "mean"))
+    )
     summary["churn_rate_pct"] = summary["churn"] * 100
 
     ax = sns.barplot(
@@ -68,7 +73,7 @@ def plot_churn_rate_by_split(frame: pd.DataFrame) -> None:
 
 def plot_churn_by_contract(frame: pd.DataFrame) -> None:
     """Bar chart of churn rate by contract length."""
-    summary = churn_rate_by_category(frame, "contract_length")
+    summary: pd.DataFrame = churn_rate_by_category(frame, "contract_length")
     summary["churn_rate_pct"] = summary["churn_rate"] * 100
 
     ax = sns.barplot(
@@ -88,7 +93,7 @@ def plot_churn_by_contract(frame: pd.DataFrame) -> None:
 
 def plot_churn_by_subscription(frame: pd.DataFrame) -> None:
     """Bar chart of churn rate by subscription type."""
-    summary = churn_rate_by_category(frame, "subscription_type")
+    summary: pd.DataFrame = churn_rate_by_category(frame, "subscription_type")
     summary["churn_rate_pct"] = summary["churn_rate"] * 100
 
     ax = sns.barplot(
@@ -140,7 +145,7 @@ def plot_numeric_distributions(frame: pd.DataFrame) -> None:
         common_norm=False,
         height=4,
         aspect=1.1,
-        palette=["#2ca02c", "#d62728"],
+        palette=["#d62728", "#2ca02c"],
         facet_kws={"sharex": False, "sharey": False},
     )
     grid.set_axis_labels("Value", "Density")

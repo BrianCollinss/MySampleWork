@@ -25,5 +25,30 @@ The dataset structure supports a retention-focused analysis that links churn to 
 - Data pipeline in `scripts/run_data_pipeline.py`
 - Reusable Python helpers in `src/customer_churn_analysis/`
 - Jupyter notebook for analysis in `notebooks/01_customer_churn_analysis.ipynb`
-- Output-ready figures and summary tables in `outputs/`
+- Output-ready figures in `outputs/` and auto-generated summary tables in this report
 
+## Summary Tables
+
+<!-- AUTO-GENERATED TABLES START -->
+### Data Quality Summary
+
+| dataset | rows | columns | duplicate_rows | total_missing_values | churn_rate |
+| --- | --- | --- | --- | --- | --- |
+| combined | 505207 | 14 | 0 | 13 | 0.56 |
+| test | 64374 | 14 | 0 | 0 | 0.47 |
+| train | 440833 | 14 | 0 | 13 | 0.57 |
+
+### Split Comparison Summary
+
+| source_split | age | tenure_months | usage_frequency | support_calls | payment_delay_days | total_spend | last_interaction_days |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| test | 41.97 | 31.99 | 15.08 | 5.40 | 17.13 | 541.02 | 15.50 |
+| train | 39.37 | 31.26 | 15.81 | 3.60 | 12.97 | 631.62 | 14.48 |
+
+### Churn Summary By Split
+
+| source_split | customers | churn_rate |
+| --- | --- | --- |
+| test | 64374 | 0.47 |
+| train | 440832 | 0.57 |
+<!-- AUTO-GENERATED TABLES END -->
