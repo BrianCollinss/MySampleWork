@@ -1,3 +1,9 @@
+# GitHub Actions Workflow: Continuous Integration (CI)
+#
+# This workflow validates code quality and test health for the repository.
+# It runs on pushes and pull requests targeting main/master and executes
+# linting, formatting, import-order checks, and unit tests with coverage upload.
+
 name: CI
 
 on:
