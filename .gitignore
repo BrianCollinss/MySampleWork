@@ -1,1 +1,35 @@
-*.env
+# OS and Windows metadata
+desktop.ini
+Thumbs.db
+.DS_Store
+
+# Editor and workspace settings
+.vscode/
+.idea/
+
+# Environment and secret files
+.env
+.venv/
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.ipynb_checkpoints/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# Logs
+*.log

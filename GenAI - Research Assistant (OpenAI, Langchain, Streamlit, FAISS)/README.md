@@ -1,35 +1,67 @@
+# GenAI Research Assistant (OpenAI, LangChain, Streamlit, FAISS)
 
-# ResTool
+## Overview
 
-A Streamlit-based GenAI application for researching news articles using OpenAI, LangChain, and FAISS.
+This project is a Streamlit-based research assistant that ingests article URLs, extracts content, converts it into vector embeddings, stores the embeddings in FAISS, and answers user questions over the retrieved text with OpenAI models.
 
-## Features
-- Fetch and process text from news URLs
-- Create embeddings and store in FAISS vector database
-- Ask questions and get AI-powered answers based on article content
-- Modular architecture for easy extension
+## Demo Context
 
-## Installation
-1. Clone the repository.
-2. Create the Conda environment: `conda env create -f environment.yml`
-3. Activate the environment: `conda activate restool`
-4. Install Python packages: `pip install -r requirements.txt`
-5. Copy `.env.example` to `.env` and add your OpenAI API key.
-6. Run: `streamlit run main.py`
+The application is a portfolio demonstration of a small retrieval-augmented generation workflow. It focuses on the mechanics of document ingestion, vector-store creation, retrieval, and question answering rather than on a proprietary internal knowledge base.
 
-## Usage
-- Enter up to 10 article URLs in the sidebar.
-- Click "Process URLs" to build the vector store.
-- Ask questions about the articles.
+## What The Project Does
 
-## Architecture
-- `src/restool/`: Core modules (fetching, processing, querying, UI).
-- Uses RAG (Retrieval-Augmented Generation) for Q&A.
+```mermaid
+flowchart LR
+    A[Article URLs] --> B[Fetcher]
+    B --> C[Processor and chunking]
+    C --> D[OpenAI embeddings]
+    D --> E[FAISS vector store]
+    E --> F[Retriever and QA]
+    F --> G[Streamlit interface]
+```
 
-## Testing
-Run `pytest` in the root directory.
+- Accepts one or more article URLs from the Streamlit sidebar
+- Loads and cleans article content
+- Splits documents into chunks and embeds them with OpenAI embeddings
+- Persists a FAISS index for reuse across sessions
+- Lets the user ask grounded questions about the processed content
 
-## License
-- All rights reserved.
-- This project is proprietary to Dr Brian Collins.
-- See the `LICENSE` file for details.
+## Repository Structure
+
+```text
+main.py
+environment.yml
+requirements.txt
+pyproject.toml
+src/
+  restool/
+    app.py
+    config.py
+    fetcher.py
+    processor.py
+    query.py
+tests/
+  test_fetcher.py
+faiss_store_openai/
+  index.faiss
+  index.pkl
+README.md
+```
+
+## Workflow
+
+1. `main.py` boots the Streamlit application and exposes the local package.
+2. `src/restool/app.py` manages the interface, session state, URL processing, and query flow.
+3. `src/restool/fetcher.py` and `processor.py` load content and build the FAISS store.
+4. `src/restool/query.py` handles retrieval and answer generation.
+
+## Data Assets
+
+- No proprietary article corpus is stored in the repository.
+- `faiss_store_openai/` contains a locally persisted vector store created during prior runs and can be regenerated from new URLs.
+- Tests are included for the fetching layer.
+
+## Notes
+
+- The project expects environment configuration for OpenAI access before use.
+- It is intended as a concise RAG demo rather than a production knowledge platform.

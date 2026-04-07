@@ -1,6 +1,13 @@
 .env
+.venv/
+venv/
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
 .vscode/
 .DS_Store
+desktop.ini
+Thumbs.db
+.streamlit/
 restool.egg-info/

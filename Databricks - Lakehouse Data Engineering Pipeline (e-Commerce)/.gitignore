@@ -1,0 +1,19 @@
+# OS metadata
+desktop.ini
+Thumbs.db
+.DS_Store
+
+# Notebook state
+.ipynb_checkpoints/
+
+# Local environments and secrets
+.env
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Logs
+*.log

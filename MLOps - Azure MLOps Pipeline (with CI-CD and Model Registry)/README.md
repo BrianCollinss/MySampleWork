@@ -1,189 +1,75 @@
 # Azure MLOps Pipeline with CI/CD and Model Registry
 
-This repository implements a complete MLOps pipeline for machine learning model training, evaluation, registration, and deployment using Azure Machine Learning and GitHub Actions for CI/CD.
+## Overview
 
-## Features
+This project demonstrates an Azure-based MLOps workflow for training, evaluating, registering, and deploying machine learning models with Azure Machine Learning and GitHub Actions. It includes both standard Python and Spark-oriented components together with pipeline definitions, deployment scripts, and automated checks.
 
-- **Data Processing**: Synapse Spark pipeline for data preparation
-- **Model Training**: Automated ML pipeline with training and evaluation
-- **Model Registry**: Versioned model storage and management
-- **CI/CD**: GitHub Actions for automated deployment
-- **Deployment**: Staging and production environments with traffic management
-- **Model Cards**: Automated documentation generation
+## Demo Context
 
-## Architecture
+The repository is a portfolio sample of MLOps patterns rather than a direct export of a client production environment. It is designed to show environment setup, component orchestration, model governance, and promotion flow without exposing private cloud configuration or business data.
+
+## What The Project Does
 
 ```mermaid
-graph TD
-    A[Synapse Pipeline] --> B[ADLS Gen2]
-    B --> C[Azure ML Pipeline]
-    C --> D[Train Job]
-    C --> E[Eval Job]
-    C --> F[Register Job]
-    F --> G[Model Registry]
-    G --> H[Deploy Staging]
-    H --> I[Promote Production]
-    I --> J[Model Card Generation]
+flowchart LR
+    A[Prepared data in storage] --> B[Azure ML pipeline]
+    B --> C[Train]
+    B --> D[Evaluate]
+    D --> E[Register]
+    E --> F[Deploy]
+    F --> G[Promote]
+    E --> H[Model card]
 ```
 
-## Project Structure
+- Defines reusable Azure ML pipeline jobs for training, evaluation, and registration
+- Includes Python and Spark-oriented training and evaluation entry points
+- Supports model registration, deployment, endpoint scoring, and promotion logic
+- Includes GitHub Actions workflow files for CI/CD orchestration
+- Includes tests and environment definitions for repeatable local or CI execution
 
-```
-project/
-├── src/
-│   ├── train.py
-│   ├── train_spark.py
-│   ├── evaluate.py
-│   ├── evaluate_spark.py
-│   ├── register.py
-│   ├── deploy.py
-│   ├── promote.py
-│   ├── model_card.py
-│   ├── score.py
-│   └── common/
-│       └── azure_ml_config.py
-├── scripts/
-│   ├── components/
-│   │   ├── train/
-│   │   │   ├── train.yml
-│   │   │   └── train_spark.yml
-│   │   ├── evaluate/
-│   │   │   ├── evaluate.yml
-│   │   │   └── evaluate_spark.yml
-│   │   ├── deploy/
-│   │   │   └── deploy_spark_batch.py
-│   │   └── model_card/
-│   │       └── model_card.yml
-│   ├── pipelines/
-│   │   ├── pipeline.yml
-│   │   ├── pipeline_spark.yml
-│   │   ├── submit_pipeline.py
-│   │   └── submit_pipeline_spark.py
-│   ├── inference/
-│   │   ├── run_deployed_spark_MLmodel_on_Databricks.py
-│   │   ├── run_deployed_spark_MLmodel_with_batch_endpoints.py
-│   │   ├── run_managed_endpoints_with_Python_SDK.py
-│   │   └── run_managed_endpoints_with_request.py
-│   ├── deployment/
-│   │   └── deploy_spark_batch.yml
-│   └── utilities/
-│       └── utils.py
-├── environments/
-│   └── conda.yml
-├── tests/
-│   ├── test_train.py
-│   ├── test_evaluate.py
-│   ├── test_utils.py
-│   └── conftest.py
-└── .github/
-    └── workflows/
-        ├── train.yml
-        ├── train_spark.yml
-        ├── deploy.yml
-        ├── promote.yml
-        └── ci.yml
+## Repository Structure
+
+```text
+src/
+  train.py
+  train_spark.py
+  evaluate.py
+  evaluate_spark.py
+  register.py
+  deploy.py
+  promote.py
+  model_card.py
+  score.py
+scripts/
+  components/
+  deployment/
+  inference/
+  pipelines/
+  utilities/
+environments/
+  conda.yml
+tests/
+  test_utils.py
+.github/
+  workflows/
+README.md
 ```
 
-## Setup
+## Workflow
 
-### Prerequisites
+1. Data is prepared externally and passed into the Azure ML pipeline as a processed dataset.
+2. `scripts/pipelines/` defines the orchestration for training, evaluation, and registration.
+3. `src/` contains the executable Python entry points used by the components.
+4. `scripts/deployment/` and `src/deploy.py` support deployment and promotion scenarios.
+5. `.github/workflows/` provides CI/CD automation hooks.
 
-- Azure subscription with Azure ML workspace
-- Azure Data Lake Storage Gen2
-- Synapse Analytics workspace
-- GitHub repository
+## Data Assets
 
-### Environment Setup
+- No raw business dataset is committed to the repository.
+- The pipeline definitions expect an external processed input dataset, typically supplied through Azure storage and Azure ML job inputs.
+- The committed artefacts are code, configuration, tests, and workflow definitions.
 
-1. Create the Conda environment:
-   ```bash
-   conda env create -f environments/conda.yml
-   conda activate azure-mlops-env
-   ```
+## Notes
 
-2. Set environment variables:
-   ```bash
-   export AZURE_SUBSCRIPTION_ID=<your-subscription-id>
-   export AZURE_RESOURCE_GROUP=<your-resource-group>
-   export AZURE_ML_WORKSPACE=<your-ml-workspace>
-   ```
-
-### Configuration
-
-Update the following files with your Azure resource details:
-- `scripts/pipelines/submit_pipeline.py`: Update `processed_path` with your ADLS Gen2 URI
-- Pipeline YAML files: Adjust compute targets and environments as needed
-
-## Usage
-
-### Local Development
-
-1. Prepare data using Synapse pipeline
-2. Submit training pipeline:
-   ```bash
-   python scripts/pipelines/submit_pipeline.py
-   ```
-
-### Using the Makefile
-
-This project includes a `Makefile` to standardize common development tasks so everyone runs the same commands locally and in CI.
-
-Run available targets:
-```bash
-make help
-```
-
-Common targets:
-
-- `make install`: create the Conda environment and install pre-commit hooks
-- `make lint`: run linting checks via pre-commit
-- `make test`: run the test suite with pytest
-- `make clean`: remove generated local artifacts and Windows `desktop.ini` files
-
-If `make` is not available on your machine, run the equivalent commands directly from the `Makefile`.
-
-### CI/CD Deployment
-
-The repository includes GitHub Actions workflows for automated CI/CD:
-
-- **Train**: Triggers on push to main, runs training pipeline
-- **Deploy**: Deploys latest model to staging
-- **Promote**: Promotes staging to production
-
-## Components
-
-### Training Pipeline
-
-Executes the following steps:
-1. **Train**: Trains model using processed data
-2. **Evaluate**: Validates model performance
-3. **Register**: Versions and registers model in Azure ML
-
-### Deployment
-
-Supports both real-time and batch endpoints:
-- sklearn models → Real-time endpoints
-- Spark MLlib models → Batch endpoints
-
-## Model Selection Guide
-
-| Scenario | Use Spark MLlib | Use sklearn/XGBoost |
-|----------|-----------------|---------------------|
-| Distributed training | ✅ | ❌ |
-| Distributed scoring | ✅ | ❌ |
-| Batch inference | ✅ | ✅ |
-| Real-time inference | ❌ | ✅ |
-| Online endpoints | ❌ | ✅ |
-| Batch endpoints | ✅ | ✅ |
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make changes
-4. Run tests
-5. Submit pull request
-
-## License
-
-This project is licensed under the MIT License.
+- The current implementation uses house-price style regression examples to illustrate the MLOps lifecycle.
+- The repository is most useful for reviewing orchestration, component boundaries, and deployment automation structure.

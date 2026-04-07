@@ -147,3 +147,6 @@ desktop.ini
 
 # Logs
 *.log
+
+# Notebook state
+.ipynb_checkpoints/
