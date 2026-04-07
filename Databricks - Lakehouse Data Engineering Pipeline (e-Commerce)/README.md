@@ -28,6 +28,16 @@ The pipeline follows a standard medallion pattern:
 - Silver: cleansing, type casting, deduplication, anomaly correction, and standardization
 - Gold: star-schema-style curated outputs for analytics and dashboarding
 
+## Processing Mode
+
+This project currently runs as a batch full-refresh pipeline, not a true incremental pipeline.
+
+- Bronze, Silver, and Gold tables are rebuilt with overwrite-style writes
+- The setup process uploads the full CSV set, including all daily `order_items` files, into the source volume
+- The notebooks do not currently use watermarks, merge logic, CDC patterns, or Auto Loader / streaming ingestion
+
+The project is still incremental-friendly in structure because order data is stored as daily files and Bronze includes ingestion metadata, but incremental processing has not been implemented in the current version.
+
 ## Repository Structure
 
 ```text
