@@ -1,13 +1,15 @@
 # Databricks Lakehouse Data Engineering Pipeline (Retail, Two Companies)
 
-This project demonstrates a Databricks lakehouse pipeline that combines retail data from a parent company and a child company into a shared analytics model. The workflow uses PySpark, Spark SQL, Delta Lake, Unity Catalog, and Databricks SQL to ingest raw files, standardize dimensions, aggregate fact data, and publish a dashboard-ready denormalized view.
+This project demonstrates a Databricks lakehouse pipeline that combines retail data from a parent company and a child company into a shared analytics model. The workflow uses PySpark, Spark SQL, Delta Lake, Unity Catalog, and Databricks SQL to ingest child-company raw files, standardize dimensions, aggregate facts, and publish a dashboard-ready denormalized view.
 
 ## Project Summary
 
 The project is built to showcase a realistic multi-entity data engineering scenario rather than a single-source toy pipeline:
 
-- Parent-company data arrives as curated full-load CSV extracts plus an incremental refresh file.
-- Child-company data arrives as raw dimension extracts and daily order files that need cleansing and monthly aggregation.
+- The parent company is treated as an existing lakehouse environment with its core Medallion architecture already in place.
+- The main implementation focus of this repo is the child-company Medallion pipeline and the logic needed to conform it to the parent reporting model.
+- Parent-company data arrives as curated full-load CSV extracts plus an incremental refresh file used for integration.
+- Child-company data arrives as raw dimension extracts and daily order files that need cleansing, harmonization, and monthly aggregation.
 - Gold-layer tables reconcile both companies into a common dimensional model for reporting.
 
 This version adds light production-minded polish similar to the e-Commerce project:
@@ -18,12 +20,13 @@ This version adds light production-minded polish similar to the e-Commerce proje
 
 ## Resume-Ready Version
 
-Databricks Lakehouse Data Engineering Pipeline (Retail, Two Companies): Built a Databricks lakehouse pipeline that consolidated retail data from parent and child business entities into shared Gold-layer dimensions and facts. Ingested raw CSV data into Bronze Delta tables, applied PySpark cleansing and standardization in Silver, and merged curated outputs into analytics-ready customer, product, price, date, and order models. Implemented monthly aggregation logic for child-company transactions so they aligned with the parent company grain, then exposed a denormalized serving view for downstream BI and dashboarding.
+Databricks Lakehouse Data Engineering Pipeline (Retail, Two Companies): Built a Databricks lakehouse pipeline that integrated a child retail business into an existing parent-company analytics model. Ingested child-company raw CSV data into Bronze Delta tables, applied PySpark cleansing and standardization in Silver, and merged curated outputs into shared Gold customer, product, price, date, and order models. Implemented incremental fact-processing logic that recalculates only affected months from newly arrived child order files so daily operational data aligns with the parent company’s monthly reporting grain, then exposed a denormalized serving view for downstream BI and dashboarding.
 
 ## Architecture
 
 The pipeline follows a lakehouse pattern with explicit merge logic between company datasets:
 
+- Parent-company assumption: parent Bronze, Silver, and Gold tables already exist and are the target model to align to
 - Bronze: ingest raw child-company extracts and stage incoming fact files
 - Silver: clean and standardize child-company dimension and order data
 - Gold: publish child-company conformed tables, merge them into parent-company Gold tables, and create a serving view
@@ -78,6 +81,8 @@ Within Databricks, the notebooks expect:
 
 ## Pipeline Flow
 
+This repo focuses on the child-company side of the solution. The parent-company Medallion layers are assumed to already exist, so the project work centers on ingesting, standardizing, and integrating the child-company data into that established environment.
+
 ### 1. Environment Setup
 
 `1_setup/setup_catalog.ipynb`
@@ -130,7 +135,7 @@ Within Databricks, the notebooks expect:
 
 - processes newly arrived child incremental order files
 - uses staging tables to isolate the current delta
-- recalculates affected months only
+- recalculates affected months only rather than rebuilding the entire fact history
 - merges refreshed monthly totals into the parent `fact_orders` table
 
 `3_fact_data_processing/3_import_parent_incremental_data.dbquery.ipynb`
@@ -157,7 +162,11 @@ Within Databricks, the notebooks expect:
 ## Processing Notes
 
 - The project is a hybrid full-load plus incremental pattern.
-- Child-company transactions originate at daily grain, but reporting is standardized to monthly grain before merge.
+- The parent company is assumed to already have an operational Medallion architecture, so this repo does not rebuild the full parent pipeline from raw source.
+- The child-company pipeline is the primary implementation focus and is built across Bronze, Silver, and Gold layers.
+- Child-company dimension processing is handled as batch-style full loads from raw source files.
+- Child-company fact processing supports incremental updates by reading newly arrived daily order files into staging tables, identifying the impacted months, recomputing monthly totals for just those months, and merging the refreshed aggregates into the shared Gold fact table.
+- This means the project is not row-level CDC or streaming; it is incremental at the monthly aggregate refresh level for the child-company fact pipeline.
 - Parent-company incremental updates are applied separately through Databricks SQL.
 - The current notebooks are designed as interactive notebook jobs rather than a fully orchestrated production workflow.
 
