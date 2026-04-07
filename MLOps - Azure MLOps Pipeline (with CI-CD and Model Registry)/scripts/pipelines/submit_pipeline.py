@@ -8,7 +8,7 @@ Workflow
 1. Define core configuration parameters such as model name, target column,
    and input dataset location in Azure Data Lake Storage Gen2.
 2. Authenticate to the Azure ML workspace using a helper configuration.
-3. Submit the pipeline defined in pipeline/pipeline.yml.
+3. Submit the pipeline defined in scripts/pipelines/pipeline.yml.
 4. Stream pipeline execution logs to the console for real-time monitoring.
 5. Retrieve the completed pipeline job metadata and validate its status.
 6. Extract output artefact locations such as the trained model and
@@ -23,7 +23,7 @@ enables automated ML training pipelines to integrate with CI/CD
 processes and model lifecycle management.
 
 Inputs
-- pipeline/pipeline.yml: Azure ML pipeline definition
+- scripts/pipelines/pipeline.yml: Azure ML pipeline definition
 - processed_path: cleaned dataset stored in ADLS Gen2
 - target_column: prediction target used during model training
 - model_name: name under which the model will be registered
@@ -54,7 +54,7 @@ import sys
 from pathlib import Path
 
 from azure.ai.ml.entities import PipelineJob
-from utilities.utils import get_ml_client
+from scripts.utilities.utils import get_ml_client
 
 
 def extract_output_uri(output_obj) -> str:
@@ -92,10 +92,10 @@ def main():
     # Create authenticated Azure ML client
     ml_client = get_ml_client()
 
-    # Submit the Azure ML pipeline job defined in pipeline.yml
+    # Submit the Azure ML pipeline job defined in scripts/pipelines/pipeline.yml
     pipeline_job = ml_client.jobs.create_or_update(
         PipelineJob(
-            path="pipeline/pipeline.yml",
+            path="scripts/pipelines/pipeline.yml",
             inputs={
                 "input_data": processed_path,
                 "target_column": target_column,

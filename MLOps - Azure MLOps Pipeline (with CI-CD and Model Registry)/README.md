@@ -111,7 +111,7 @@ project/
 ### Configuration
 
 Update the following files with your Azure resource details:
-- `pipelines/submit_pipeline.py`: Update `processed_path` with your ADLS Gen2 URI
+- `scripts/pipelines/submit_pipeline.py`: Update `processed_path` with your ADLS Gen2 URI
 - Pipeline YAML files: Adjust compute targets and environments as needed
 
 ## Usage
@@ -121,7 +121,7 @@ Update the following files with your Azure resource details:
 1. Prepare data using Synapse pipeline
 2. Submit training pipeline:
    ```bash
-   python pipelines/submit_pipeline.py
+   python scripts/pipelines/submit_pipeline.py
    ```
 
 ### Using the Makefile

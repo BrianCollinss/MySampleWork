@@ -1,3 +1,9 @@
+# GitHub Actions Workflow: Spark Training Pipeline
+#
+# This workflow runs the Spark-based Azure ML training pipeline. It can be
+# started manually or triggered by Spark-related file changes to keep Spark
+# model training and evaluation automated.
+
 name: train-spark-pipeline
 
 on:
@@ -5,9 +11,9 @@ on:
   push:
     paths:
       - "src/*spark*"
-      - "components/*spark*"
-      - "pipeline/pipeline_spark.yml"
-      - "scripts/2.submit_pipeline_spark.py"
+      - "scripts/components/**/*spark*"
+      - "scripts/pipelines/pipeline_spark.yml"
+      - "scripts/pipelines/submit_pipeline_spark.py"
 
 jobs:
   train_spark:
@@ -26,7 +32,10 @@ jobs:
 
       - name: Submit Spark Pipeline
         env:
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+          AZURE_ML_WORKSPACE: ${{ vars.AZURE_ML_WORKSPACE }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        run: python scripts/2.submit_pipeline_spark.py
+        run: python scripts/pipelines/submit_pipeline_spark.py

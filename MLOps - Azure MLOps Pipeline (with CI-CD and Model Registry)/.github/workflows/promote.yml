@@ -50,7 +50,7 @@ jobs:
 
       - name: Promote deployment
         run: |
-          python scripts/3.1.promote.py \
+          python src/promote.py \
             --endpoint_name "${{ github.event.inputs.endpoint_name }}" \
             --from_deployment "${{ github.event.inputs.from_deployment }}" \
             --to_deployment "${{ github.event.inputs.to_deployment }}"

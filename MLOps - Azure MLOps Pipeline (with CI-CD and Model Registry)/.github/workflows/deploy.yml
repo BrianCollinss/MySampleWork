@@ -63,7 +63,7 @@ jobs:
 
       - name: Deploy latest model
         run: |
-          python scripts/2.1.deploy.py \
+          python src/deploy.py \
             --model_name "${{ github.event.inputs.model_name }}" \
             --endpoint_name "${{ github.event.inputs.endpoint_name }}" \
             --deployment_name "${{ github.event.inputs.deployment_name }}" \
@@ -71,6 +71,6 @@ jobs:
             --instance_count "${{ github.event.inputs.instance_count }}" \
             --set_traffic "${{ github.event.inputs.set_traffic }}" \
             --code_path "src" \
-            --scoring_script "scripts/2.2.score.py" \
+            --scoring_script "score.py" \
             --environment "azureml:sklearn-1.0:1" \
             --is_mlflow "false"

@@ -1,3 +1,9 @@
+# GitHub Actions Workflow: Train, Evaluate, and Register Model
+#
+# This workflow manually triggers the Azure ML training pipeline, waits for
+# completion, and registers the resulting model in the Azure ML registry for
+# downstream deployment steps.
+
 name: train-evaluate-register
 
 on:
@@ -31,4 +37,4 @@ jobs:
 
       - name: Submit pipeline, wait and register model
         run: |
-          python scripts/1.1.submit_pipeline.py
+          python scripts/pipelines/submit_pipeline.py

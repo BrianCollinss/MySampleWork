@@ -1,5 +1,5 @@
 from azure.ai.ml.entities import PipelineJob
-from utilities.utils import get_ml_client
+from scripts.utilities.utils import get_ml_client
 
 # ML autnetication
 ml_client = get_ml_client()
@@ -10,7 +10,7 @@ processed_path = (
 
 pipeline_job = ml_client.jobs.create_or_update(
     PipelineJob(
-        path="pipeline/1.2.pipeline_spark.yml",
+        path="scripts/pipelines/pipeline_spark.yml",
         inputs={"input_data": processed_path, "target_column": "price"},
     )
 )
