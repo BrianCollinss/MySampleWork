@@ -6,7 +6,7 @@ This project is a Python-based customer churn analysis workflow that turns label
 
 ## Demo Context
 
-The repository is structured as a portfolio sample rather than as a production retention system. It is designed to show clean project organisation, notebook-based analysis, and model comparison without depending on private infrastructure or proprietary business context.
+The repository is structured as a portfolio sample rather than as a production retention system. It is designed to show clean project organisation, notebook-based analysis, and model comparison without depending on private infrastructure or proprietary business context. The objective is not to squeeze out the single best possible churn model, but to showcase a clear end-to-end workflow: data cleaning, exploratory analysis, feature engineering, model comparison, threshold selection, and stakeholder-friendly reporting.
 
 ## What The Project Does
 
