@@ -61,6 +61,20 @@ README.md
 - `faiss_store_openai/` contains a locally persisted vector store created during prior runs and can be regenerated from new URLs.
 - Tests are included for the fetching layer.
 
+## Screenshots
+
+### Initial View
+
+![Initial application view](./Screenshots/1.%20Initial%20View.png)
+
+### URLs Processed
+
+![URLs processed in the application](./Screenshots/2.%20URLs%20Processed.png)
+
+### Query Answered
+
+![Question answering view](./Screenshots/3.%20Query%20Answered.png)
+
 ## Notes
 
 - The project expects environment configuration for OpenAI access before use.

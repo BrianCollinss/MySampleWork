@@ -73,6 +73,20 @@ README.md
 - `0_data/2_child_company/full_load/` contains the child company master data and landed historical orders.
 - `0_data/2_child_company/incremental_load/orders/` contains additional order drops for the incremental fact process.
 
+## Screenshots
+
+### Workspace
+
+![Databricks workspace view](./Screenshots/1.%20Workspace.png)
+
+### Catalog
+
+![Catalog and schema view](./Screenshots/2.%20Catalog.png)
+
+### Pipeline
+
+![Pipeline execution view](./Screenshots/3.%20Pipeline.png)
+
 ## Notes
 
 - The main implementation emphasis is the child-company side of the integration.

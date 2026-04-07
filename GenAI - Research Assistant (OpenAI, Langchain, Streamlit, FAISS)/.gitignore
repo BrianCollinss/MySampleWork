@@ -11,3 +11,4 @@ desktop.ini
 Thumbs.db
 .streamlit/
 restool.egg-info/
+faiss_store_openai/

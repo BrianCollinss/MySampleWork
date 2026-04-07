@@ -62,6 +62,20 @@ README.md
 - `0_data/order_items/` contains daily order-item files used to build the fact layer.
 - The local data is intended to be uploaded into Databricks-accessible storage before running the notebooks.
 
+## Screenshots
+
+### Workspace
+
+![Databricks workspace view](./Screenshots/1.%20Workspace.png)
+
+### Catalog
+
+![Catalog and schema view](./Screenshots/2.%20Catalog.png)
+
+### Pipeline
+
+![Pipeline execution view](./Screenshots/3.%20Pipeline.png)
+
 ## Notes
 
 - The current implementation is a batch full-refresh pattern rather than a streaming or CDC pipeline.
