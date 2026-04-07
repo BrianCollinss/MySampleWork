@@ -8,8 +8,9 @@ dependencies:
   - pyarrow>=16
   - matplotlib>=3.8
   - seaborn>=0.13
+  - scikit-learn>=1.5
+  - joblib>=1.4
   - jupyterlab>=4.2
   - notebook>=7.2
   - ipykernel>=6.29
   - nbformat>=5.10
-

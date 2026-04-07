@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from os import PathLike
+import re
 from typing import Dict
 
 import pandas as pd
@@ -10,6 +12,7 @@ import pandas as pd
 from customer_churn_analysis.config import (
     DATA_DIR,
     FIGURES_DIR,
+    MODELS_DIR,
     NOTEBOOKS_DIR,
     OUTPUTS_DIR,
     PARQUET_COMBINED_PATH,
@@ -17,6 +20,7 @@ from customer_churn_analysis.config import (
     PARQUET_TRAIN_PATH,
     RAW_TEST_PATH,
     RAW_TRAIN_PATH,
+    REPORT_PATH,
     REPORTS_DIR,
 )
 
@@ -55,7 +59,7 @@ CATEGORICAL_COLUMNS = ["gender", "subscription_type", "contract_length"]
 
 def ensure_project_directories() -> None:
     """Create the output folders used by the project."""
-    for path in [DATA_DIR, NOTEBOOKS_DIR, OUTPUTS_DIR, FIGURES_DIR, REPORTS_DIR]:
+    for path in [DATA_DIR, NOTEBOOKS_DIR, OUTPUTS_DIR, FIGURES_DIR, MODELS_DIR, REPORTS_DIR]:
         path.mkdir(parents=True, exist_ok=True)
 
 
@@ -126,8 +130,9 @@ def write_table_outputs(
     split_comparison: pd.DataFrame,
     target_summary: pd.DataFrame,
 ) -> None:
-    """Write summary tables into the executive summary markdown report."""
-    report_path = REPORTS_DIR / "executive_summary.md"
+    """Write summary tables into the merged markdown report."""
+    report_path = REPORT_PATH
+    notebook_update_time = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
 
     def _dataframe_to_markdown_table(frame: pd.DataFrame) -> str:
         display_frame = frame.copy()
@@ -144,9 +149,98 @@ def write_table_outputs(
             rows.append("| " + " | ".join(str(value) for value in row) + " |")
         return "\n".join(rows)
 
+    def _build_model_evaluation_summary() -> str:
+        if not report_path.exists():
+            return "\n".join(
+                [
+                    "### Model Evaluation Summary",
+                    "",
+                    "- Model evaluation details are not available yet. Run the modelling notebook to generate them.",
+                ]
+            )
+
+        report_text = report_path.read_text(encoding="utf-8")
+        metrics_by_model: dict[str, dict[str, float]] = {}
+        comparison_match = re.search(
+            r"### Model Comparison\n\n(?P<table>(?:\|.*\n)+)",
+            report_text,
+        )
+        if comparison_match is not None:
+            table_lines = [line.strip() for line in comparison_match.group("table").splitlines() if line.strip()]
+            if len(table_lines) >= 3:
+                headers = [cell.strip() for cell in table_lines[0].strip("|").split("|")]
+                for row_line in table_lines[2:]:
+                    row_values = [cell.strip() for cell in row_line.strip("|").split("|")]
+                    if len(row_values) != len(headers):
+                        continue
+                    row_dict = dict(zip(headers, row_values))
+                    model_name = row_dict.get("", "").strip()
+                    if not model_name:
+                        continue
+                    metrics_by_model[model_name] = {
+                        "accuracy": float(row_dict["accuracy"]),
+                        "balanced_accuracy": float(row_dict["balanced_accuracy"]),
+                        "precision": float(row_dict["precision"]),
+                        "recall": float(row_dict["recall"]),
+                        "specificity": float(row_dict["specificity"]),
+                        "f1": float(row_dict["f1"]),
+                        "roc_auc": float(row_dict["roc_auc"]),
+                        "average_precision": float(row_dict["average_precision"]),
+                        "brier_score": float(row_dict["brier_score"]),
+                    }
+
+        if not metrics_by_model:
+            return "\n".join(
+                [
+                    "### Model Evaluation Summary",
+                    "",
+                    "- Model evaluation report exists, but the metric sections could not be parsed automatically.",
+                ]
+            )
+
+        best_accuracy_model = max(metrics_by_model, key=lambda name: metrics_by_model[name]["accuracy"])
+        best_roc_auc_model = max(metrics_by_model, key=lambda name: metrics_by_model[name]["roc_auc"])
+        best_avg_precision_model = max(
+            metrics_by_model,
+            key=lambda name: metrics_by_model[name]["average_precision"],
+        )
+        best_brier_model = min(metrics_by_model, key=lambda name: metrics_by_model[name]["brier_score"])
+
+        def _pretty_name(name: str) -> str:
+            return name.replace("_", " ")
+
+        return "\n".join(
+            [
+                "### Model Evaluation Summary",
+                "",
+                "- Logistic regression currently provides the strongest thresholded test-set performance, with the best accuracy, F1, and calibration among the compared models.",
+                (
+                    f"- Best accuracy: `{_pretty_name(best_accuracy_model)}` "
+                    f"({metrics_by_model[best_accuracy_model]['accuracy']:.3f})"
+                ),
+                (
+                    f"- Best ROC AUC: `{_pretty_name(best_roc_auc_model)}` "
+                    f"({metrics_by_model[best_roc_auc_model]['roc_auc']:.3f})"
+                ),
+                (
+                    f"- Best average precision: `{_pretty_name(best_avg_precision_model)}` "
+                    f"({metrics_by_model[best_avg_precision_model]['average_precision']:.3f})"
+                ),
+                (
+                    f"- Best Brier score: `{_pretty_name(best_brier_model)}` "
+                    f"({metrics_by_model[best_brier_model]['brier_score']:.3f})"
+                ),
+                "- The tree-based models rank customers more effectively overall, but on the current test split they classify almost everyone as churned at their selected thresholds, which hurts specificity and overall accuracy.",
+                "- This reinforces the distribution-shift finding from the exploratory analysis: strong cross-validation scores inside the training split do not fully carry over to the held-out test set.",
+                "- See the model evaluation section below for the full comparison, thresholds, confusion matrices, and saved model paths.",
+            ]
+        )
+
     generated_section = "\n".join(
         [
             "## Summary Tables",
+            "",
+            f"_Updated from `01_customer_churn_analysis.ipynb`: {notebook_update_time}_",
             "",
             "<!-- AUTO-GENERATED TABLES START -->",
             "### Data Quality Summary",
@@ -160,6 +254,8 @@ def write_table_outputs(
             "### Churn Summary By Split",
             "",
             _dataframe_to_markdown_table(target_summary),
+            "",
+            _build_model_evaluation_summary(),
             "<!-- AUTO-GENERATED TABLES END -->",
         ]
     )
@@ -167,7 +263,37 @@ def write_table_outputs(
     if report_path.exists():
         report_text = report_path.read_text(encoding="utf-8").rstrip()
     else:
-        report_text = "# Executive Summary"
+        report_text = "\n".join(
+            [
+                "# Executive Summary",
+                "",
+                "## Overview",
+                "",
+                "This project analyses a customer churn dataset provided as labelled training and testing CSV files. The workflow converts both files into parquet format, standardises the schema, removes the single blank training record, and produces reusable analysis assets suitable for a portfolio or stakeholder demo.",
+                "",
+                "## Initial Findings",
+                "",
+                "- The training split contains 440,832 usable records after removing one blank row.",
+                "- The test split contains 64,374 labelled records.",
+                "- Churn prevalence differs materially by split, with the training set near 56.7% and the test set near 47.4%.",
+                "- The split difference suggests the project should explicitly compare train and test behaviour rather than assuming both partitions come from identical distributions.",
+                "",
+                "## Business Interpretation",
+                "",
+                "The dataset structure supports a retention-focused analysis that links churn to customer tenure, service usage, support demand, payment delay, spend, and contract configuration. In practice, the most useful stakeholder questions are:",
+                "",
+                "- Which customer segments show the highest churn risk?",
+                "- Are there signs of train/test distribution shift that could affect model or reporting reliability?",
+                "- Which behavioural and commercial features move most clearly with churn outcomes?",
+                "",
+                "## Deliverables",
+                "",
+                "- Conda environment specification in `environment.yml`",
+                "- Reusable Python helpers in `src/customer_churn_analysis/`",
+                "- Jupyter notebooks in `notebooks/` for both analysis and modelling",
+                "- Output-ready figures in `outputs/` and auto-generated summary tables in this report",
+            ]
+        )
 
     start_marker = "<!-- AUTO-GENERATED TABLES START -->"
     end_marker = "<!-- AUTO-GENERATED TABLES END -->"

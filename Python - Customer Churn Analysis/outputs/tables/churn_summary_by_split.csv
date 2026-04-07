@@ -1,0 +1,3 @@
+source_split,customers,churn_rate
+test,64374,0.47
+train,440832,0.57
