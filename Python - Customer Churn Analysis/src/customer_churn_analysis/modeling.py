@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 import os
 from pathlib import Path
-from typing import Hashable, Mapping, cast
+from typing import Callable, Hashable, Mapping, cast
 
 # Keep heavier estimators on a single thread so they run reliably in sandboxed
 # Windows environments where worker pool creation can fail.
@@ -83,8 +83,9 @@ NUMERIC_FEATURES = [
 
 CATEGORICAL_FEATURES = ["gender", "subscription_type", "contract_length"]
 GRID_SEARCH_SAMPLE_SIZE = 200_000
-GRID_SEARCH_N_JOBS = max(1, (os.cpu_count() or 1) - 2)
+GRID_SEARCH_N_JOBS = max(1, (os.cpu_count() or 1) - 1)
 SHIFT_WEIGHT_CLIP_RANGE = (0.25, 4.0)
+PCA_VARIANCE_TARGET = 0.98
 
 
 @dataclass
@@ -106,9 +107,9 @@ class ModelEvaluation:
     cross_validation_score: float | None = None
 
 
-def add_engineered_features(frame: pd.DataFrame) -> pd.DataFrame:
+def add_engineered_features(df: pd.DataFrame) -> pd.DataFrame:
     """Add a compact derived feature set shared by all churn models."""
-    engineered = frame.copy()
+    engineered = df.copy()
     tenure = engineered["tenure_months"].fillna(0)
     spend = engineered["total_spend"].fillna(0)
     usage = engineered["usage_frequency"].fillna(0)
@@ -182,7 +183,9 @@ def build_logistic_regression_pipeline() -> Pipeline:
         steps=[
             ("feature_engineering", FunctionTransformer(add_engineered_features, validate=False)),
             ("preprocessor", _build_linear_preprocessor()),
-            ("pca", PCA(n_components=0.95, random_state=42)),
+            # Keep as many components as needed to explain the target share of
+            # cumulative variance rather than forcing a fixed component count.
+            ("pca", PCA(n_components=PCA_VARIANCE_TARGET, random_state=42)),
             ("classifier", LogisticRegression(max_iter=1000, random_state=42)),
         ]
     )
@@ -308,7 +311,7 @@ def _run_grid_search(
         y_train,
         sample_weight=sample_weight,
     )
-    cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+    cv = StratifiedKFold(n_splits=4, shuffle=True, random_state=42)
     grid_search = GridSearchCV(
         estimator=pipeline,
         param_grid=param_grid,
@@ -345,6 +348,28 @@ def tune_logistic_regression_pipeline(
     )
 
 
+def tune_random_forest_pipeline(
+    x_train: pd.DataFrame,
+    y_train: pd.Series,
+    sample_weight: pd.Series | None = None,
+) -> tuple[Pipeline, dict[str, object], float]:
+    """Run grid search for the random forest benchmark."""
+    param_grid: dict[str, list[object]] = {
+        "classifier__n_estimators": [100],
+        "classifier__max_depth": [10],
+        "classifier__min_samples_leaf": [50],
+        "classifier__min_samples_split": [2],
+        "classifier__max_features": [None],
+    }
+    return _run_grid_search(
+        build_random_forest_pipeline(),
+        param_grid,
+        x_train,
+        y_train,
+        sample_weight=sample_weight,
+    )
+
+
 def tune_gradient_boosting_pipeline(
     x_train: pd.DataFrame,
     y_train: pd.Series,
@@ -359,26 +384,6 @@ def tune_gradient_boosting_pipeline(
     }
     return _run_grid_search(
         build_gradient_boosting_pipeline(),
-        param_grid,
-        x_train,
-        y_train,
-        sample_weight=sample_weight,
-    )
-
-
-def tune_random_forest_pipeline(
-    x_train: pd.DataFrame,
-    y_train: pd.Series,
-    sample_weight: pd.Series | None = None,
-) -> tuple[Pipeline, dict[str, object], float]:
-    """Run grid search for the random forest benchmark."""
-    param_grid: dict[str, list[object]] = {
-        "classifier__n_estimators": [50, 200],
-        "classifier__max_depth": [4, 8],
-        "classifier__min_samples_leaf": [50, 150],
-    }
-    return _run_grid_search(
-        build_random_forest_pipeline(),
         param_grid,
         x_train,
         y_train,
@@ -511,11 +516,15 @@ def train_and_compare_models() -> list[ModelEvaluation]:
         #("hist_gradient_boosting", tune_gradient_boosting_pipeline),
     ]
 
-    evaluations: list[ModelEvaluation] = []
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
+    print(
+        f"Training {len(tuned_models)} model(s) with GridSearchCV using {GRID_SEARCH_N_JOBS} CPU core(s)."
+    )
+    evaluations: list[ModelEvaluation] = []
 
     for model_name, tune_model in tuned_models:
-        model, best_params, best_score = tune_model(x_train, y_train, sample_weight=shift_weights)
+        print(f"\nTraining model: {model_name}")
+        model, best_params, best_score = tune_model(x_train, y_train, shift_weights)
 
         threshold_model = cast(Pipeline, model)
         threshold_model.fit(x_dev, y_dev, **_classifier_fit_params(shift_weights, x_dev.index))
@@ -550,9 +559,9 @@ def build_comparison_table(evaluations: list[ModelEvaluation]) -> pd.DataFrame:
     return comparison.sort_values("roc_auc", ascending=False).reset_index(drop=True)
 
 
-def _dataframe_to_markdown_table(frame: pd.DataFrame) -> str:
+def _dataframe_to_markdown_table(df: pd.DataFrame) -> str:
     """Render a DataFrame as a simple markdown table without optional dependencies."""
-    display_frame = frame.copy()
+    display_frame = df.copy()
     for column in display_frame.select_dtypes(include="float").columns:
         display_frame[column] = display_frame[column].map(lambda value: f"{value:.3f}")
 
@@ -689,7 +698,7 @@ def plot_model_metric_comparison(comparison_table: pd.DataFrame) -> Axes:
         value_name="score",
     )
 
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(8, 5))
     ax = sns.barplot(data=long_frame, x="metric", y="score", hue="model_name", palette="Set2")
     ax.set_title("Model Metric Comparison")
     ax.set_xlabel("Metric")
@@ -700,7 +709,7 @@ def plot_model_metric_comparison(comparison_table: pd.DataFrame) -> Axes:
 
 def plot_roc_and_precision_recall(evaluations: list[ModelEvaluation]) -> tuple[Axes, Axes]:
     """Plot ROC and precision-recall curves for all evaluated models."""
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    fig, axes = plt.subplots(1, 2, figsize=(9, 5))
 
     for evaluation in evaluations:
         fpr, tpr, _ = roc_curve(evaluation.y_true, evaluation.y_score)
@@ -727,7 +736,7 @@ def plot_roc_and_precision_recall(evaluations: list[ModelEvaluation]) -> tuple[A
 
 def plot_confusion_matrices(evaluations: list[ModelEvaluation]) -> np.ndarray:
     """Plot row-normalized confusion matrices for all evaluated models."""
-    fig, axes = plt.subplots(1, len(evaluations), figsize=(6 * len(evaluations), 5))
+    fig, axes = plt.subplots(1, len(evaluations), figsize=(4 * len(evaluations), 4))
     axes_array = np.atleast_1d(axes)
 
     for axis, evaluation in zip(axes_array, evaluations):
@@ -755,7 +764,7 @@ def plot_confusion_matrices(evaluations: list[ModelEvaluation]) -> np.ndarray:
 
 def plot_confusion_count_matrices(evaluations: list[ModelEvaluation]) -> np.ndarray:
     """Plot raw count confusion matrices for all evaluated models."""
-    fig, axes = plt.subplots(1, len(evaluations), figsize=(6 * len(evaluations), 5))
+    fig, axes = plt.subplots(1, len(evaluations), figsize=(4 * len(evaluations), 4))
     axes_array = np.atleast_1d(axes)
 
     for axis, evaluation in zip(axes_array, evaluations):
@@ -770,7 +779,7 @@ def plot_confusion_count_matrices(evaluations: list[ModelEvaluation]) -> np.ndar
 
 def plot_calibration_curves(evaluations: list[ModelEvaluation], bins: int = 10) -> Axes:
     """Plot calibration curves for all evaluated models."""
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(5, 5))
     ax = plt.gca()
 
     for evaluation in evaluations:
@@ -821,7 +830,7 @@ def plot_train_vs_test_metrics(evaluations: list[ModelEvaluation]) -> Axes:
             )
 
     chart_frame = pd.DataFrame(rows)
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(8, 5))
     ax = sns.barplot(data=chart_frame, x="metric", y="score", hue="dataset", palette="Set1")
     ax.set_title("Train vs Test Metric Comparison")
     ax.set_ylim(0, 1)
@@ -862,7 +871,7 @@ def plot_pca_component_projection(
         }
     )
 
-    plt.figure(figsize=(10, 7))
+    plt.figure(figsize=(5, 5))
     ax = sns.scatterplot(
         data=plot_frame,
         x="pc_1",
@@ -898,7 +907,7 @@ def extract_model_signal_table(
             }
         )
         coefficients["absolute_importance"] = coefficients["importance"].abs()
-        return coefficients.sort_values("absolute_importance", ascending=False).head(top_n)
+        return coefficients.sort_values("absolute_importance", ascending=False).head(top_n).round(3)
 
     sampled_x, sampled_y, _ = _sample_training_data_for_grid_search(
         x_reference,

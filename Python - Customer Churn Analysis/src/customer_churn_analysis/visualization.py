@@ -96,7 +96,7 @@ def _plot_split_bar_columns(
     filename: str | None = None,
 ) -> np.ndarray:
     """Render train, test, and combined bar charts as side-by-side columns."""
-    fig, axes = plt.subplots(1, 3, figsize=(16, 5), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(12, 5), sharey=True)
     split_order = ["train", "test", "combined"]
 
     for axis, split_name in zip(axes, split_order):
@@ -130,12 +130,15 @@ def plot_churn_rate_by_split(df: pd.DataFrame) -> None:
         expanded.groupby("plot_split", observed=False, as_index=False)
         .agg(churn_rate=("churn", "mean"))
     )
+    summary["plot_label"] = summary["plot_split"].map(
+        {"train": "Train", "test": "Test", "combined": "Combined"}
+    )
     summary["churn_rate_pct"] = summary["churn_rate"] * 100
 
-    plt.figure()
+    plt.figure(figsize=(7, 5))
     ax = sns.barplot(
         data=summary,
-        x="plot_split",
+        x="plot_label",
         y="churn_rate_pct",
         color="#4c78a8",
     )
@@ -220,7 +223,7 @@ def plot_numeric_distributions(
     melted = melted.dropna(subset=["value"])
 
     if kind == "hist" and isinstance(bins, list) and len(bins) == len(columns):
-        fig, axes = plt.subplots(2, 2, figsize=(11, 7))
+        fig, axes = plt.subplots(2, 2, figsize=(12, 7))
         axes_flat = axes.flatten()
 
         for axis, column, column_bins in zip(axes_flat, columns, bins):
@@ -293,7 +296,7 @@ def plot_numeric_distributions(
             displot_kwargs["bins"] = bins
 
     grid = sns.displot(**displot_kwargs)
-    grid.fig.set_size_inches(11, 7)
+    grid.fig.set_size_inches(12, 7)
     grid.set_axis_labels("Value", "Density")
     grid.set_titles("{col_name}")
     grid.fig.subplots_adjust(top=0.82, right=0.84, hspace=0.65, wspace=0.45)
@@ -380,14 +383,14 @@ def plot_numeric_feature_by_churn(
     title: str | None = None,
 ) -> Axes:
     """Plot a numeric feature split by churn status with box or violin geometry."""
-    plt.figure(figsize=(8, 4.8))
+    plt.figure(figsize=(5, 3))
     if kind == "violin":
         ax = sns.violinplot(
             data=df,
             x=numeric_column,
             y="churn_label",
             hue="churn_label",
-            palette=["#2ca02c", "#d62728"],
+            palette=["#d62728", "#2ca02c"],
             legend=False,
             inner="quartile",
             orient="h",
@@ -398,7 +401,7 @@ def plot_numeric_feature_by_churn(
             x=numeric_column,
             y="churn_label",
             hue="churn_label",
-            palette=["#2ca02c", "#d62728"],
+            palette=["#d62728", "#2ca02c"],
             legend=False,
             orient="h",
         )

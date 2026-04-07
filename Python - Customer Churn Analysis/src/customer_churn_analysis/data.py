@@ -65,28 +65,32 @@ def ensure_project_directories() -> None:
 
 def load_raw_dataset(path: str | PathLike[str], split_name: str) -> pd.DataFrame:
     """Load a raw CSV file and add split metadata."""
-    frame = pd.read_csv(path)
+    df = pd.read_csv(path)
     # Preserve where each record came from so we can compare train vs test in
     # the notebook and written analysis.
-    frame["source_split"] = split_name
-    return frame
+    df["source_split"] = split_name
+    return df
 
 
-def standardise_columns(frame: pd.DataFrame) -> pd.DataFrame:
+def standardise_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Rename columns to a consistent snake_case schema."""
-    return frame.rename(columns=COLUMN_RENAME_MAP)
+    return df.rename(columns=COLUMN_RENAME_MAP)
 
 
-def clean_dataset(frame: pd.DataFrame) -> pd.DataFrame:
+def clean_dataset(df: pd.DataFrame) -> pd.DataFrame:
     """Remove blank records and cast to analysis-friendly dtypes."""
     # The training data contains one fully blank row, so we remove rows that
     # are empty across every column before doing any type conversions.
-    cleaned = frame.dropna(how="all").copy()
+    cleaned = df.dropna(how="all").copy()
 
     # Convert the known numeric fields explicitly so downstream analysis is not
     # dependent on pandas guessing the correct type.
     for column in NUMERIC_COLUMNS:
         cleaned[column] = pd.to_numeric(cleaned[column], errors="coerce")
+
+    # This portfolio project assumes both provided files are labeled train/test
+    # splits, so rows without a churn label are removed during cleaning.
+    cleaned = cleaned.dropna(subset=["churn"]).copy()
 
     # Standardise text fields and strip extra whitespace to avoid fragmented
     # categories such as "Basic" and "Basic ".
@@ -134,8 +138,8 @@ def write_table_outputs(
     report_path = REPORT_PATH
     notebook_update_time = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
 
-    def _dataframe_to_markdown_table(frame: pd.DataFrame) -> str:
-        display_frame = frame.copy()
+    def _dataframe_to_markdown_table(df: pd.DataFrame) -> str:
+        display_frame = df.copy()
         for column in display_frame.select_dtypes(include="float").columns:
             display_frame[column] = display_frame[column].map(lambda value: f"{value:.2f}")
 
@@ -319,6 +323,21 @@ def prepare_and_persist_datasets() -> Dict[str, pd.DataFrame]:
     # Make sure the project folders exist before we try to write any outputs.
     ensure_project_directories()
 
+    def _standardise_raw_review_dataset(path: str | PathLike[str], split_name: str) -> pd.DataFrame:
+        """Prepare a raw review dataset without applying the labeled-row drop."""
+        review_df = standardise_columns(load_raw_dataset(path, split_name))
+        for column in NUMERIC_COLUMNS:
+            review_df[column] = pd.to_numeric(review_df[column], errors="coerce")
+        return review_df
+
+    raw_review_train = _standardise_raw_review_dataset(RAW_TRAIN_PATH, "train")
+    raw_review_test = _standardise_raw_review_dataset(RAW_TEST_PATH, "test")
+    raw_review_datasets = {
+        "train": raw_review_train,
+        "test": raw_review_test,
+        "combined": pd.concat([raw_review_train, raw_review_test], ignore_index=True),
+    }
+
     # Build the cleaned in-memory datasets.
     datasets = load_clean_train_test()
 
@@ -334,7 +353,7 @@ def prepare_and_persist_datasets() -> Dict[str, pd.DataFrame]:
 
     # Write the first-pass reporting tables alongside the parquet files.
     write_table_outputs(
-        build_data_quality_table(datasets),
+        build_data_quality_table(raw_review_datasets),
         build_split_comparison_table(datasets["combined"]),
         build_target_summary_table(datasets["combined"]),
     )

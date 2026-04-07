@@ -29,16 +29,16 @@ The dataset structure supports a retention-focused analysis that links churn to 
 
 ## Summary Tables
 
-_Updated from `01_customer_churn_analysis.ipynb`: 2026-04-07 18:55 E. Australia Standard Time_
+_Updated from `01_customer_churn_analysis.ipynb`: 2026-04-07 21:31 E. Australia Standard Time_
 
 <!-- AUTO-GENERATED TABLES START -->
 ### Data Quality Summary
 
 | dataset | rows | columns | duplicate_rows | total_missing_values | churn_rate |
 | --- | --- | --- | --- | --- | --- |
-| combined | 505207 | 14 | 0 | 13 | 0.56 |
-| test | 64374 | 14 | 0 | 0 | 0.47 |
-| train | 440833 | 14 | 0 | 13 | 0.57 |
+| combined | 505207 | 13 | 0 | 12 | 0.56 |
+| test | 64374 | 13 | 0 | 0 | 0.47 |
+| train | 440833 | 13 | 0 | 12 | 0.57 |
 
 ### Split Comparison Summary
 
@@ -57,30 +57,18 @@ _Updated from `01_customer_churn_analysis.ipynb`: 2026-04-07 18:55 E. Australia 
 ### Model Evaluation Summary
 
 - Logistic regression currently provides the strongest thresholded test-set performance, with the best accuracy, F1, and calibration among the compared models.
-- Best accuracy: `logistic regression` (0.585)
-- Best ROC AUC: `hist gradient boosting` (0.729)
-- Best average precision: `hist gradient boosting` (0.625)
-- Best Brier score: `logistic regression` (0.384)
+- Best accuracy: `logistic regression` (0.637)
+- Best ROC AUC: `logistic regression` (0.659)
+- Best average precision: `logistic regression` (0.555)
+- Best Brier score: `logistic regression` (0.386)
 - The tree-based models rank customers more effectively overall, but on the current test split they classify almost everyone as churned at their selected thresholds, which hurts specificity and overall accuracy.
 - This reinforces the distribution-shift finding from the exploratory analysis: strong cross-validation scores inside the training split do not fully carry over to the held-out test set.
 - See the model evaluation section below for the full comparison, thresholds, confusion matrices, and saved model paths.
 <!-- AUTO-GENERATED TABLES END -->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Detailed Analysis
+
+_Updated from `02_customer_churn_modeling.ipynb`: 2026-04-07 23:16 E. Australia Standard Time_
 
 ### Data Analysis
 
@@ -92,61 +80,62 @@ Customer tenure, spend, contract structure, and service friction remain the most
 
 ### Overview
 
-This report compares grid-searched logistic regression, random forest, and histogram-based gradient boosting models trained on the provided training split and evaluated on the provided test split.
+This report compares grid-searched logistic regression and random forest models trained on the provided training split and evaluated on the provided test split.
+
+The current version uses stronger model regularization, F1-based threshold selection, and covariate-shift weighting so the training fit places more emphasis on records that look similar to the held-out test distribution.
 
 ### Model Comparison
 
 |  | accuracy | balanced_accuracy | precision | recall | specificity | f1 | roc_auc | average_precision | brier_score |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| hist_gradient_boosting | 0.5030 | 0.5280 | 0.4880 | 0.9990 | 0.0570 | 0.6560 | 0.7290 | 0.6250 | 0.4960 |
-| logistic_regression | 0.5850 | 0.6050 | 0.5340 | 0.9850 | 0.2260 | 0.6920 | 0.6530 | 0.5520 | 0.3840 |
-| random_forest | 0.5040 | 0.5280 | 0.4880 | 0.9990 | 0.0580 | 0.6560 | 0.6500 | 0.5670 | 0.4820 |
+| logistic_regression | 0.636 | 0.651 | 0.570 | 0.937 | 0.365 | 0.709 | 0.696 | 0.649 | 0.387 |
+| random_forest | 0.506 | 0.531 | 0.490 | 0.998 | 0.063 | 0.657 | 0.532 | 0.490 | 0.494 |
 
 ## Logistic Regression
 
 ### Grid Search
 
-- Best cross-validation ROC AUC: 0.9603
-- Best parameters: `{'classifier__C': 2.0, 'classifier__class_weight': None}`
-- Selected threshold: 0.600
+- Best cross-validation ROC AUC: 0.960
+- Best parameters: `{'classifier__C': 0.8, 'classifier__class_weight': None}`
+- Selected threshold: 0.900 (chosen by validation specificity with recall floor)
 
 ### Metrics
 
-- Accuracy: 0.5854
-- Balanced Accuracy: 0.6054
-- Precision: 0.5338
-- Recall: 0.9849
-- Specificity: 0.2259
-- F1: 0.6924
-- Roc Auc: 0.6531
-- Average Precision: 0.5516
-- Brier Score: 0.3841
+- Accuracy: 0.636
+- Balanced Accuracy: 0.651
+- Precision: 0.570
+- Recall: 0.937
+- Specificity: 0.365
+- F1: 0.709
+- Roc Auc: 0.696
+- Average Precision: 0.649
+- Brier Score: 0.387
 
 #### Train vs Test
 
-- Train ROC AUC: 0.9600
-- Train F1: 0.9044
-- Test ROC AUC: 0.6531
-- Test F1: 0.6924
+- Train ROC AUC: 0.960
+- Train F1: 0.852
+- Test ROC AUC: 0.696
+- Test F1: 0.709
 
 #### Confusion Matrix
 
 |  | Predicted Retained | Predicted Churned |
 | --- | --- | --- |
-| Actual Retained | 7653 | 26228 |
-| Actual Churned | 461 | 30032 |
+| Actual Retained | 12352 | 21529 |
+| Actual Churned | 1909 | 28584 |
 
 #### Classification Report
 
 ```text
               precision    recall  f1-score   support
 
-           0      0.943     0.226     0.364     33881
-           1      0.534     0.985     0.692     30493
+           0      0.866     0.365     0.513     33881
+           1      0.570     0.937     0.709     30493
 
-    accuracy                          0.585     64374
-   macro avg      0.738     0.605     0.528     64374
-weighted avg      0.749     0.585     0.520     64374
+    accuracy                          0.636     64374
+   macro avg      0.718     0.651     0.611     64374
+weighted avg      0.726     0.636     0.606     64374
 ```
 
 #### Artifact
@@ -157,100 +146,49 @@ weighted avg      0.749     0.585     0.520     64374
 
 ### Grid Search
 
-- Best cross-validation ROC AUC: 0.9999
-- Best parameters: `{'classifier__max_depth': 14, 'classifier__min_samples_leaf': 10, 'classifier__n_estimators': 300}`
-- Selected threshold: 0.300
+- Best cross-validation ROC AUC: 1.000
+- Best parameters: `{'classifier__max_depth': 10, 'classifier__max_features': None, 'classifier__min_samples_leaf': 50, 'classifier__min_samples_split': 2, 'classifier__n_estimators': 100}`
+- Selected threshold: 0.650 (chosen by validation specificity with recall floor)
 
 ### Metrics
 
-- Accuracy: 0.5037
-- Balanced Accuracy: 0.5284
-- Precision: 0.4883
-- Recall: 0.9986
-- Specificity: 0.0582
-- F1: 0.6559
-- Roc Auc: 0.6503
-- Average Precision: 0.5667
-- Brier Score: 0.4822
+- Accuracy: 0.506
+- Balanced Accuracy: 0.531
+- Precision: 0.490
+- Recall: 0.998
+- Specificity: 0.063
+- F1: 0.657
+- Roc Auc: 0.532
+- Average Precision: 0.490
+- Brier Score: 0.494
 
 #### Train vs Test
 
-- Train ROC AUC: 1.0000
-- Train F1: 0.9996
-- Test ROC AUC: 0.6503
-- Test F1: 0.6559
+- Train ROC AUC: 0.999
+- Train F1: 0.997
+- Test ROC AUC: 0.532
+- Test F1: 0.657
 
 #### Confusion Matrix
 
 |  | Predicted Retained | Predicted Churned |
 | --- | --- | --- |
-| Actual Retained | 1972 | 31909 |
-| Actual Churned | 43 | 30450 |
+| Actual Retained | 2148 | 31733 |
+| Actual Churned | 51 | 30442 |
 
 #### Classification Report
 
 ```text
               precision    recall  f1-score   support
 
-           0      0.979     0.058     0.110     33881
-           1      0.488     0.999     0.656     30493
+           0      0.977     0.063     0.119     33881
+           1      0.490     0.998     0.657     30493
 
-    accuracy                          0.504     64374
-   macro avg      0.733     0.528     0.383     64374
-weighted avg      0.746     0.504     0.369     64374
+    accuracy                          0.506     64374
+   macro avg      0.733     0.531     0.388     64374
+weighted avg      0.746     0.506     0.374     64374
 ```
 
 #### Artifact
 
 - Saved model: `outputs/models/churn_random_forest.joblib`
-
-## Hist Gradient Boosting
-
-### Grid Search
-
-- Best cross-validation ROC AUC: 1.0000
-- Best parameters: `{'classifier__learning_rate': 0.05, 'classifier__max_depth': 8, 'classifier__min_samples_leaf': 60}`
-- Selected threshold: 0.550
-
-### Metrics
-
-- Accuracy: 0.5032
-- Balanced Accuracy: 0.5280
-- Precision: 0.4881
-- Recall: 0.9987
-- Specificity: 0.0573
-- F1: 0.6557
-- Roc Auc: 0.7290
-- Average Precision: 0.6247
-- Brier Score: 0.4964
-
-#### Train vs Test
-
-- Train ROC AUC: 1.0000
-- Train F1: 1.0000
-- Test ROC AUC: 0.7290
-- Test F1: 0.6557
-
-#### Confusion Matrix
-
-|  | Predicted Retained | Predicted Churned |
-| --- | --- | --- |
-| Actual Retained | 1943 | 31938 |
-| Actual Churned | 40 | 30453 |
-
-#### Classification Report
-
-```text
-              precision    recall  f1-score   support
-
-           0      0.980     0.057     0.108     33881
-           1      0.488     0.999     0.656     30493
-
-    accuracy                          0.503     64374
-   macro avg      0.734     0.528     0.382     64374
-weighted avg      0.747     0.503     0.368     64374
-```
-
-#### Artifact
-
-- Saved model: `outputs/models/churn_hist_gradient_boosting.joblib`
