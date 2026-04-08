@@ -1,4 +1,4 @@
-"""Snowpark storage integration setup for the Python twin path.
+"""Snowpark storage integration setup for the Python pipeline.
 
 Step 04 purpose:
 1. Point Snowflake at the AWS IAM role that can read the S3 bucket.
@@ -21,7 +21,7 @@ def main() -> None:
     with get_snowpark_session() as session:
         set_session_context(session, settings)
 
-        # Match the SQL twin by creating only the storage integration in this step.
+        # Match the SQL pipeline by creating only the storage integration in this step.
         run_sql(
             session,
             f"""

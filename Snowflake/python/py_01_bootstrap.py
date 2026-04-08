@@ -1,9 +1,9 @@
-"""Snowpark bootstrap for the Python twin path.
+"""Snowpark bootstrap for the Python pipeline.
 
 Step purpose:
 1. Open a Snowpark session using the project .env settings.
 2. Create the warehouse and the Bronze, Silver, and Gold schemas.
-3. Provision the Python twin file format and base tables for the Snowpipe path.
+3. Provision the Python pipeline file format and base tables for the Snowpipe path.
 """
 
 import sys
@@ -43,7 +43,7 @@ def main() -> None:
         set_session_context(session, settings)
 
         # The medallion schemas keep the landing, curation, and serving layers
-        # physically separate so the Python and SQL twins share the same layout.
+        # physically separate so the twin pipelines share the same layout.
         for schema_name in (settings.bronze_schema, settings.silver_schema, settings.gold_schema):
             run_sql(session, f"CREATE SCHEMA IF NOT EXISTS {schema_name}", f"py create {schema_name}")
 
@@ -62,7 +62,7 @@ def main() -> None:
         )
 
         # Bootstrap every empty table up front so later steps can focus on data
-        # movement rather than DDL. The names mirror the SQL twin exactly.
+        # movement rather than DDL. The names mirror the SQL pipeline exactly.
         create_table_statements = [
             (
                 settings.bronze_object("customer_bronze"),

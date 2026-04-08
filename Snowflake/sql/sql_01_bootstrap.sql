@@ -1,4 +1,4 @@
--- Step 01: bootstrap the medallion foundation for one twin path.
+-- Step 01: bootstrap the medallion foundation for one pipeline.
 -- Process:
 -- 1. Read the runtime variables declared below.
 -- 2. Create the warehouse and the Bronze, Silver, and Gold schemas.

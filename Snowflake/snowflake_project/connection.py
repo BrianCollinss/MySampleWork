@@ -1,4 +1,4 @@
-"""Connection helpers shared by every Python twin step in the project.
+"""Connection helpers shared by every Python pipeline step in the project.
 
 The goal of this module is to make the authentication path explicit:
 1. Load the project-local .env file.
@@ -24,7 +24,7 @@ REQUIRED_VARS = ("SNOWFLAKE_USER", "SNOWFLAKE_ACCOUNT")
 
 def load_environment() -> None:
     # Every pipeline step reads the same project-local environment file so the
-    # SQL and Python twins stay pointed at the same Snowflake account.
+    # The twin pipelines stay pointed at the same Snowflake account.
     load_dotenv(dotenv_path=ENV_PATH)
 
 
@@ -121,7 +121,7 @@ def get_connection_parameters() -> dict[str, str]:
 
 
 def get_snowpark_session() -> Session:
-    """Create a Snowpark session for the Python twin pipeline."""
+    """Create a Snowpark session for the Python pipeline."""
     # Snowpark types `configs` as accepting `dict[str, int | str]`. Our project
     # only supplies string values, which is a valid runtime subset, so we cast
     # here to satisfy the static type checker without weakening the helper API.

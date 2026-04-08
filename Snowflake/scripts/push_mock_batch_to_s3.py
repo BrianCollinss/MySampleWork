@@ -1,6 +1,6 @@
 """Upload a compressed mock batch into the S3 prefix watched by Snowpipe.
 
-This is a shared project utility, not a Python twin step. Use it to simulate a
+This is a shared project utility, not a Python pipeline step. Use it to simulate a
 new file landing in the SQL or Python folder on S3 after the Snowpipe resources
 have been created.
 """
@@ -24,7 +24,7 @@ from snowflake_project.connection import load_environment
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Upload a mock batch file to S3 for Snowpipe.")
-    # The target prefix determines whether the file lands under the SQL or Python twin path in the bucket.
+    # The target prefix determines whether the file lands under the SQL or Python pipeline path in the bucket.
     parser.add_argument("--target-prefix", choices=("sql", "py"), default="py")
     parser.add_argument("--source-file", default="data/mock_orders_seed.csv")
     return parser.parse_args()

@@ -1,5 +1,5 @@
 -- Session init: run this once at the top of a Snowflake worksheet/session when
--- you want to execute the SQL twin steps manually without repeating the same
+-- you want to execute the SQL pipeline steps manually without repeating the same
 -- SET and USE statements before every step body.
 --
 -- The later sql_01 through sql_07 files assume this setup has already been run

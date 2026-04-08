@@ -1,1 +1,1 @@
-"""Shared helpers for the Snowflake SQL/Python twin project."""
+"""Shared helpers for the Snowflake SQL/Python pipelines project."""

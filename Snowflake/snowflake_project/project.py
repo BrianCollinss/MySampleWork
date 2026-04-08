@@ -1,4 +1,4 @@
-"""Shared project settings and helper functions for the SQL/Snowpark twin pipeline."""
+"""Shared project settings and helper functions for the SQL/Snowpark twin pipelines."""
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -57,7 +57,7 @@ class ProjectSettings:
 
 
 def load_project_settings(output_prefix: str) -> ProjectSettings:
-    """Load the pipeline settings for a specific twin path."""
+    """Load the pipeline settings for a specific pipeline."""
     load_environment()
     return ProjectSettings(
         project_role=get_env("SNOWFLAKE_ROLE", "SYSADMIN") or "SYSADMIN",

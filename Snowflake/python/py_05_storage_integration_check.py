@@ -1,4 +1,4 @@
-"""Snowpark storage integration inspection for the Python twin path.
+"""Snowpark storage integration inspection for the Python pipeline.
 
 Step 05 purpose:
 1. Describe the storage integration created for S3 access.

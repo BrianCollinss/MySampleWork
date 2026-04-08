@@ -1,4 +1,4 @@
-"""Snowpark Bronze ingestion for the Python twin path.
+"""Snowpark Bronze ingestion for the Python pipeline.
 
 Step 02 purpose:
 1. Select the core sample tables from `SNOWFLAKE_SAMPLE_DATA.TPCH_SF1`.
@@ -24,7 +24,7 @@ def main() -> None:
         set_session_context(session, settings)
 
         # Join TPCH customer, nation, and region so Bronze starts with the same
-        # enriched customer landing structure as the SQL twin path.
+        # enriched customer landing structure as the SQL pipeline.
         customer_df = (
             session.table("SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER").alias("c")
             .join(

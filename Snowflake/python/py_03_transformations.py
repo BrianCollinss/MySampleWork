@@ -1,4 +1,4 @@
-"""Snowpark Silver and Gold transformations for the Python twin path.
+"""Snowpark Silver and Gold transformations for the Python pipeline.
 
 Step 03 purpose:
 1. Apply lightweight quality filters while moving tables from Bronze to Silver.
@@ -135,7 +135,7 @@ def main() -> None:
         )
 
         # The summary view is a lightweight parity check that reports row counts
-        # across the medallion layers for the Python twin path.
+        # across the medallion layers for the Python pipeline.
         run_sql(
             session,
             f"""

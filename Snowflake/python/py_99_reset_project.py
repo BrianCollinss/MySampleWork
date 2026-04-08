@@ -1,4 +1,4 @@
-"""Snowpark reset helper for the Python twin project.
+"""Snowpark reset helper for the Python project.
 
 Step purpose:
 1. Switch to a safe database so the project database can be dropped cleanly.

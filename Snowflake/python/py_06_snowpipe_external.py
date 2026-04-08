@@ -32,7 +32,7 @@ def main() -> None:
         mock_orders_silver_table = settings.silver_object("mock_orders_silver")
         snowpipe_task = settings.silver_object("snowpipe_bronze_to_silver_task")
 
-        # The external stage points at the Python twin S3 prefix so Snowpipe only
+        # The external stage points at the Python pipeline S3 prefix so Snowpipe only
         # watches files uploaded under `.../py/`.
         run_sql(
             session,

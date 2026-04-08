@@ -75,7 +75,7 @@ BEGIN
     || 'HAVING SUM(o.total_price) >= 750000';
   EXECUTE IMMEDIATE high_value_customers_sql;
 
-  -- Publish a compact row-count summary so the two twin paths can be compared quickly.
+  -- Publish a compact row-count summary so the two pipelines can be compared quickly.
   medallion_summary_sql := 'CREATE OR REPLACE VIEW ' || medallion_summary_view || ' AS '
     || 'SELECT '''
     || prefix

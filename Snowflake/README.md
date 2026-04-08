@@ -35,7 +35,7 @@ The project now follows a true Medallion layout:
 
 ## Recommended execution order
 
-Run the Python twin path:
+Run the Python pipeline:
 
 ```bash
 python python/py_01_bootstrap.py
@@ -47,7 +47,7 @@ python python/py_06_snowpipe_external.py
 python python/py_07_validate_snowpipe_objects.py
 ```
 
-Run the SQL twin path by opening each matching `sql/sql_*.sql` file, updating the config values at the top, and executing it in order.
+Run the SQL pipeline by opening each matching `sql/sql_*.sql` file, updating the config values at the top, and executing it in order.
 
 If you are running the SQL path manually, start with
 `sql/sql_00_session_init.sql` once in the same worksheet or SnowSQL session.
@@ -118,7 +118,7 @@ flowchart TD
     L --> M["SQL 07 / PY 07 validation<br/>LIST stage<br/>SHOW pipe / stage / stream / task<br/>SYSTEM$PIPE_STATUS<br/>COPY_HISTORY<br/>Silver row checks"]
 ```
 
-The diagram shows the shared project flow. The SQL and Python twins create the same object families, but:
+The diagram shows the shared project flow. The twin pipelines create the same object families, but:
 
 - the `sql_*` path uses Snowflake SQL files directly
 - the `py_*` path uses Snowpark for data movement and SQL for DDL-heavy Snowflake features
