@@ -44,6 +44,7 @@ python python/py_03_transformations.py
 python python/py_04_create_storage_integration.py
 python python/py_05_storage_integration_check.py
 python python/py_06_snowpipe_external.py
+python python/py_07_validate_snowpipe_objects.py
 ```
 
 Run the SQL twin path by opening each matching `sql/sql_*.sql` file, updating the config values at the top, and executing it in order.
@@ -60,11 +61,11 @@ Important:
 
 ## Medallion layout
 
-Given `PROJECT_DATABASE=TRAINING_0001`, the project creates:
+Given `PROJECT_DATABASE=<PROJECT_DATABASE>`, the project creates:
 
-- `TRAINING_0001.BRONZE`
-- `TRAINING_0001.SILVER`
-- `TRAINING_0001.GOLD`
+- `<PROJECT_DATABASE>.BRONZE`
+- `<PROJECT_DATABASE>.SILVER`
+- `<PROJECT_DATABASE>.GOLD`
 
 ### Bronze objects
 
@@ -97,13 +98,13 @@ Given `PROJECT_DATABASE=TRAINING_0001`, the project creates:
 - `sql_04` / `py_04`: create or update the Snowflake storage integration
 - `sql_05` / `py_05`: inspect `DESC INTEGRATION` output for AWS trust setup
 - `sql_06` / `py_06`: create external S3 Bronze stage, Snowpipe, Bronze streams, and Silver merge tasks
-- `sql_07`: validate that the Snowpipe-related Snowflake objects exist
+- `sql_07` / `py_07`: validate that the Snowpipe-related Snowflake objects exist
 
 ## Pipeline diagram
 
 ```mermaid
 flowchart TD
-    A["SQL 00 / shared session init<br/>Set role, warehouse, variables"] --> B["SQL 01 / PY 01<br/>Create warehouse<br/>Create TRAINING_0001.BRONZE / SILVER / GOLD<br/>Create Bronze, Silver, Gold base objects"]
+    A["SQL 00 / shared session init<br/>Set role, warehouse, variables"] --> B["SQL 01 / PY 01<br/>Create warehouse<br/>Create <PROJECT_DATABASE>.BRONZE / SILVER / GOLD<br/>Create Bronze, Silver, Gold base objects"]
     B --> C["SQL 02 / PY 02<br/>Load TPCH sample data into Bronze<br/>customer_bronze, orders_bronze, lineitem_bronze"]
     C --> D["SQL 03 / PY 03<br/>Promote Bronze to Silver<br/>Build Gold table and views"]
     D --> E["SQL 04 / PY 04<br/>Create STORAGE INTEGRATION<br/>Link Snowflake to AWS IAM role"]
@@ -114,7 +115,7 @@ flowchart TD
     I --> J["Snowpipe loads file into BRONZE<br/>sql_snowpipe_orders_bronze / py_snowpipe_orders_bronze"]
     J --> K["STREAM captures new Bronze rows"]
     K --> L["TASK merges rows into SILVER<br/>sql_mock_orders_silver / py_mock_orders_silver<br/>load_method = SNOWPIPE"]
-    L --> M["SQL 07 validation<br/>LIST stage<br/>SHOW pipe / stage / stream / task<br/>SYSTEM$PIPE_STATUS<br/>COPY_HISTORY<br/>Silver row checks"]
+    L --> M["SQL 07 / PY 07 validation<br/>LIST stage<br/>SHOW pipe / stage / stream / task<br/>SYSTEM$PIPE_STATUS<br/>COPY_HISTORY<br/>Silver row checks"]
 ```
 
 The diagram shows the shared project flow. The SQL and Python twins create the same object families, but:
@@ -131,7 +132,7 @@ The diagram shows the shared project flow. The SQL and Python twins create the s
 - `sql/sql_04_create_storage_integration.sql` <-> `python/py_04_create_storage_integration.py`
 - `sql/sql_05_storage_integration_check.sql` <-> `python/py_05_storage_integration_check.py`
 - `sql/sql_06_snowpipe_external.sql` <-> `python/py_06_snowpipe_external.py`
-- `sql/sql_07_validate_snowpipe_objects.sql`: list pipes, stages, streams, and tasks after Snowpipe setup
+- `sql/sql_07_validate_snowpipe_objects.sql` <-> `python/py_07_validate_snowpipe_objects.py`
 
 ## Python implementation notes
 
@@ -143,223 +144,41 @@ The diagram shows the shared project flow. The SQL and Python twins create the s
 
 `sql_04` / `py_04` create the Snowflake storage integration, `sql_05` / `py_05` let you capture the AWS trust values, and `sql_06` / `py_06` create the remaining Snowpipe objects after AWS trust is ready.
 
-For the full cloud-side walkthrough, use:
+Use the dedicated cloud setup guide for the full procedure:
 
 - `docs/AWS_SNOWPIPE_SETUP.md`
 
-### 1. Create the S3 bucket and prefix
+In summary, the AWS/Snowpipe workflow is:
 
-Create a bucket or reuse an existing one, then create a prefix for incoming files:
+1. Create the S3 bucket and the `sql/` and `py/` prefixes.
+2. Create the IAM role and S3 read policy for Snowflake.
+3. Create the SNS topic and S3 event notification.
+4. Run `sql_04` / `py_04` to create the storage integration.
+5. Run `sql_05` / `py_05` to capture the Snowflake IAM user ARN and external ID.
+6. Update the AWS IAM trust relationship and SNS topic policy with those values.
+7. Run `sql_06` / `py_06` to create the stage, pipe, stream, and task.
+8. Upload a file with `scripts/push_mock_batch_to_s3.py`.
+9. Validate the flow with `sql_07` or `py_07`.
 
-- Bucket: `bc-snowflake-training-0001`
-- Python prefix: `py/`
-- SQL prefix: `sql/`
+Use the helper scripts when needed:
 
-Set this in `.env`:
-
-```env
-AWS_S3_BUCKET_URL=s3://bc-snowflake-training-0001
-AWS_PROFILE=bc-snowflake-training-0001
-```
-
-Recommended local AWS setup for this project:
-
-```bash
-aws configure sso --profile bc-snowflake-training-0001
-aws sso login --profile bc-snowflake-training-0001
-```
-
-Helper scripts are also included:
-
-```bash
-scripts/setup_aws_profile.bat sso
-scripts/setup_aws_profile.sh sso
-```
-
-If `aws` is not installed yet, the Windows batch helper will offer to install
-AWS CLI v2 with the official MSI installer. You can also install it manually:
-
-```powershell
-msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi
-```
-
-After installation, reopen the terminal and confirm:
-
-```powershell
-aws --version
-```
-
-If you use access keys instead of SSO, you can also run:
-
-```bash
-aws configure --profile bc-snowflake-training-0001
-```
-
-The S3 uploader script will automatically use `AWS_PROFILE` from `.env` when it is set.
-
-### 2. Create an SNS topic
-
-Create a standard SNS topic, not FIFO.
-
-Current topic:
-
-- Name: `bc-snowflake-training-0001`
-- ARN: `arn:aws:sns:ap-southeast-2:472506472624:bc-snowflake-training-0001`
-
-### 3. Create the Snowflake storage integration first
-
-Run:
-
-```sql
-sql/sql_04_create_storage_integration.sql
-```
-
-Then inspect the integration with:
-
-You can do that inspection with the helper file:
-
-```sql
-sql/sql_05_storage_integration_check.sql
-```
-
-Or run the command directly:
-
-```sql
-DESC INTEGRATION resume_s3_int;
-```
-
-Current AWS naming in this project:
-
-- IAM role name: `bc-snowflake-training-0001`
-- IAM role ARN: `arn:aws:iam::472506472624:role/bc-snowflake-training-0001`
-- IAM policy name: `bc-snowflake-training-0001`
-
-Capture these values from the result:
-
-- `STORAGE_AWS_IAM_USER_ARN`
-- `STORAGE_AWS_EXTERNAL_ID`
-
-You will need both values in the AWS trust policy.
-
-### 4. Create an IAM policy for S3 access
-
-Attach a policy that allows Snowflake to list the bucket and read objects under your prefix.
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "AllowBucketList",
-      "Effect": "Allow",
-      "Action": ["s3:ListBucket"],
-      "Resource": "arn:aws:s3:::bc-snowflake-training-0001",
-      "Condition": {
-        "StringLike": {
-          "s3:prefix": ["sql/*", "py/*"]
-        }
-      }
-    },
-    {
-      "Sid": "AllowObjectRead",
-      "Effect": "Allow",
-      "Action": ["s3:GetObject", "s3:GetObjectVersion"],
-      "Resource": [
-        "arn:aws:s3:::bc-snowflake-training-0001/sql/*",
-        "arn:aws:s3:::bc-snowflake-training-0001/py/*"
-      ]
-    }
-  ]
-}
-```
-
-### 5. Create an IAM role trusted by Snowflake
-
-Use the values from `DESC INTEGRATION` in the trust policy below:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "SNOWFLAKE_STORAGE_AWS_IAM_USER_ARN"
-      },
-      "Action": "sts:AssumeRole",
-      "Condition": {
-        "StringEquals": {
-          "sts:ExternalId": "SNOWFLAKE_STORAGE_AWS_EXTERNAL_ID"
-        }
-      }
-    }
-  ]
-}
-```
-
-The role ARN already used by the project defaults is:
-
-```env
-AWS_STORAGE_AWS_ROLE_ARN=arn:aws:iam::472506472624:role/bc-snowflake-training-0001
-```
-
-If you recreate the role under a different AWS account or name later, update `.env` and rerun `sql_04_create_storage_integration.sql`.
-
-### 6. Allow S3 to publish to SNS
-
-Add an SNS topic policy that allows `s3.amazonaws.com` to publish, restricted to your bucket ARN.
-
-### 7. Configure the S3 bucket event notification
-
-In S3 bucket properties, create an event notification:
-
-- Event types: `All object create events`
-- Prefix: leave blank for the whole bucket, or create separate notifications for `py/` and `sql/`
-- Suffix: `.csv.gz`
-- Destination: the SNS topic
-
-### 8. Resume the Snowpipe and send files
-
-After the AWS trust policy, SNS topic, and S3 notifications are configured, run:
-
-```sql
-sql/sql_06_snowpipe_external.sql
-```
-
-Or:
-
-```bash
-python python/py_06_snowpipe_external.py
-```
-
-After that, refresh the pipe if needed:
-
-```sql
-ALTER PIPE <db>.<bronze_schema>.sql_orders_pipe REFRESH;
-ALTER PIPE <db>.<bronze_schema>.py_orders_pipe REFRESH;
-```
-
-You can then validate the created objects with:
-
-```sql
-sql/sql_07_validate_snowpipe_objects.sql
-```
-
-Then upload files into the SQL and Python prefixes. You can use `scripts/push_mock_batch_to_s3.py` to upload a gzip-compressed batch file from the local seed data.
+- `scripts/setup_aws_profile.bat`
+- `scripts/setup_aws_profile.sh`
+- `scripts/push_mock_batch_to_s3.py`
 
 ## Example verification queries
 
 Inspect medallion row counts:
 
 ```sql
-SELECT * FROM TRAINING_0001.GOLD.sql_medallion_summary_gold_v;
-SELECT * FROM TRAINING_0001.GOLD.py_medallion_summary_gold_v;
+SELECT * FROM <PROJECT_DATABASE>.GOLD.sql_medallion_summary_gold_v;
+SELECT * FROM <PROJECT_DATABASE>.GOLD.py_medallion_summary_gold_v;
 ```
 
 Inspect the Silver incremental target:
 
 ```sql
-SELECT * FROM TRAINING_0001.SILVER.py_mock_orders_silver
+SELECT * FROM <PROJECT_DATABASE>.SILVER.py_mock_orders_silver
 ORDER BY ingested_at DESC;
 ```
 

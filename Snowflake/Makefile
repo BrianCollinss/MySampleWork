@@ -1,6 +1,6 @@
 ENV_NAME=snowflake-project
 
-.PHONY: setup setup-update activate bootstrap ingest transform integration-check snowpipe
+.PHONY: setup setup-update activate bootstrap ingest transform integration-check snowpipe validate
 
 setup:
 	conda env create -f environment.yml
@@ -25,3 +25,6 @@ integration-check:
 
 snowpipe:
 	python python/py_06_snowpipe_external.py
+
+validate:
+	python python/py_07_validate_snowpipe_objects.py
