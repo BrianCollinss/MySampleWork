@@ -6,10 +6,9 @@ This repository and all associated source code, documentation,
 and other materials are proprietary to Dr Brian Collins.
 
 This project uses sample data sourced from Snowflake's sample database:
-SNOWFLAKE_SAMPLE_DATA.TPCH_SF1
-Any rights in that source data remain with Snowflake or the original dataset
-owner or licensor and may be subject to separate terms, conditions, or
-attribution requirements.
+SNOWFLAKE_SAMPLE_DATA.TPCH_SF1. Any rights in that source data remain with 
+Snowflake or the original dataset owner or licensor and may be subject to 
+separate terms, conditions, or attribution requirements.
 
 No permission is granted to use, copy, modify, merge, publish, distribute,
 sublicense, sell, share, or create derivative works from any part of this
