@@ -164,7 +164,8 @@ Use the helper scripts when needed:
 
 - `scripts/setup_aws_profile.bat`
 - `scripts/setup_aws_profile.sh`
-- `scripts/push_mock_batch_to_s3.py`
+- `scripts/push_mock_batch_to_s3_sql.bat` (which calls `scripts/push_mock_batch_to_s3.py` with the `sql` prefix)
+- `scripts/push_mock_batch_to_s3_py.bat` (which calls `scripts/push_mock_batch_to_s3.py` with the `py` prefix)
 
 ## Example verification queries
 
