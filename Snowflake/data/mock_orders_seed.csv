@@ -1,0 +1,5 @@
+order_key,cust_key,order_status,total_price,order_date,order_priority,clerk,ship_priority,order_comment,ingested_at
+9000001,101,F,1520.45,2026-04-01,1-URGENT,Clerk#900000001,0,Initial mock order load,2026-04-01 08:00:00
+9000002,205,O,820.12,2026-04-01,2-HIGH,Clerk#900000002,0,Second mock order load,2026-04-01 08:05:00
+9000003,309,P,1940.00,2026-04-02,3-MEDIUM,Clerk#900000003,0,Pending mock order load,2026-04-02 09:15:00
+9000004,412,F,225.89,2026-04-02,4-NOT SPECIFIED,Clerk#900000004,0,Small mock order load,2026-04-02 10:30:00

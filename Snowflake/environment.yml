@@ -1,0 +1,20 @@
+name: snowflake-project
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - ipython
+  - pandas
+  - python-dotenv
+  - sqlparse
+  - sqlalchemy
+  - pip:
+      # Pin HTTP dependencies to versions that are compatible with the Snowflake connector.
+      - urllib3<2
+      - charset-normalizer<4
+      - boto3
+      - snowflake-connector-python
+      - snowflake-snowpark-python
+      - snowflake-sqlalchemy
+      - sqlfluff
