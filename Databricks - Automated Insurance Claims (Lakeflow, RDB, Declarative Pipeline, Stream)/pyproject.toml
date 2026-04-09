@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "auto-claims"
+version = "0.1.0"
+description = "Databricks Auto Claims sample project"
+readme = "README.md"
+requires-python = ">=3.11"

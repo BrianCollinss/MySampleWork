@@ -1,0 +1,17 @@
+name: auto-claims-databricks
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - pip
+  - setuptools>=68
+  - wheel
+  - ipykernel
+  - pip:
+      # Keep this aligned with the Databricks Runtime / Databricks Connect target
+      # you use in your workspace.
+      # Change this version to match your Databricks Runtime / Databricks Connect target.
+      - databricks-connect==17.3.*
+      - databricks-sdk>=0.19.0

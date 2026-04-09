@@ -1,0 +1,51 @@
+resources:
+  jobs:
+    # Job 1 resets the landing volume and uploads the deterministic base dataset
+    # used to start a clean end-to-end demo run.
+    training_0003_auto_claims_01_upload_base_data:
+      name: training_0003_auto_claims_01_upload_base_data
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "2"
+      tasks:
+        - task_key: upload_base_data
+          spark_python_task:
+            python_file: ${workspace.file_path}/tools/demo_upload_source_data.py
+          environment_key: default
+
+    # Job 2 runs the medallion stages in order so each downstream layer sees the
+    # latest outputs from the previous stage.
+    training_0003_auto_claims_02_run_pipelines:
+      name: training_0003_auto_claims_02_run_pipelines
+      tasks:
+        - task_key: run_bronze_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.training_0003_auto_claims_bronze.id}
+          max_retries: 0
+        - task_key: run_silver_pipeline
+          depends_on:
+            - task_key: run_bronze_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.training_0003_auto_claims_silver.id}
+          max_retries: 0
+        - task_key: run_gold_pipeline
+          depends_on:
+            - task_key: run_silver_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.training_0003_auto_claims_gold.id}
+          max_retries: 0
+
+    # Job 3 is intentionally separate so the live source feed can be started and
+    # stopped independently from the pipeline refresh workflow.
+    training_0003_auto_claims_03_live_demo_feed:
+      name: training_0003_auto_claims_03_live_demo_feed
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "2"
+      tasks:
+        - task_key: stream_demo_data
+          spark_python_task:
+            python_file: ${workspace.file_path}/tools/demo_stream_source_data.py
+          environment_key: default

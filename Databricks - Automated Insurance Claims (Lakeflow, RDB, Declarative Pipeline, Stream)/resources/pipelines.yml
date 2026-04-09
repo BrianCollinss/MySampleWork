@@ -1,0 +1,67 @@
+resources:
+  pipelines:
+    # Bronze, silver, and gold are split into separate pipelines because the
+    # demo wants each medallion stage to be easy to run and explain on its own.
+    training_0003_auto_claims_bronze:
+      name: training_0003_auto_claims_01_bronze
+      catalog: training_0003_auto_claims
+      schema: 01_bronze
+      development: true
+      edition: ADVANCED
+      channel: CURRENT
+      serverless: true
+      continuous: false
+      configuration:
+        auto_claims.catalog: training_0003_auto_claims
+        # This switch is documented in the bronze file and README as a demo
+        # affordance for showing the DLT path while acknowledging an alternate
+        # ingestion path may be used in a real implementation.
+        auto_claims.bronze.use_dlt: "false"
+        auto_claims.schemas.landing: 00_landing
+        auto_claims.volumes.landing: landing
+        auto_claims.schemas.bronze: 01_bronze
+        auto_claims.schemas.silver: 02_silver
+        auto_claims.schemas.gold: 03_gold
+      libraries:
+        - file:
+            path: ${workspace.file_path}/pipelines/01_bronze_ingestion.py
+
+    training_0003_auto_claims_silver:
+      name: training_0003_auto_claims_02_silver
+      catalog: training_0003_auto_claims
+      schema: 02_silver
+      development: true
+      edition: ADVANCED
+      channel: CURRENT
+      serverless: true
+      continuous: false
+      configuration:
+        auto_claims.catalog: training_0003_auto_claims
+        auto_claims.schemas.landing: 00_landing
+        auto_claims.volumes.landing: landing
+        auto_claims.schemas.bronze: 01_bronze
+        auto_claims.schemas.silver: 02_silver
+        auto_claims.schemas.gold: 03_gold
+      libraries:
+        - file:
+            path: ${workspace.file_path}/pipelines/02_silver_transforms.py
+
+    training_0003_auto_claims_gold:
+      name: training_0003_auto_claims_03_gold
+      catalog: training_0003_auto_claims
+      schema: 03_gold
+      development: true
+      edition: ADVANCED
+      channel: CURRENT
+      serverless: true
+      continuous: false
+      configuration:
+        auto_claims.catalog: training_0003_auto_claims
+        auto_claims.schemas.landing: 00_landing
+        auto_claims.volumes.landing: landing
+        auto_claims.schemas.bronze: 01_bronze
+        auto_claims.schemas.silver: 02_silver
+        auto_claims.schemas.gold: 03_gold
+      libraries:
+        - file:
+            path: ${workspace.file_path}/pipelines/03_gold_transforms.py

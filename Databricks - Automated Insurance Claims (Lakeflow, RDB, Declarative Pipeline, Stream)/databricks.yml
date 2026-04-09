@@ -1,0 +1,26 @@
+bundle:
+  name: auto-claims
+
+include:
+  - resources/pipelines.yml
+  - resources/job.yml
+
+sync:
+  include:
+    - pipelines/**
+    - tools/**
+    - data/**
+    - resources/**
+  exclude:
+    - code/**
+    - "**/__pycache__/**"
+    - "**/*.pyc"
+    - "**/desktop.ini"
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-184a378a-8a3f.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

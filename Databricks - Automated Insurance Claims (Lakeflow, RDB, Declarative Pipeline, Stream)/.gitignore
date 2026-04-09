@@ -1,0 +1,70 @@
+# OS / Windows
+Thumbs.db
+Desktop.ini
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.url
+
+# Editor / IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Databricks / Spark local outputs
+dbfs/
+spark-warehouse/
+metastore_db/
+derby.log
+checkpoint/
+checkpoints/
+_checkpoint/
+_checkpoints/
+_schemas/
+*.crc
+data/telematics/part-*.parquet
+
+# R / Shiny
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Databricks connection and configuration files
+.databricks
+
+# Temporary
+/code/
+/notebooks/
