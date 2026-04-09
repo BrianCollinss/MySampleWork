@@ -10,16 +10,12 @@ This project is a Spark-first Databricks demo for an automated insurance claims 
 - CSV ingestion for policy, claim, and customer source data
 - Image ingestion for claim and training images
 - Bronze, silver, and gold data transformations with plain Spark
-- Machine learning notebooks for claim image classification
-- Consumption assets for dashboards and app-style reporting
 
 ## Repository Layout
 
 - `pipelines/`: the three main Databricks pipeline scripts
-- `tools/`: helper scripts such as the demo source-data simulator
+- `tools/`: helper scripts for base uploads and live demo source generation
 - `code/csv_input_reference`: legacy reference assets kept for sample context
-- `notebooks`: ML notebooks and supporting notes
-- `code/consumption`: dashboard and application assets
 - `data/`: sample source data used by the demo
 
 ## Pipeline Steps
@@ -46,6 +42,15 @@ Auto Loader archive behavior consistently. In a real implementation, one bronze
 ingestion path would be chosen and fully implemented rather than carrying both
 options in the same project.
 
+Current demo default:
+
+- `auto_claims.bronze.use_dlt=true` keeps bronze ingestion inside Lakeflow / DLT.
+- `auto_claims.bronze.use_dlt=false` runs the alternate non-DLT bronze path in
+  `pipelines/01_bronze_ingestion.py`, which loads the current landing files as a
+  regular Spark job and archives the processed source files manually.
+- The current bundle configuration is set to `auto_claims.bronze.use_dlt: "false"`
+  in `resources/pipelines.yml` so the non-DLT path can be tested directly.
+
 ## Kinesis Replacement
 
 There is no live Kinesis dependency anymore.
@@ -66,14 +71,15 @@ Drop CSV snapshots into those folders and bronze ingestion will create the sourc
 
 For demo data operations:
 
-- [demo_upload_source_data.py](c:/Users/brcol/My%20Drive/Documents/!!!Resume/Sample%20Work/Databricks%20-%20Automated%20Insurance%20Claims%20(Lakeflow,%20RDB,%20Declarative%20Pipeline,%20Stream)/tools/demo_upload_source_data.py) uploads the current sample files as the base dataset
-- [demo_stream_source_data.py](c:/Users/brcol/My%20Drive/Documents/!!!Resume/Sample%20Work/Databricks%20-%20Automated%20Insurance%20Claims%20(Lakeflow,%20RDB,%20Declarative%20Pipeline,%20Stream)/tools/demo_stream_source_data.py) keeps landing 1-3 new demo records every 30 seconds for live pipeline testing
+- [demo_upload_source_data.py](./tools/demo_upload_source_data.py) resets the landing volume and uploads the current sample files as the base dataset
+- [demo_stream_source_data.py](./tools/demo_stream_source_data.py) lands flat-file live batches every 30 seconds, including two claim images per sampled claim and matching metadata rows
 
 ## Databricks Configuration
 
 The project reads the main settings from Spark conf or environment variables:
 
 - `auto_claims.catalog`
+- `auto_claims.bronze.use_dlt`
 - `auto_claims.schemas.landing`
 - `auto_claims.volumes.landing`
 - `auto_claims.schemas.bronze`
@@ -98,9 +104,15 @@ CREATE CATALOG IF NOT EXISTS training_0003_auto_claims;
 
 The project code will create the required schemas and landing volume automatically inside that catalog at runtime.
 
+Bundled jobs:
+
+- `training_0003_auto_claims_01_upload_base_data` clears the landing volume and uploads the base source files.
+- `training_0003_auto_claims_02_run_pipelines` runs bronze, then silver, then gold.
+- `training_0003_auto_claims_03_live_demo_feed` continuously lands synthetic source updates for demo purposes.
+
 ## Local Environment
 
-Use [environment.yml](c:/Users/brcol/My%20Drive/Documents/!!!Resume/Sample%20Work/Databricks%20-%20Automated%20Insurance%20Claims%20(Lakeflow,%20RDB,%20Declarative%20Pipeline,%20Stream)/environment.yml#L1) to create a local conda environment for Databricks development.
+Use [environment.yml](./environment.yml) to create a local conda environment for Databricks development.
 
 Example:
 
@@ -122,10 +134,14 @@ Recommended workflow for this project in VS Code:
 5. Sign in to your Databricks workspace from the Databricks sidebar.
 6. Attach Databricks Connect to a compatible cluster or serverless compute.
 7. Run the repo scripts in order:
-   `tools/demo_source_simulator.py`
+   `tools/demo_upload_source_data.py`
    `pipelines/01_bronze_ingestion.py`
    `pipelines/02_silver_transforms.py`
    `pipelines/03_gold_transforms.py`
+
+If you want live source updates after the base load, run:
+
+`tools/demo_stream_source_data.py`
 
 Databricks local setup note:
 
