@@ -1,0 +1,275 @@
+# Project-level settings used across the pipeline.
+# Analysts will usually only need to update values in the `runtime` section.
+
+project:
+  name: procurement-risk-assurance-reporting
+  log_level: INFO
+  currency: AUD
+
+runtime:
+  # Root folder containing all raw source folders.
+  # Each reporting run points to one subfolder inside this directory.
+  raw_root_dir: data
+
+  # Medallion layer output locations under each timestamped run folder.
+  # These are resolved under: outputs/<timestamp> - <organisation>/data/
+  bronze_dir: 1_bronze
+  silver_dir: 2_silver
+  gold_dir: 3_gold
+
+  # Number of rows to sample from each file when inferring schema.
+  # Increase this if source files have messy headings or mixed datatypes.
+  schema_sample_rows: 100
+
+  # Human-readable name of the organisation or reporting entity.
+  # This is used in report headers, executive summaries, and output run-folder names.
+  organisation_name: Griffith University
+
+  # Month used as the start of the financial year.
+  # For Australian public-sector reporting, July is usually appropriate.
+  financial_year_start_month: 7
+
+  # Default source folder used when the analyst runs:
+  #   python -m src.main
+  # without supplying --raw-folder.
+  # The folder must exist under raw_root_dir.
+  default_raw_folder: Griffith University Contract Disclosure Report
+
+  # Optional filename patterns to exclude from ingestion.
+  # Useful for demos, temporary files, exports, or duplicates you do not
+  # want included in Bronze/Silver/Gold outputs.
+  excluded_file_patterns:
+    - "*_demo.csv"
+    - "*demo*.csv"
+
+# Fields treated as critical for governance and data quality checks.
+# Missing values in these fields affect validation outputs and quality scoring.
+critical_fields:
+  - source_agency
+  - contract_id
+  - supplier_name
+  - contract_value
+  - contract_start_date
+
+# Target Silver-layer schema.
+# Source columns from different files are matched into these canonical fields.
+canonical_contract_schema:
+  - source_file
+  - source_folder
+  - source_agency
+  - contract_id
+  - supplier_name
+  - supplier_abn
+  - contract_title
+  - procurement_category
+  - procurement_method
+  - contract_start_date
+  - contract_end_date
+  - contract_value
+  - reporting_period
+  - publish_date
+
+# Known aliases used to standardise source schemas.
+# Add new aliases here when a new agency/jurisdiction uses different headings.
+schema_mappings:
+  source_agency:
+    - agency
+    - agency_name
+    - entity_name
+    - customer
+    - department
+    - organisation
+    - agency_dept_or_stat_body
+  contract_id:
+    - contract_id
+    - contract_number
+    - contract_no
+    - cn_id
+    - atm_id
+    - son_id
+    - notice_id
+    - reference_number
+    - contract_reference_number
+  supplier_name:
+    - supplier_name
+    - supplier
+    - supplier_legal_name
+    - business_name
+    - vendor_name
+    - contractor
+  supplier_abn:
+    - supplier_abn
+    - abn
+    - abn_acn
+    - supplier_abn_acn
+  contract_title:
+    - contract_title
+    - title
+    - description
+    - contract_description
+    - procurement_description
+    - arrangement_title
+    - contract_description_name
+  procurement_category:
+    - procurement_category
+    - category
+    - category_name
+    - unspsc_title
+    - unspsc_category
+    - contract_category
+    - contract_category_group
+  procurement_method:
+    - procurement_method
+    - method
+    - approach_to_market
+    - market_approach
+    - procurement_procedure
+    - selection_process
+  contract_start_date:
+    - contract_start_date
+    - start_date
+    - commencement_date
+    - contract_commencement
+    - commencement
+    - commence_date
+    - award_contract_date
+  contract_end_date:
+    - contract_end_date
+    - end_date
+    - expiry_date
+    - contract_end
+    - contract_end_date_estimated
+    - expiry
+    - finish_date
+  contract_value:
+    - contract_value
+    - value
+    - contract_price
+    - estimated_value
+    - contract_amount
+    - value_aud
+    - total_value
+  reporting_period:
+    - reporting_period
+    - report_period
+    - month
+    - period
+    - reporting_month
+  publish_date:
+    - publish_date
+    - publication_date
+    - amended_date
+    - notice_publication_date
+    - disclosure_date
+
+# Risk and exception thresholds.
+# Analysts can tune these values to reflect local control thresholds or
+# assurance priorities without changing Python code.
+risk_rules:
+  # Red-flag threshold for top supplier share within a reporting period.
+  # Example: 0.45 means one supplier accounts for 45% or more of period spend.
+  supplier_concentration_threshold: 0.45
+
+  # Amber threshold for top supplier share within a reporting period.
+  # Used to surface early concentration signals before they become red.
+  concentration_amber_threshold: 0.35
+
+  # Maximum contract value still treated as a "small contract" for repeat-award checks.
+  # Contracts at or below this amount are assessed for possible fragmentation patterns.
+  repeated_small_contract_value_threshold: 100000
+
+  # Minimum number of small contracts to the same supplier before a repeat-award exception is raised.
+  repeated_small_contract_count_threshold: 3
+
+  # Rolling time window, in days, used to assess repeated small contracts to the same supplier.
+  repeated_small_contract_window_days: 90
+
+  # Red-flag spend growth threshold for period-on-period movement.
+  # Example: 0.50 means spend growth of 50% or more.
+  abrupt_spend_growth_threshold: 0.5
+
+  # Amber threshold for period-on-period spend growth.
+  # Used to identify emerging growth risk before the red threshold is met.
+  spend_growth_amber_threshold: 0.25
+
+  # Lower bound of the "near threshold" contract value band.
+  # Contracts within this band may warrant review of procurement pathway or approvals.
+  near_threshold_band_lower: 95000
+
+  # Upper bound of the "near threshold" contract value band.
+  # Usually aligned to an internal delegation or procurement threshold.
+  near_threshold_band_upper: 100000
+
+  # Maximum acceptable proportion of missing critical fields on an individual record.
+  # Records above this threshold are flagged as governance/data quality issues.
+  missing_critical_fields_threshold: 0.1
+
+  # File-level null-rate threshold for critical fields.
+  # Source files above this level are treated as data quality risks.
+  high_null_rate_threshold: 0.2
+
+  # Upper quantile used to identify unusually large contract values.
+  # Example: 0.95 flags contracts in the top 5% of positive values.
+  unusually_large_value_quantile: 0.95
+
+  # Lower quantile used to identify unusually small but positive contract values.
+  # Example: 0.05 flags contracts in the bottom 5% of positive values.
+  unusually_small_positive_value_quantile: 0.05
+
+# Indicator weighting and RAG scoring thresholds used by the scorecard.
+# Weights should typically add to 1.0 so the overall governance score remains intuitive.
+scoring:
+  weights:
+    # Weight assigned to supplier concentration in the overall score.
+    # Higher values make concentration risk matter more in the final scorecard.
+    concentration: 0.3
+
+    # Weight assigned to data quality performance in the overall score.
+    # Higher values place more emphasis on completeness and reliability of source data.
+    data_quality: 0.25
+
+    # Weight assigned to period-on-period spend growth behaviour.
+    # Higher values make abrupt spend changes more influential in the overall score.
+    spend_growth: 0.2
+
+    # Weight assigned to repeated small contract behaviour.
+    # Higher values place more emphasis on possible fragmentation or aggregation risk.
+    repeated_small_contracts: 0.15
+
+    # Weight assigned to transparency-style issues such as validation problems by file.
+    # Higher values make disclosure and control-quality issues more prominent.
+    transparency: 0.1
+  rag_thresholds:
+    # Scores below this value are classified as Red.
+    # Red indicates a materially elevated governance or assurance concern.
+    red: 40
+
+    # Scores from `red` up to this value are classified as Amber.
+    # Scores at or above this threshold are classified as Green.
+    amber: 70
+
+# Reporting presentation settings.
+reporting:
+  # Number of suppliers shown in ranking outputs and charts.
+  top_n_suppliers: 10
+
+  # Matplotlib style used for the chart pack.
+  chart_style: tableau-colorblind10
+
+# Optional advanced analytics modules that extend the Gold layer.
+advanced_analytics:
+  supplier_segmentation:
+    # When true, build supplier-level clustering outputs and segment labels.
+    enabled: true
+
+    # Number of supplier clusters to derive.
+    # Four is a practical default because it aligns well to segment labels such
+    # as high-value strategic, fragmented low-value repeat, sporadic high-risk,
+    # and low-information vendor.
+    cluster_count: 4
+
+    # Random seed used by the clustering routine for reproducible outputs.
+    random_state: 42
+
+    # Maximum optimisation iterations allowed for the clustering routine.
+    max_iter: 100

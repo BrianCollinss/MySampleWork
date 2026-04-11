@@ -1,0 +1,20 @@
+# Global operational settings that apply across all project runs.
+# These settings are separated from `analysis_config.yaml` so an analyst can manage
+# housekeeping behaviour, such as output retention, without touching business
+# logic settings like schema mappings or risk thresholds.
+
+output_management:
+  # Root directory where timestamped run-output folders are written.
+  # Each run creates a subfolder here containing config snapshots, Medallion
+  # data outputs, charts, tables, and executive reports.
+  output_dir: outputs
+
+  retention:
+    # Number of time units to keep timestamped output folders under `outputs/`.
+    # A value of 1 with unit `minutes` means folders older than 1 minute
+    # will be removed automatically at the start of each new run.
+    value: 1
+
+    # Supported units are `minutes`, `hours`, and `days`.
+    # Change this when you want longer-lived reporting history.
+    unit: minutes
