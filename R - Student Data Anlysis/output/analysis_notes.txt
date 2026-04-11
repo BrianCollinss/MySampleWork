@@ -1,7 +1,0 @@
-The workbook contains 64000 student-term rows across 24781 masked students.
-Only STUDENT_ACADEMY_FLAG has material missingness: 99.59% missing, and every observed value is 1.
-Retention is moderately imbalanced but not extreme: 59.7% of rows are marked retained.
-Business and Management is the most common study area overall, but Nursing is the largest category within the female cohort while Business and Management leads within the male cohort.
-Students marked retained have a much higher average TERM_GPA (3.58) than those not retained (1.4).
-The logistic model improves on the naive majority-class baseline: accuracy 0.764 versus baseline 0.76.
-All 2025 rows are coded as not retained, so 2025 was excluded from the logistic model as a timing issue rather than a plausible behavioural signal.

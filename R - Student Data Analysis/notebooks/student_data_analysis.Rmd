@@ -1,0 +1,854 @@
+---
+title: "Student Data Analysis"
+output:
+  html_document: 
+    toc: true
+    toc_depth: 2
+    theme: spacelab
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 8,
+  fig.height = 5
+)
+
+here::i_am("notebooks/student_data_analysis.Rmd")
+knitr::opts_knit$set(root.dir = here::here())
+
+suppressPackageStartupMessages({
+  library(readxl)
+  library(dplyr)
+  library(tidyr)
+  library(ggplot2)
+  library(broom)
+  library(fs)
+  library(knitr)
+  library(tibble)
+})
+
+raw_path <- here::here("data", "raw", "student_data_analysis.xlsx")
+processed_dir <- here::here("data", "processed")
+tables_dir <- here::here("output", "tables")
+figures_dir <- here::here("output", "figures")
+
+dir_create(processed_dir)
+dir_create(tables_dir)
+dir_create(figures_dir)
+
+save_plot <- function(plot, filename, width = 8, height = 5, dpi = 300) {
+  ggsave(
+    filename = fs::path(figures_dir, filename),
+    plot = plot,
+    width = width,
+    height = height,
+    dpi = dpi
+  )
+  plot
+}
+
+fmt_pct <- function(x, digits = 1) {
+  paste0(format(round(100 * x, digits), nsmall = digits, trim = TRUE), "%")
+}
+
+fmt_pct0 <- function(x) {
+  paste0(round(100 * x), "%")
+}
+
+first_peoples_labels <- c("0" = "No", "1" = "Yes", "Unk" = "Unknown")
+gender_levels <- c("F", "M", "X", "Unknown")
+first_nation_levels <- c("Yes", "No", "Unknown")
+
+calc_cor_pvalue <- function(data) {
+  vars <- names(data)
+  p_matrix <- matrix(NA_real_, nrow = length(vars), ncol = length(vars), dimnames = list(vars, vars))
+  for (i in seq_along(vars)) {
+    for (j in seq_along(vars)) {
+      x <- data[[vars[i]]]
+      y <- data[[vars[j]]]
+      keep <- complete.cases(x, y)
+      if (i == j) {
+        p_matrix[i, j] <- 0
+      } else if (sum(keep) >= 3) {
+        p_matrix[i, j] <- suppressWarnings(cor.test(x[keep], y[keep])$p.value)
+      }
+    }
+  }
+  p_matrix
+}
+
+sig_stars <- function(p_value) {
+  case_when(
+    is.na(p_value) ~ "",
+    p_value < 0.001 ~ "***",
+    p_value < 0.01 ~ "**",
+    p_value < 0.1 ~ "*",
+    TRUE ~ ""
+  )
+}
+
+safe_group_test <- function(data, method = c("t", "wilcox")) {
+  method <- match.arg(method)
+  group_count <- data %>%
+    filter(!is.na(TERM_GPA), !is.na(RETAINED_IN_PROGRAM)) %>%
+    distinct(RETAINED_IN_PROGRAM) %>%
+    nrow()
+  if (group_count < 2) {
+    return(NA_real_)
+  }
+  if (method == "t") {
+    t.test(TERM_GPA ~ RETAINED_IN_PROGRAM, data = data)$p.value
+  } else {
+    wilcox.test(TERM_GPA ~ RETAINED_IN_PROGRAM, data = data)$p.value
+  }
+}
+
+plot_theme <- function(base_size = 11) {
+  theme_minimal(base_size = base_size) +
+    theme(
+      plot.title = element_text(margin = margin(b = 12)),
+      axis.title.x = element_text(margin = margin(t = 12)),
+      axis.title.y = element_text(margin = margin(r = 12)),
+      axis.text.x = element_text(margin = margin(t = 6)),
+      axis.text.y = element_text(margin = margin(r = 6))
+    )
+}
+
+student_terms_raw <- read_excel(raw_path, sheet = "Data")
+
+student_terms <- student_terms_raw %>%
+  mutate(
+    YEAR = factor(YEAR),
+    TERM = factor(TERM),
+    GENDER = if_else(GENDER == "-888", "Unknown", GENDER),
+    FIRST_IN_FAMILY_FLAG = if_else(FIRST_IN_FAMILY_FLAG == "UNK", "Unknown", FIRST_IN_FAMILY_FLAG),
+    FIRST_PEOPLES_FLAG = if_else(FIRST_PEOPLES_FLAG == "UNK", "Unknown", FIRST_PEOPLES_FLAG),
+    SCHOOL_LEAVER = if_else(SCHOOL_LEAVER == "UNK", "Unknown", SCHOOL_LEAVER),
+    across(
+      c(
+        ACADEMIC_CAREER_CODE, QILT_STUDY_AREA, PROGRAM_ORG, PROGRAM_GROUP, CAMPUS,
+        GENDER, FIRST_IN_FAMILY_FLAG, FIRST_PEOPLES_FLAG, ATTENDANCE_TYPE, INT_DOM,
+        SCHOOL_LEAVER
+      ),
+      as.factor
+    ),
+    DISABILITY_FLAG = factor(DISABILITY_FLAG),
+    COMPLETED_PROGRAM = factor(COMPLETED_PROGRAM),
+    RETAINED_IN_PROGRAM = factor(RETAINED_IN_PROGRAM)
+  )
+
+student_terms <- student_terms %>%
+  mutate(
+    GENDER = factor(as.character(GENDER), levels = gender_levels),
+    FIRST_PEOPLES_FLAG = factor(as.character(FIRST_PEOPLES_FLAG), levels = c("1", "0", "Unk"))
+  )
+```
+
+## Overview
+
+This notebook converts the script-based analysis into a report that shows the main tables and figures inline while continuing to save reusable outputs to `output/tables` and `output/figures`.
+
+This report covers the same analytical ground that was previously summarised in a separate markdown summary: workbook import, missingness checks, numeric summaries, correlation review, exploratory figures, and a simple retention model. The main practical questions are which variables appear most informative for retention, where subgroup differences are most visible, and which caveats matter before drawing stronger conclusions.
+
+```{r overview}
+overview_table <- tibble(
+  metric = c(
+    "Student-term rows",
+    "Masked students",
+    "Study areas",
+    "Years present"
+  ),
+  value = c(
+    nrow(student_terms_raw),
+    n_distinct(student_terms_raw$MASKED_ID),
+    n_distinct(student_terms_raw$QILT_STUDY_AREA),
+    paste(sort(unique(student_terms_raw$YEAR)), collapse = ", ")
+  )
+)
+
+overview_table %>% kable(col.names = c("Metric", "Value"))
+```
+
+```{r project-files}
+project_files <- tibble(
+  artefact = c("R analysis script", "Notebook", "Tables", "Figures"),
+  location = c(
+    "scripts/student_data_analysis.R",
+    "notebooks/student_data_analysis.Rmd",
+    "output/tables/",
+    "output/figures/"
+  )
+)
+
+project_files %>% kable(col.names = c("Artefact", "Location"))
+```
+
+To understand who appears in the workbook, this chart summarises the cohort by year, gender, and First Nation status. The main questions here are whether the sample is balanced across these dimensions and whether any subgroup is small enough that later comparisons should be interpreted carefully.
+
+```{r cohort-composition, fig.width=8, fig.height=5}
+year_mix <- student_terms %>%
+  count(YEAR, name = "n") %>%
+  mutate(
+    group_type = "Year",
+    group = as.character(YEAR),
+    share = n / sum(n)
+  )
+
+gender_mix <- student_terms %>%
+  count(GENDER, name = "n") %>%
+  mutate(
+    group_type = "Gender",
+    group = as.character(GENDER),
+    share = n / sum(n)
+  )
+
+first_peoples_mix <- student_terms %>%
+  count(FIRST_PEOPLES_FLAG, name = "n") %>%
+  mutate(
+    group_type = "First Nation",
+    group = recode(as.character(FIRST_PEOPLES_FLAG), !!!first_peoples_labels),
+    share = n / sum(n),
+    group = factor(group, levels = first_nation_levels)
+  )
+
+cohort_mix_plot <- bind_rows(
+  year_mix %>% select(group_type, group, n, share),
+  gender_mix %>%
+    mutate(group = factor(group, levels = gender_levels)) %>%
+    select(group_type, group, n, share),
+  first_peoples_mix %>%
+    select(group_type, group, n, share)
+) %>%
+  ggplot(aes(x = group, y = share, fill = group_type)) +
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = fmt_pct(share)), vjust = -0.3, size = 3.2) +
+  scale_y_continuous(labels = fmt_pct0, limits = c(0, 1)) +
+  coord_flip() +
+  facet_wrap(~ group_type, scales = "free_y") +
+  labs(
+    title = "Cohort composition",
+    x = NULL,
+    y = "Share of student-term rows"
+  ) +
+  plot_theme(11)
+
+save_plot(cohort_mix_plot, "cohort_composition.png", width = 8, height = 5)
+```
+
+## Missing values
+
+Before modelling or subgroup comparisons, it helps to check whether missing data might distort the analysis. This table answers which variables have missingness and whether any field is missing often enough to need special handling.
+
+```{r missing-summary}
+missing_summary <- tibble(
+  variable = names(student_terms_raw),
+  missing_n = colSums(is.na(student_terms_raw)),
+  missing_pct = round(100 * missing_n / nrow(student_terms_raw), 2)
+) %>%
+  arrange(desc(missing_n))
+
+write.csv(missing_summary, fs::path(tables_dir, "missing_summary.csv"), row.names = FALSE)
+
+missing_summary %>% kable()
+```
+
+## Numeric summaries
+
+These summary statistics describe the scale and spread of the key numeric variables used later in the analysis. They help answer whether the GPA and load measures look plausible and whether extreme ranges are likely to matter when plotting or modelling.
+
+```{r numeric-summary}
+numeric_summary <- student_terms_raw %>%
+  summarise(
+    across(
+      c(UNITS_PASSED, TERM_GPA, CUMULATIVE_GPA, STUDY_LOAD),
+      list(
+        min = ~ min(.x, na.rm = TRUE),
+        q1 = ~ quantile(.x, 0.25, na.rm = TRUE),
+        median = ~ median(.x, na.rm = TRUE),
+        mean = ~ mean(.x, na.rm = TRUE),
+        q3 = ~ quantile(.x, 0.75, na.rm = TRUE),
+        max = ~ max(.x, na.rm = TRUE),
+        sd = ~ sd(.x, na.rm = TRUE)
+      ),
+      .names = "{.col}_{.fn}"
+    )
+  ) %>%
+  pivot_longer(cols = everything()) %>%
+  separate(name, into = c("variable", "stat"), sep = "_(?=[^_]+$)") %>%
+  pivot_wider(names_from = stat, values_from = value)
+
+write.csv(numeric_summary, fs::path(tables_dir, "numeric_summary.csv"), row.names = FALSE)
+
+numeric_summary %>% kable(digits = 3)
+```
+
+The GPA distributions below focus only on positive GPA values so the shape of the academic performance measures is easier to see. This view is mainly used to compare how concentrated or skewed `TERM_GPA` and `CUMULATIVE_GPA` are.
+
+```{r numeric-distributions, fig.width=9, fig.height=4.8}
+numeric_histogram_data <- bind_rows(
+  student_terms_raw %>%
+    filter(TERM_GPA > 0) %>%
+    transmute(variable = "TERM_GPA", value = TERM_GPA, binwidth = 0.5),
+  student_terms_raw %>%
+    filter(CUMULATIVE_GPA > 0) %>%
+    transmute(variable = "CUMULATIVE_GPA", value = CUMULATIVE_GPA, binwidth = 0.5)
+) %>%
+  mutate(
+    bin_start = floor(value / binwidth) * binwidth,
+    bin_mid = bin_start + (binwidth / 2)
+  ) %>%
+  count(variable, bin_mid, name = "n")
+
+numeric_distribution_plot <- ggplot(numeric_histogram_data, aes(x = bin_mid, y = n)) +
+  geom_col(fill = "#3b7ea1", width = 0.45) +
+  facet_wrap(~ variable, scales = "free", ncol = 2) +
+  labs(
+    title = "Distributions of GPA measures",
+    x = NULL,
+    y = "Count"
+  ) +
+  plot_theme(11)
+
+save_plot(numeric_distribution_plot, "numeric_distributions.png", width = 9, height = 4.8)
+```
+
+## Correlations
+
+This section asks which numeric measures move together and how strongly retention aligns with them. Because retention is coded `0/1`, its correlation with continuous variables is interpretable as a quick point-biserial style association.
+
+```{r correlation-table}
+correlation_data <- student_terms_raw %>%
+  select(UNITS_PASSED, TERM_GPA, CUMULATIVE_GPA, STUDY_LOAD, RETAINED_IN_PROGRAM) %>%
+  mutate(RETAINED_IN_PROGRAM = as.numeric(RETAINED_IN_PROGRAM))
+
+correlation_table <- correlation_data %>%
+  cor(use = "pairwise.complete.obs") %>%
+  round(3)
+
+correlation_pvalues <- calc_cor_pvalue(correlation_data)
+
+write.csv(
+  as.data.frame(correlation_table),
+  fs::path(tables_dir, "correlation_matrix.csv"),
+  row.names = TRUE
+)
+
+as.data.frame(correlation_table) %>%
+  rownames_to_column("variable") %>%
+  kable()
+```
+
+Including a binary variable such as `RETAINED_IN_PROGRAM` in a correlation matrix can still be meaningful when it is coded as `0/1`. In that case the Pearson correlation is equivalent to a point-biserial correlation, so it gives a quick directional summary of association. The caveat is that it should be treated as descriptive rather than as a full causal or distribution-free analysis.
+
+The heatmap adds significance stars to show which relationships are more likely to reflect a real signal rather than noise. In practice, the largest relationships are concentrated around the GPA measures and retention.
+
+```{r correlation-heatmap, fig.width=7, fig.height=6}
+correlation_plot_data <- as.data.frame(as.table(correlation_table)) %>%
+  rename(correlation = Freq) %>%
+  left_join(
+    as.data.frame(as.table(correlation_pvalues)) %>%
+      rename(p_value = Freq),
+    by = c("Var1", "Var2")
+  ) %>%
+  mutate(
+    significance = sig_stars(p_value),
+    label = paste0(sprintf("%.2f", correlation), significance)
+  )
+
+correlation_plot <- ggplot(correlation_plot_data, aes(Var1, Var2, fill = correlation)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = label), size = 3) +
+  scale_fill_gradient2(low = "#b2182b", mid = "white", high = "#2166ac", midpoint = 0) +
+  labs(
+    title = "Correlation matrix with significance stars",
+    x = NULL,
+    y = NULL,
+    fill = "Correlation"
+  ) +
+  plot_theme(11) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, margin = margin(t = 6)))
+
+save_plot(correlation_plot, "correlation_matrix_heatmap.png", width = 7, height = 6)
+```
+
+## QILT study area popularity
+
+This section asks which `QILT_STUDY_AREA` values dominate overall enrolments before splitting by subgroup. That gives a baseline for interpreting whether later gender or First Nation differences are genuine shifts or just reflections of the overall mix.
+
+```{r overall-study-area}
+overall_study_area <- student_terms %>%
+  count(QILT_STUDY_AREA, name = "n") %>%
+  mutate(share = n / sum(n)) %>%
+  arrange(desc(n))
+
+overall_study_area %>%
+  slice_head(n = 12) %>%
+  mutate(share = fmt_pct(share)) %>%
+  kable(col.names = c("QILT study area", "Rows", "Share"))
+```
+
+The plot makes the overall concentration of study areas easier to read at a glance. It shows that a relatively small number of study areas account for a large share of the student-term records.
+
+```{r overall-study-area-plot, fig.width=8, fig.height=5}
+overall_study_area_plot <- overall_study_area %>%
+  slice_head(n = 12) %>%
+  mutate(QILT_STUDY_AREA = reorder(QILT_STUDY_AREA, n)) %>%
+  ggplot(aes(x = QILT_STUDY_AREA, y = n)) +
+  geom_col(fill = "#1b9e77") +
+  coord_flip() +
+  labs(
+    title = "Most common QILT study areas overall",
+    x = NULL,
+    y = "Student-term rows"
+  ) +
+  theme_minimal(base_size = 11)
+
+save_plot(overall_study_area_plot, "qilt_study_area_overall_top12.png", width = 8, height = 5)
+```
+
+### By gender
+
+Here the question is whether different gender groups concentrate in different study areas. The table ranks study areas within each gender so the comparison is relative to that group rather than to the whole dataset.
+
+```{r study-area-by-gender-table}
+qilt_study_area_by_gender <- student_terms %>%
+  count(GENDER, QILT_STUDY_AREA, name = "n") %>%
+  group_by(GENDER) %>%
+  mutate(
+    total = sum(n),
+    share = n / total,
+    rank = rank(-n, ties.method = "min")
+  ) %>%
+  ungroup() %>%
+  arrange(GENDER, rank, desc(n), QILT_STUDY_AREA)
+
+write.csv(
+  qilt_study_area_by_gender %>% mutate(share = round(share, 4)),
+  fs::path(tables_dir, "qilt_study_area_by_gender.csv"),
+  row.names = FALSE
+)
+
+qilt_study_area_by_gender %>%
+  filter(rank <= 5) %>%
+  mutate(share = fmt_pct(share)) %>%
+  kable(col.names = c("Gender", "QILT study area", "Rows", "Group total", "Share", "Rank"))
+```
+
+The companion figure shows the top study areas as a percentage of each gender group. This makes the gender-specific preferences more comparable than raw counts, especially because the female and male groups are different sizes.
+
+```{r study-area-by-gender-plot, fig.width=10, fig.height=8}
+study_area_by_gender_plot <- qilt_study_area_by_gender %>%
+  filter(rank <= 6, GENDER != "Unknown") %>%
+  mutate(area_label = paste0(rank, ". ", QILT_STUDY_AREA)) %>%
+  ggplot(aes(x = area_label, y = share, fill = GENDER)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ GENDER, scales = "free_x") +
+  scale_y_continuous(labels = fmt_pct0) +
+  labs(
+    title = "Most common study areas within each gender",
+    x = "QILT study area",
+    y = "Share of group"
+  ) +
+  plot_theme(11) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1, vjust = 1, size = 8, margin = margin(t = 6)))
+
+save_plot(study_area_by_gender_plot, "qilt_study_area_by_gender_top6.png", width = 10, height = 8)
+```
+
+### By First Peoples flag
+
+This table asks whether the most common study areas differ between First Nation students and everyone else. The goal is to compare within-group rankings rather than total cohort counts.
+
+```{r study-area-by-first-peoples-table}
+qilt_study_area_by_first_peoples_flag <- student_terms %>%
+  count(FIRST_PEOPLES_FLAG, QILT_STUDY_AREA, name = "n") %>%
+  group_by(FIRST_PEOPLES_FLAG) %>%
+  mutate(
+    total = sum(n),
+    share = n / total,
+    rank = rank(-n, ties.method = "min")
+  ) %>%
+  ungroup() %>%
+  arrange(FIRST_PEOPLES_FLAG, rank, desc(n), QILT_STUDY_AREA)
+
+write.csv(
+  qilt_study_area_by_first_peoples_flag %>% mutate(share = round(share, 4)),
+  fs::path(tables_dir, "qilt_study_area_by_first_peoples_flag.csv"),
+  row.names = FALSE
+)
+
+qilt_study_area_by_first_peoples_flag %>%
+  filter(rank <= 5) %>%
+  mutate(share = fmt_pct(share)) %>%
+  kable(col.names = c("First Peoples flag", "QILT study area", "Rows", "Group total", "Share", "Rank"))
+```
+
+This figure highlights the top six study areas within each First Nation group. It is mainly useful for spotting where the ranking shifts after controlling for the very different group sizes.
+
+```{r study-area-by-first-peoples-plot, fig.width=10, fig.height=8}
+study_area_by_first_peoples_plot <- qilt_study_area_by_first_peoples_flag %>%
+  filter(rank <= 6) %>%
+  mutate(
+    first_peoples_label = recode(as.character(FIRST_PEOPLES_FLAG), !!!first_peoples_labels),
+    area_label = paste0(rank, ". ", QILT_STUDY_AREA)
+  ) %>%
+  ggplot(aes(x = area_label, y = n, fill = first_peoples_label)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ first_peoples_label, scales = "free") +
+  labs(
+    title = "Most common study areas within each First Nation group",
+    x = "QILT study area",
+    y = "Student-term rows"
+  ) +
+  plot_theme(11) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1, vjust = 1, size = 8, margin = margin(t = 6)))
+
+save_plot(study_area_by_first_peoples_plot, "qilt_study_area_by_first_peoples_top6.png", width = 10, height = 8)
+```
+
+### By gender and First Peoples flag
+
+This table pushes the comparison one step further by looking at study area popularity within each gender-by-First Nation subgroup. The question here is whether the leading study areas remain stable once both characteristics are considered together.
+
+```{r study-area-by-gender-first-peoples-table}
+qilt_study_area_by_gender_and_first_peoples_flag <- student_terms %>%
+  count(GENDER, FIRST_PEOPLES_FLAG, QILT_STUDY_AREA, name = "n") %>%
+  group_by(GENDER, FIRST_PEOPLES_FLAG) %>%
+  mutate(
+    total = sum(n),
+    share = n / total,
+    rank = rank(-n, ties.method = "min")
+  ) %>%
+  ungroup() %>%
+  arrange(GENDER, FIRST_PEOPLES_FLAG, rank, desc(n), QILT_STUDY_AREA)
+
+write.csv(
+  qilt_study_area_by_gender_and_first_peoples_flag %>% mutate(share = round(share, 4)),
+  fs::path(tables_dir, "qilt_study_area_by_gender_and_first_peoples_flag.csv"),
+  row.names = FALSE
+)
+
+qilt_study_area_by_gender_and_first_peoples_flag %>%
+  filter(rank <= 3, GENDER != "Unknown") %>%
+  mutate(share = fmt_pct(share)) %>%
+  kable(col.names = c("Gender", "First Peoples flag", "QILT study area", "Rows", "Group total", "Share", "Rank"))
+```
+
+
+
+## Retention patterns
+
+This section asks which study areas have the strongest and weakest retention outcomes. The table gives the raw ranking, while the plot emphasises both ends of the distribution among larger study areas. To avoid overlap between the two panels, the chart uses disjoint high-retention and low-retention groups.
+
+```{r retention-by-study-area}
+retention_by_study_area <- student_terms %>%
+  count(QILT_STUDY_AREA, RETAINED_IN_PROGRAM, name = "n") %>%
+  group_by(QILT_STUDY_AREA) %>%
+  mutate(
+    total_n = sum(n),
+    retention_rate = n / total_n
+  ) %>%
+  ungroup() %>%
+  filter(RETAINED_IN_PROGRAM == "1") %>%
+  arrange(desc(retention_rate))
+
+write.csv(
+  retention_by_study_area,
+  fs::path(tables_dir, "retention_by_study_area.csv"),
+  row.names = FALSE
+)
+
+retention_by_study_area %>%
+  select(QILT_STUDY_AREA, total_n, retention_rate) %>%
+  mutate(retention_rate = fmt_pct(retention_rate)) %>%
+  slice_head(n = 12) %>%
+  kable(col.names = c("QILT study area", "Rows", "Retention rate"))
+```
+
+```{r retention-by-study-area-plot, fig.width=8, fig.height=6}
+retention_extremes_base <- retention_by_study_area %>%
+  select(QILT_STUDY_AREA, total_n, retention_rate) %>%
+  filter(total_n >= 1000)
+
+retention_n_each <- min(10, floor(nrow(retention_extremes_base) / 2))
+
+retention_extremes <- bind_rows(
+  retention_extremes_base %>%
+    slice_max(order_by = retention_rate, n = retention_n_each, with_ties = FALSE) %>%
+    mutate(group = "Highest"),
+  retention_extremes_base %>%
+    anti_join(
+      retention_extremes_base %>%
+        slice_max(order_by = retention_rate, n = retention_n_each, with_ties = FALSE),
+      by = "QILT_STUDY_AREA"
+    ) %>%
+    slice_min(order_by = retention_rate, n = retention_n_each, with_ties = FALSE) %>%
+    mutate(group = "Lowest")
+) %>%
+  mutate(group = factor(group, levels = c("Highest", "Lowest")))
+
+retention_by_study_area_plot <- retention_extremes %>%
+  ggplot(aes(x = reorder(QILT_STUDY_AREA, retention_rate), y = retention_rate, fill = group)) +
+  geom_col() +
+  coord_flip() +
+  facet_grid(group ~ ., scales = "free_y") +
+  labs(
+    title = "Highest and lowest retention rates among larger study areas",
+    x = NULL,
+    y = "Retention rate"
+  ) +
+  plot_theme(11) +
+  scale_y_continuous(labels = fmt_pct0) +
+  theme(legend.position = "none")
+
+save_plot(retention_by_study_area_plot, "retention_by_study_area_top10.png", width = 8, height = 6)
+```
+
+Retention can also vary over time, so this chart checks whether the retained share changes across year-term combinations. That helps separate structural study-area effects from simple timing effects.
+
+```{r retention-over-time, fig.width=9, fig.height=5}
+retention_over_time <- student_terms_raw %>%
+  group_by(YEAR, TERM) %>%
+  summarise(
+    retention_rate = mean(RETAINED_IN_PROGRAM == 1, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+
+retention_over_time_plot <- ggplot(retention_over_time, aes(x = interaction(YEAR, TERM, sep = " T"), y = retention_rate, group = 1)) +
+  geom_line(color = "#7570b3", linewidth = 0.8) +
+  geom_point(color = "#7570b3", size = 2) +
+  labs(
+    title = "Retention rate over time",
+    x = "Year and term",
+    y = "Retention rate"
+  ) +
+  plot_theme(11) +
+  scale_y_continuous(labels = fmt_pct0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+save_plot(retention_over_time_plot, "retention_rate_over_time.png", width = 9, height = 5)
+```
+
+## Term GPA
+
+This figure compares average term GPA for retained and not-retained students by year and overall. The main question is whether retained students consistently outperform the non-retained group and whether that pattern is stable across years.
+
+```{r term-gpa-by-retention, fig.width=9, fig.height=5}
+term_gpa_by_retention_data <- student_terms_raw %>%
+  mutate(
+    retained_label = if_else(RETAINED_IN_PROGRAM == 1, "Retained", "Not retained"),
+    year_label = as.character(YEAR)
+  ) %>%
+  group_by(year_label, retained_label) %>%
+  summarise(term_gpa = mean(TERM_GPA, na.rm = TRUE), .groups = "drop")
+
+term_gpa_all_years <- student_terms_raw %>%
+  mutate(retained_label = if_else(RETAINED_IN_PROGRAM == 1, "Retained", "Not retained")) %>%
+  group_by(retained_label) %>%
+  summarise(term_gpa = mean(TERM_GPA, na.rm = TRUE), .groups = "drop") %>%
+  mutate(year_label = "All years")
+
+retention_vs_gpa_plot <- bind_rows(term_gpa_by_retention_data, term_gpa_all_years) %>%
+  mutate(year_label = factor(year_label, levels = c(sort(unique(as.character(student_terms_raw$YEAR))), "All years"))) %>%
+  ggplot(aes(x = year_label, y = term_gpa, fill = retained_label)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  labs(
+    title = "Average term GPA by retention status and year",
+    x = NULL,
+    y = "Average term GPA",
+    fill = NULL
+  ) +
+  plot_theme(11)
+
+save_plot(retention_vs_gpa_plot, "term_gpa_by_retention.png", width = 9, height = 5)
+```
+
+The scatter plot asks whether term GPA and cumulative GPA move together once zero-GPA rows are removed. The regression overlay and summary statistics help answer how strong and how linear that relationship is.
+
+```{r cumulative-vs-term-gpa, fig.width=7, fig.height=5}
+cumulative_vs_term_data <- student_terms_raw %>%
+  filter(CUMULATIVE_GPA > 0, TERM_GPA > 0)
+
+gpa_fit <- lm(TERM_GPA ~ CUMULATIVE_GPA, data = cumulative_vs_term_data)
+gpa_fit_glance <- glance(gpa_fit)
+gpa_fit_coef <- coef(gpa_fit)
+gpa_fit_label <- paste0(
+  "TERM_GPA = ", round(gpa_fit_coef[[1]], 2), " + ", round(gpa_fit_coef[[2]], 2), " x CUMULATIVE_GPA",
+  "\n",
+  "n = ", nrow(cumulative_vs_term_data),
+  ", R2 = ", round(gpa_fit_glance$r.squared, 3)
+)
+
+cumulative_vs_term_plot <- ggplot(cumulative_vs_term_data, aes(x = CUMULATIVE_GPA, y = TERM_GPA)) +
+  geom_point(alpha = 0.08, color = "#1f78b4") +
+  geom_smooth(method = "lm", se = FALSE, color = "#e31a1c", linewidth = 0.8) +
+  annotate(
+    "text",
+    x = min(cumulative_vs_term_data$CUMULATIVE_GPA, na.rm = TRUE) + 0.05,
+    y = max(cumulative_vs_term_data$TERM_GPA, na.rm = TRUE) - 0.05,
+    label = gpa_fit_label,
+    hjust = 0,
+    vjust = 1,
+    size = 4
+  ) +
+  labs(
+    title = "Term GPA rises with cumulative GPA",
+    x = "Cumulative GPA",
+    y = "Term GPA"
+  ) +
+  plot_theme(11)
+
+save_plot(cumulative_vs_term_plot, "term_vs_cumulative_gpa.png", width = 7, height = 5)
+```
+
+## Logistic retention model
+
+The logistic model combines demographic, academic, and study-area variables to estimate retention probability. The aim is not just prediction, but also a rough sense of which inputs have the strongest directional relationship with retention once the others are included.
+
+```{r model-fit}
+model_data <- student_terms %>%
+  select(
+    RETAINED_IN_PROGRAM, YEAR, TERM, GENDER, DISABILITY_FLAG, FIRST_IN_FAMILY_FLAG,
+    FIRST_PEOPLES_FLAG, ATTENDANCE_TYPE, INT_DOM, SCHOOL_LEAVER, QILT_STUDY_AREA,
+    UNITS_PASSED, TERM_GPA, CUMULATIVE_GPA, STUDY_LOAD
+  ) %>%
+  filter(YEAR != "2025") %>%
+  drop_na()
+
+retention_model <- glm(
+  RETAINED_IN_PROGRAM ~ YEAR + TERM + GENDER + DISABILITY_FLAG +
+    FIRST_IN_FAMILY_FLAG + FIRST_PEOPLES_FLAG + ATTENDANCE_TYPE + INT_DOM +
+    SCHOOL_LEAVER + QILT_STUDY_AREA + UNITS_PASSED + TERM_GPA +
+    CUMULATIVE_GPA + STUDY_LOAD,
+  data = model_data,
+  family = binomial()
+)
+
+model_coefficients <- tidy(retention_model) %>%
+  mutate(
+    odds_ratio = exp(estimate),
+    odds_ratio_low = exp(estimate - 1.96 * std.error),
+    odds_ratio_high = exp(estimate + 1.96 * std.error)
+  ) %>%
+  arrange(desc(abs(estimate)))
+
+write.csv(
+  model_coefficients,
+  fs::path(tables_dir, "retention_model_coefficients.csv"),
+  row.names = FALSE
+)
+
+model_coefficients %>%
+  select(term, estimate, odds_ratio, p.value) %>%
+  slice_head(n = 15) %>%
+  kable(digits = 4)
+```
+
+These metrics show whether the model improves on a naive baseline that always predicts the majority class. Even a simple lift here suggests the selected features contain useful retention signal.
+
+```{r model-metrics}
+model_predictions <- augment(retention_model, type.predict = "response") %>%
+  transmute(
+    actual = as.numeric(as.character(RETAINED_IN_PROGRAM)),
+    predicted_probability = .fitted,
+    predicted_class = if_else(predicted_probability >= 0.5, 1, 0)
+  )
+
+model_metrics <- tibble(
+  accuracy = mean(model_predictions$actual == model_predictions$predicted_class),
+  baseline_accuracy = max(mean(model_predictions$actual == 1), mean(model_predictions$actual == 0)),
+  retained_rate = mean(model_predictions$actual),
+  n_model_rows = nrow(model_predictions)
+)
+
+write.csv(model_metrics, fs::path(tables_dir, "retention_model_metrics.csv"), row.names = FALSE)
+
+model_metrics %>% kable(digits = 4)
+```
+
+This coefficient plot highlights the largest model effects in odds-ratio terms. It is most useful for identifying which predictors appear to matter most once the variables are considered together.
+
+```{r model-coefficients-plot, fig.width=9, fig.height=6}
+model_coefficients_plot <- model_coefficients %>%
+  filter(term != "(Intercept)") %>%
+  slice_max(order_by = abs(estimate), n = 15) %>%
+  mutate(term = reorder(term, estimate)) %>%
+  ggplot(aes(x = term, y = odds_ratio, ymin = odds_ratio_low, ymax = odds_ratio_high)) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "grey50") +
+  geom_pointrange(color = "#4d9221") +
+  coord_flip() +
+  labs(
+    title = "Largest model effects",
+    x = NULL,
+    y = "Odds ratio"
+  ) +
+  theme_minimal(base_size = 11)
+
+save_plot(model_coefficients_plot, "retention_model_top_effects.png", width = 9, height = 6)
+```
+
+Finally, this probability plot checks how well the model separates retained from non-retained rows. Better separation means the model is assigning meaningfully different predicted risks to the two outcome groups.
+
+```{r predicted-probability-plot, fig.width=8, fig.height=5}
+predicted_probability_plot <- model_predictions %>%
+  mutate(actual_label = if_else(actual == 1, "Retained", "Not retained")) %>%
+  ggplot(aes(x = predicted_probability, fill = actual_label)) +
+  geom_histogram(position = "identity", alpha = 0.55, bins = 30) +
+  labs(
+    title = "Predicted probabilities by observed retention outcome",
+    x = "Predicted probability of retention",
+    y = "Count",
+    fill = NULL
+  ) +
+  theme_minimal(base_size = 11)
+
+save_plot(predicted_probability_plot, "retention_model_predicted_probabilities.png", width = 8, height = 5)
+```
+
+## Notes
+
+```{r notes}
+key_observations <- c(
+  paste0(
+    "The workbook contains ", nrow(student_terms_raw), " student-term rows across ",
+    dplyr::n_distinct(student_terms_raw$MASKED_ID), " masked students."
+  ),
+  paste0(
+    "Only STUDENT_ACADEMY_FLAG has material missingness: ",
+    missing_summary$missing_pct[missing_summary$variable == "STUDENT_ACADEMY_FLAG"],
+    "% missing, and every observed value is 1."
+  ),
+  paste0(
+    "Retention is moderately imbalanced but not extreme: ",
+    round(100 * mean(student_terms_raw$RETAINED_IN_PROGRAM == 1), 1),
+    "% of rows are marked retained."
+  ),
+  paste0(
+    "Business and Management is the most common study area overall, but Nursing is the largest category within the female cohort while Business and Management leads within the male cohort."
+  ),
+  paste0(
+    "Students marked retained have a much higher average TERM_GPA (",
+    round(mean(student_terms_raw$TERM_GPA[student_terms_raw$RETAINED_IN_PROGRAM == 1]), 2),
+    ") than those not retained (",
+    round(mean(student_terms_raw$TERM_GPA[student_terms_raw$RETAINED_IN_PROGRAM == 0]), 2),
+    ")."
+  ),
+  paste0(
+    "The logistic model improves on the naive majority-class baseline: accuracy ",
+    round(model_metrics$accuracy, 3), " versus baseline ",
+    round(model_metrics$baseline_accuracy, 3), "."
+  ),
+  "All 2025 rows are coded as not retained, so 2025 was excluded from the logistic model as a timing issue rather than a plausible behavioural signal."
+)
+
+tibble(observation = key_observations) %>% kable()
+```
+
+The main quick takeaways are consistent with the earlier standalone summary: the dataset contains 64,000 student-term rows across 24,781 masked students; `STUDENT_ACADEMY_FLAG` is effectively unusable because it is 99.59% missing and constant where observed; overall retention is about 59.7%; `TERM_GPA` is the strongest simple numerical signal in the EDA; and the 2025 outcome coding should be treated cautiously because it looks incomplete. With more time, I would keep treating 2025 as a likely censoring issue and test whether the study-area differences remain stable after stronger cohort controls and unique-student aggregation.
+
