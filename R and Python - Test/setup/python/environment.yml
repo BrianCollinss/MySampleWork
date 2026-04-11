@@ -1,9 +1,0 @@
-# Conda environment used by reticulate for the Python side of the project.
-name: r-reticulate
-channels:
-  - conda-forge
-dependencies:
-  # Keep Python modern while staying broadly compatible with common data tools.
-  - python=3.11
-  - numpy
-  - pandas
