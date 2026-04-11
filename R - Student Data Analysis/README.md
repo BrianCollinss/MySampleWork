@@ -2,15 +2,16 @@
 
 This project is a compact R workflow for exploring the workbook in `data/raw/student_data_analysis.xlsx`.
 It uses `renv` for package management, so the project library is restored from the root `renv.lock` rather than assembled manually.
-The project has been set up and run in R 4.5.2.
+
+Note: the project has been set up and run in R 4.5.2.
 
 ## Project layout
 
-- `scripts/student_data_analysis.R`: main analysis script
+- `notebooks/`: main R Markdown notebook and rendered HTML report
 - `setup/R/setup_r_environment.R`: `renv` restore helper
 - `data/raw/`: raw workbook input
 - `data/processed/`: optional derived data
-- `output/`: generated notes, tables, and figures
+- `output/`: generated tables and figures
 - `renv/` and `renv.lock`: reproducible R environment
 
 ## Notes
@@ -34,7 +35,7 @@ With more time, the next steps I would prioritise are:
 
 ### Option 1: open in RStudio
 
-From the project root, run:
+Open RStudio and select R 4.5.2 in `Tools/Global Options`. Or, from the project root, run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\open_rstudio_4_5_2.ps1
@@ -54,10 +55,10 @@ renv::snapshot()
 
 when you intentionally changed project dependencies and want to record those changes in the root `renv.lock`.
 
-Then run the analysis:
+Then render the notebook:
 
 ```r
-source("scripts/student_data_analysis.R")
+rmarkdown::render("notebooks/student_data_analysis.Rmd")
 ```
 
 ## Option 2: run from the command line
@@ -68,15 +69,16 @@ Restore the `renv` library:
 & 'C:\Program Files\R\R-4.5.2\bin\Rscript.exe' -e "source('setup/R/setup_r_environment.R')"
 ```
 
-Run the analysis script:
+Render the notebook:
 
 ```powershell
-& 'C:\Program Files\R\R-4.5.2\bin\Rscript.exe' 'scripts/student_data_analysis.R'
+& 'C:\Program Files\R\R-4.5.2\bin\Rscript.exe' -e "rmarkdown::render('notebooks/student_data_analysis.Rmd')"
 ```
 
 ## What the analysis produces
 
 Running the script writes:
 
+- notebook output to `notebooks/student_data_analysis.html`
 - tables to `output/tables/`
 - figures to `output/figures/`

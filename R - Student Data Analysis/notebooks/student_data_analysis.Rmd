@@ -176,9 +176,8 @@ overview_table %>% kable(col.names = c("Metric", "Value"))
 
 ```{r project-files}
 project_files <- tibble(
-  artefact = c("R analysis script", "Notebook", "Tables", "Figures"),
+  artefact = c("Notebook", "Tables", "Figures"),
   location = c(
-    "scripts/student_data_analysis.R",
     "notebooks/student_data_analysis.Rmd",
     "output/tables/",
     "output/figures/"
