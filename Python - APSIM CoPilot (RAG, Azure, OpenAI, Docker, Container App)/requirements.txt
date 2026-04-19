@@ -1,0 +1,22 @@
+# Python package requirements for APSIM Copilot.
+# The list is intentionally small and focused on Streamlit, OpenAI, Azure
+# service SDKs, testing, and minimal observability hooks.
+# Python package requirements for APSIM Copilot.
+# The list is intentionally small and focused on Streamlit, OpenAI, Azure
+# service SDKs, testing, and minimal observability hooks.
+beautifulsoup4==4.12.3
+azure-core==1.32.0
+azure-identity==1.19.0
+azure-keyvault-secrets==4.9.0
+azure-monitor-opentelemetry==1.6.4
+azure-search-documents==11.6.0b9
+azure-storage-blob==12.24.0
+openai==1.58.1
+opentelemetry-api==1.29.0
+opentelemetry-sdk==1.29.0
+pandas==2.2.3
+playwright==1.51.0
+python-dotenv==1.0.1
+pytest==8.3.4
+requests==2.32.3
+streamlit==1.41.1

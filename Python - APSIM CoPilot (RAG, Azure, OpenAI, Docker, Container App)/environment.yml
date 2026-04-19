@@ -1,0 +1,15 @@
+# Conda environment definition for APSIM Copilot.
+# The environment installs Python and pip via Conda, then defers the project
+# package set to `requirements.txt` so Conda and pip stay in sync.
+name: apsim-copilot
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - -r requirements.txt
+
+# After creating the environment, install the Playwright browser used by the
+# APSIM docs fetcher:
+#   python -m playwright install chromium

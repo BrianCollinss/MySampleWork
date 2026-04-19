@@ -9,6 +9,7 @@ Thumbs.db
 
 # Environment and secret files
 .env
+.last_image_tag
 .venv/
 venv/
 env/

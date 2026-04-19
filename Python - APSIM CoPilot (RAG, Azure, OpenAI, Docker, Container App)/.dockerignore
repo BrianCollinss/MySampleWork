@@ -1,0 +1,18 @@
+# Docker build ignore rules for APSIM Copilot.
+# These exclusions keep local secrets, caches, and bulky sample data out of the
+# build context so image builds stay smaller and safer.
+.git
+.pytest_cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+venv
+dist
+build
+*.egg-info
+sample_data/docs
+sample_data/apsimx
+sample_data/csv
