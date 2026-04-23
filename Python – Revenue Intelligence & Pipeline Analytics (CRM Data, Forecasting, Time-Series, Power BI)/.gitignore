@@ -1,0 +1,40 @@
+# OS and Windows metadata
+desktop.ini
+Thumbs.db
+.DS_Store
+
+# Editor and workspace settings
+.vscode/
+.idea/
+
+# Environment and secret files
+.env
+.venv/
+venv/
+env/
+ENV/
+.conda/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.ipynb_checkpoints/
+
+# Jupyter
+.jupyter/
+
+# Logs
+*.log
+
+# Local outputs that can be regenerated
+data/bronze/
+data/silver/
+reports/*.png
+reports/*.json

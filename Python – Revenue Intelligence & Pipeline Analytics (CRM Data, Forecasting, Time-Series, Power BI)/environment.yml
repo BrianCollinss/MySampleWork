@@ -1,0 +1,16 @@
+name: crm-revenue-intelligence
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11      # Core Python runtime used for the project.
+  - pandas>=2.2      # DataFrame transformations for Bronze, Silver, Gold, and reporting outputs.
+  - numpy>=1.26      # Numerical support used indirectly by pandas and scikit-learn operations.
+  - pyarrow>=16      # Parquet read/write engine for medallion and Gold export files.
+  - duckdb>=1.1      # Analytical SQL engine used to build Gold marts and aggregated tables.
+  - pydantic>=2.7    # Typed configuration model used in src/config.py.
+  - scikit-learn>=1.5  # Win-probability modelling and simple time-series forecasting logic.
+  - matplotlib>=3.8  # Static chart generation for report visuals.
+  - jupyterlab>=4.2  # Main notebook development interface.
+  - notebook>=7.2    # Classic notebook support and local notebook execution compatibility.
+  - ipykernel>=6.29  # Registers the Conda environment as a usable Jupyter kernel.
+  - nbformat>=5.10   # Notebook file-format support for reading and writing .ipynb files.

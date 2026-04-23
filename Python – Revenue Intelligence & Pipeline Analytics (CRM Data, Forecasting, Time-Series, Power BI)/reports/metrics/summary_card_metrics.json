@@ -1,0 +1,60 @@
+{
+  "as_of_quarter": "2017Q4",
+  "previous_quarter": "2017Q3",
+  "closed_deals": {
+    "current_value": 6711,
+    "display_value": "6.71K",
+    "last_quarter_change_ratio": -0.0303,
+    "last_quarter_change_pct": "-3.0%",
+    "definition": "Count of pursued opportunities with deal_stage equal to Won or Lost across the full dataset, with quarter-over-quarter change based on the latest closed quarter versus the previous quarter."
+  },
+  "deals_win": {
+    "current_value": 4238,
+    "display_value": "4.24K",
+    "last_quarter_change_ratio": -0.0485,
+    "last_quarter_change_pct": "-4.9%",
+    "definition": "Count of won opportunities across the full dataset, with quarter-over-quarter change based on the latest closed quarter versus the previous quarter."
+  },
+  "deals_lost": {
+    "current_value": 2473,
+    "display_value": "2.47K",
+    "last_quarter_change_ratio": -0.0013,
+    "last_quarter_change_pct": "-0.1%",
+    "definition": "Count of lost opportunities across the full dataset, with quarter-over-quarter change based on the latest closed quarter versus the previous quarter."
+  },
+  "win_pct": {
+    "current_value": 0.6315,
+    "display_value": "63.2%",
+    "last_quarter_change_ratio": -0.0188,
+    "last_quarter_change_pct": "-1.9%",
+    "definition": "Won opportunities divided by pursued opportunities across the full dataset, with quarter-over-quarter change based on the latest closed quarter versus the previous quarter."
+  },
+  "avg_scl": {
+    "current_value": 51.78,
+    "display_value": "51.78",
+    "last_quarter_change_ratio": 0.0152,
+    "last_quarter_change_pct": "1.5%",
+    "definition": "Average days_to_close for won opportunities with a populated close date across the full dataset, with quarter-over-quarter change based on the latest closed quarter versus the previous quarter."
+  },
+  "revenue": {
+    "current_value": 10005534.0,
+    "display_value": "$10M",
+    "last_quarter_change_ratio": -0.0603,
+    "last_quarter_change_pct": "-6.0%",
+    "definition": "Total revenue from won opportunities across the full dataset, with quarter-over-quarter change based on the latest closed quarter versus the previous quarter."
+  },
+  "avg_revenue": {
+    "current_value": 2360.9,
+    "display_value": "$2.36K",
+    "last_quarter_change_ratio": -0.0123,
+    "last_quarter_change_pct": "-1.2%",
+    "definition": "Average revenue per won opportunity across the full dataset, with quarter-over-quarter change based on the latest closed quarter versus the previous quarter."
+  },
+  "avg_closed_deal_size": {
+    "current_value": 1490.9,
+    "display_value": "$1.49K",
+    "last_quarter_change_ratio": -0.0309,
+    "last_quarter_change_pct": "-3.1%",
+    "definition": "Average revenue per closed opportunity across the full dataset, with quarter-over-quarter change based on the latest closed quarter versus the previous quarter."
+  }
+}

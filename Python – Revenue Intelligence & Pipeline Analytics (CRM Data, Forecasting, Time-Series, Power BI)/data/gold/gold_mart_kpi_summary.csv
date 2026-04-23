@@ -1,0 +1,6 @@
+metric_name,metric_value,metric_unit,metric_description
+overall_win_rate,0.6315005215318135,ratio,Share of closed opportunities that ended as won.
+average_sales_cycle_days,47.98539710922366,days,Average days between created date and close date for closed opportunities.
+engaging_stage_pipeline_value,0.0,currency,Current potential revenue sitting in the Engaging stage.
+top_rep_by_target_attainment,1.016222216280178,ratio,Highest average target attainment achieved by sales agent Vicki Laflamme.
+top_team_by_target_attainment,1.1651230331057147,ratio,Highest average target attainment achieved by manager Cara Losch in East.

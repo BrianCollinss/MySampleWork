@@ -1,0 +1,8 @@
+{
+  "opportunity_id_unique": true,
+  "account_dimension_coverage": 0.8380681818181818,
+  "product_dimension_coverage": 1.0,
+  "sales_rep_dimension_coverage": 1.0,
+  "created_date_nulls": 500,
+  "close_date_nulls": 2089
+}

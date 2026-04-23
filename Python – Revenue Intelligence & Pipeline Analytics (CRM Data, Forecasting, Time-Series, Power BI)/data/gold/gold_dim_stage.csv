@@ -1,0 +1,5 @@
+stage_key,stage_name,default_probability
+1,Engaging,0.25
+2,Lost,0.0
+3,Prospecting,0.1
+4,Won,1.0
