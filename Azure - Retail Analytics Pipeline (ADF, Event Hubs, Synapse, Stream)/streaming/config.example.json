@@ -2,7 +2,7 @@
   "event_hub_connection_string": "Endpoint=sb://<namespace>.servicebus.windows.net/;SharedAccessKeyName=<policy>;SharedAccessKey=<key>",
   "event_hub_name": "eh-customer-events",
   "send_batch_size": 50,
-  "default_delay_seconds": 0.5,
-  "default_iterations": 100,
+  "default_delay_seconds": 1.0,
+  "default_iterations": 60,
   "seed": 42
 }

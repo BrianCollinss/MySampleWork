@@ -29,13 +29,9 @@ def weighted_event_type(rng: random.Random) -> str:
         ("order_submitted", 0.08),
         ("email_clicked", 0.10),
     ]
-    roll = rng.random()
-    cumulative = 0.0
-    for event_type, weight in choices:
-        cumulative += weight
-        if roll <= cumulative:
-            return event_type
-    return choices[-1][0]
+    events, weights = zip(*choices)
+    event = rng.choices(events, weights=weights, k=1)
+    return event
 
 
 def generate_events(iterations: int, seed: int) -> list[dict]:
@@ -95,12 +91,12 @@ def main() -> None:
     args = parser.parse_args()
 
     config = load_config(args.config)
-    delay_seconds = args.delay if args.delay is not None else config.get("default_delay_seconds", 0.5)
-    iterations = args.iterations if args.iterations is not None else config.get("default_iterations", 100)
+    delay_seconds = args.delay if args.delay is not None else config.get("default_delay_seconds", 1.0)
+    iterations = args.iterations if args.iterations is not None else config.get("default_iterations", 60)
 
     if args.events is not None:
-        with args.events.open("r", encoding="utf-8") as handle:
-            events = json.load(handle)
+        with args.events.open("r", encoding="utf-8") as f:
+            events = json.load(f)
     else:
         events = generate_events(iterations=iterations, seed=config.get("seed", 42))
 
