@@ -1,0 +1,6 @@
+campaign_id,campaign_name,channel,start_date,end_date,budget,target_audience
+CMP001,Autumn Launch,email,2026-03-25,2026-04-05,5000,Loyalty members
+CMP002,Home Refresh,email,2026-03-28,2026-04-08,3500,Home category browsers
+CMP003,Fitness Push,paid_social,2026-03-29,2026-04-10,4200,Health-conscious segment
+CMP004,Tech Upgrade,affiliate,2026-04-01,2026-04-12,6000,Electronics intenders
+CMP005,Linen Weekend,email,2026-04-01,2026-04-06,2800,Recent home shoppers

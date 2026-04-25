@@ -1,0 +1,9 @@
+order_id,customer_id,order_date,order_status,payment_method,shipping_country,shipping_state,total_amount
+O1001,C001,2026-04-01,Submitted,Card,Australia,QLD,39.99
+O1002,C003,2026-04-01,Submitted,PayPal,Australia,VIC,49.00
+O1003,C005,2026-04-01,Submitted,Card,Australia,SA,59.97
+O1004,C007,2026-04-01,Submitted,Card,New Zealand,WGN,129.00
+O1005,C002,2026-04-02,Submitted,Card,Australia,NSW,59.95
+O1006,C004,2026-04-02,Submitted,Card,Australia,WA,89.00
+O1007,C006,2026-04-03,Cancelled,Card,New Zealand,AUK,14.75
+O1008,C008,2026-04-03,Submitted,Card,Australia,TAS,19.98

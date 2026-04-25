@@ -1,0 +1,44 @@
+{
+  "name": "ds_adls_csv_parameterized",
+  "properties": {
+    "linkedServiceName": {
+      "referenceName": "ls_adls_retailanalyticsdemo",
+      "type": "LinkedServiceReference"
+    },
+    "parameters": {
+      "fileSystem": {
+        "type": "string"
+      },
+      "directory": {
+        "type": "string"
+      },
+      "fileName": {
+        "type": "string"
+      }
+    },
+    "annotations": [],
+    "type": "DelimitedText",
+    "typeProperties": {
+      "location": {
+        "type": "AzureBlobFSLocation",
+        "fileSystem": {
+          "value": "@dataset().fileSystem",
+          "type": "Expression"
+        },
+        "folderPath": {
+          "value": "@dataset().directory",
+          "type": "Expression"
+        },
+        "fileName": {
+          "value": "@dataset().fileName",
+          "type": "Expression"
+        }
+      },
+      "columnDelimiter": ",",
+      "escapeChar": "\\",
+      "firstRowAsHeader": true,
+      "quoteChar": "\""
+    },
+    "schema": []
+  }
+}

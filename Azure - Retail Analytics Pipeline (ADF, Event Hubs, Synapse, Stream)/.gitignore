@@ -1,0 +1,33 @@
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Local secrets and environment files
+.env
+.env.*
+streaming/config.json
+*.key
+*.pem
+
+# Generated local outputs
+streaming/sample_events.generated.json
+sample-data/raw/*.generated.csv
+
+# Editor and OS metadata
+.vscode/
+.idea/
+desktop.ini
+.DS_Store
+Thumbs.db
+
+# Notebook and temporary files
+.ipynb_checkpoints/
+*.tmp
+*.log

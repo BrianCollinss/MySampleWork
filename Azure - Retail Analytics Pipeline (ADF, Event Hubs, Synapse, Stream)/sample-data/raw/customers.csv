@@ -1,0 +1,11 @@
+customer_id,first_name,last_name,email,signup_date,loyalty_tier,city,state,country,marketing_opt_in
+C001,Amelia,Nguyen,amelia.nguyen@example.com,2025-10-12,Gold,Brisbane,QLD,Australia,Y
+C002,Liam,Patel,liam.patel@example.com,2025-11-03,Silver,Sydney,NSW,Australia,Y
+C003,Olivia,Thompson,olivia.thompson@example.com,2025-11-18,Bronze,Melbourne,VIC,Australia,N
+C004,Noah,Evans,noah.evans@example.com,2025-12-01,Gold,Perth,WA,Australia,Y
+C005,Charlotte,Wilson,charlotte.wilson@example.com,2025-12-15,Silver,Adelaide,SA,Australia,Y
+C006,Jack,Martin,jack.martin@example.com,2026-01-08,Bronze,Auckland,AUK,New Zealand,N
+C007,Ava,King,ava.king@example.com,2026-01-11,Gold,Wellington,WGN,New Zealand,Y
+C008,Lucas,Scott,lucas.scott@example.com,2026-01-19,Silver,Hobart,TAS,Australia,Y
+C009,Grace,Walker,grace.walker@example.com,2026-02-02,Bronze,Canberra,ACT,Australia,N
+C010,Ethan,Lee,ethan.lee@example.com,2026-02-14,Silver,Darwin,NT,Australia,Y

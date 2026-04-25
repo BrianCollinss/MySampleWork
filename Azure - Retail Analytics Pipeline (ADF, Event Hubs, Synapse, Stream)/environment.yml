@@ -1,0 +1,8 @@
+name: azure-retail-analytics-hybrid
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - azure-eventhub==5.13.0

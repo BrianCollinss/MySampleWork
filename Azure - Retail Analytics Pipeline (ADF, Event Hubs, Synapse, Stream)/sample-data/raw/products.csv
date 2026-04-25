@@ -1,0 +1,11 @@
+product_id,product_name,category,brand,unit_price,unit_cost,is_active
+P001,Everyday Tee,Apparel,Northwind Threads,39.99,14.50,Y
+P002,Crew Socks 3-Pack,Accessories,Northwind Threads,19.99,6.25,Y
+P003,Insulated Bottle,Home,Blue Gum Living,59.95,22.10,Y
+P004,Yoga Mat,Fitness,Blue Gum Living,24.50,9.30,Y
+P005,Travel Backpack,Accessories,Trail Harbour,89.00,41.00,Y
+P006,Coffee Beans 1kg,Grocery,Harbour Roast,14.75,7.10,Y
+P007,Noise-Cancelling Headphones,Electronics,Signal Works,129.00,78.00,Y
+P008,Notebook Twin Pack,Stationery,Paper Lane,9.99,3.40,Y
+P009,Desk Lamp,Home,Paper Lane,44.00,18.50,Y
+P010,Linen Sheet Set,Home,Blue Gum Living,74.50,31.20,Y

@@ -1,0 +1,12 @@
+{
+  "name": "ls_adls_retailanalyticsdemo",
+  "type": "Microsoft.DataFactory/factories/linkedservices",
+  "properties": {
+    "type": "AzureBlobFS",
+    "typeProperties": {
+      "url": "https://stretailanalyticsdemo.dfs.core.windows.net/",
+      "encryptedCredential": "<ADF-managed credential generated after configuring the linked service>"
+    },
+    "annotations": []
+  }
+}
