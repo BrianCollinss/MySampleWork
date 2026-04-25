@@ -20,9 +20,6 @@ EVENT_TYPES = [
     ("email_clicked", 0.10),
 ]
 
-CHANNELS = ["organic", "direct", "email", "paid_search", "paid_social", "affiliate"]
-DEVICES = ["mobile", "desktop", "tablet"]
-
 
 def weighted_choice(rng: random.Random) -> str:
     """Pick an event type from the configured probability distribution."""
@@ -52,8 +49,8 @@ def build_event(index: int, rng: random.Random, event_time: datetime) -> dict:
         "session_id": f"S{1000 + index:04d}",
         "product_id": f"P{product_num:03d}",
         "campaign_id": rng.choice([None, "CMP001", "CMP002", "CMP003", "CMP004", "CMP005"]),
-        "channel": rng.choice(CHANNELS),
-        "device_type": rng.choice(DEVICES),
+        "channel": rng.choice(["organic", "direct", "email", "paid_search", "paid_social", "affiliate"]),
+        "device_type": rng.choice(["mobile", "desktop", "tablet"]),
         "order_id": order_id,
         "quantity": quantity,
         "event_value": price if event_type != "email_clicked" else 0,
