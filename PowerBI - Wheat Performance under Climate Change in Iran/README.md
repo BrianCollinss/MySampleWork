@@ -1,4 +1,4 @@
-# Power BI Wheat Performance under Climate Change in Iran
+# Power BI Maize Performance under Climate Change in Iran
 
 ## Overview
 
@@ -40,7 +40,7 @@ The dashboard compares six irrigation regimes:
 
 ## Crop Modelling
 
-The simulations were conducted using the Agricultural Production Systems Simulator, APSIM version 7.10 (Holzworth et al., 2014), to model wheat growth and yield in Iran. APSIM simulates daily crop development from planting to maturity, with biomass accumulation constrained by radiation use efficiency and transpiration efficiency, and influenced by temperature, nitrogen availability, and soil moisture. Dry matter allocation changes across growth stages, with greater allocation to leaves before flowering and to grain after flowering.
+The simulations were conducted using the Agricultural Production Systems Simulator, APSIM version 7.10 (Holzworth et al., 2014), to model maize growth and yield in Iran. APSIM simulates daily crop development from planting to maturity, with biomass accumulation constrained by radiation use efficiency and transpiration efficiency, and influenced by temperature, nitrogen availability, and soil moisture. Dry matter allocation changes across growth stages, with greater allocation to leaves before flowering and to grain after flowering.
 
 ## Repository Structure
 
