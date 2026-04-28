@@ -19,7 +19,8 @@ The dashboard is intended as a portfolio example of agricultural data modelling,
 ## What The Project Does
 
 - Compares maize performance across historical conditions and future climate scenarios
-- Includes Shared Socioeconomic Pathways `SSP126`, `SSP245`, and `SSP585`
+- Includes historical climate (`2000`) as well as three future climate scenarios representing the `2050`, `2070`, and `2090` periods
+- Includes three Shared Socioeconomic Pathways: `SSP126`, `SSP245`, and `SSP585`
 - Uses multiple GCM projections, including `ACCESS`, `CNRM`, `GFDL`, `HadGEM3`, `MPI`, and `MRI`
 - Compares flood, sprinkler, and drip irrigation systems across defined management regimes
 - Includes three maize cultivars: `SC260` (early-maturing), `Maxima` (mid-maturing), and `SC704` (late-maturing)
