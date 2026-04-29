@@ -24,7 +24,7 @@ The dashboard is intended as a portfolio example of agricultural data modelling,
 - Uses multiple GCM projections, including `ACCESS`, `CNRM`, `GFDL`, `HadGEM3`, `MPI`, and `MRI`
 - Compares flood, sprinkler, and drip irrigation systems across defined management regimes
 - Includes three maize cultivars: `SC260` (early-maturing), `Maxima` (mid-maturing), and `SC704` (late-maturing)
-- Evaluates three sowing dates: `early` (20 days before the conventional sowing date), `conventional`, and `late` (20 days after).
+- Evaluates three sowing dates: `Early` (20 days before the conventional sowing date), `Conventional (Mid)`, and `Late` (20 days after).
 - Evaluates nitrogen fertilisation scenarios from `F50` to `F300`, representing 50 to 300 kg N/ha
 - Presents results through an interactive Power BI report
 
