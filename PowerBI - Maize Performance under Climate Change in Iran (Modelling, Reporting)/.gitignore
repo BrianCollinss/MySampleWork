@@ -1,0 +1,29 @@
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor and local workspace files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+~$*
+
+# Power BI local/cache artifacts
+*.pbitmp
+*.pbix.tmp
+*.pbix.backup
+
+# Python/cache artifacts from data prep
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
