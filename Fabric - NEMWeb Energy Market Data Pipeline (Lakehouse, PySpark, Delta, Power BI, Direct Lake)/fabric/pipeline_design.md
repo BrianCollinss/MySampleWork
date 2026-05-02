@@ -33,7 +33,7 @@ Each production notebook depends on successful completion of the previous activi
 Create the pipeline in Fabric UI, select the workspace, attach notebooks to the Lakehouse, configure parameters, set retries, and enable alerts. Do not invent IDs in repo files.
 
 Before the first run, upload local folder `src/nem_fabric` to
-`Files/libs/nem_fabric` as described in `fabric/python_package_deployment.md`.
+`Files/libs/nem_fabric` as described in `fabric/deployment_steps.md`.
 The notebooks add `FABRIC_NOTEBOOK_LIB_PATH`, defaulting to
 `/lakehouse/default/Files/libs`, to `sys.path` so Fabric Pipeline runs can import
 the package.

@@ -11,8 +11,8 @@ names, or credentials; use the Fabric UI selections available to your account.
 - A Fabric Lakehouse in that workspace.
 - VS Code with the recommended extensions from `.vscode/extensions.json`.
 - Local `.env` copied from `.env.example`.
-- The `src/nem_fabric` package uploaded to the notebook library path described
-  in `fabric/python_package_deployment.md`.
+- The `src/nem_fabric` package available to notebooks through a Fabric
+  Environment library or Lakehouse Files source-library path.
 
 ## Local Preparation
 
@@ -32,7 +32,26 @@ Parameter sources:
 - NEMWeb URLs and ingestion limits: local `.env` for scripts, notebook
   parameters or checked-in config files for Fabric runs.
 
-## Upload Python Source Package
+## Deploy Python Package
+
+Fabric Pipelines do not automatically upload or install local source code when
+they run notebooks. Each notebook runtime must be able to import `nem_fabric`.
+
+Recommended production option:
+
+1. Add or maintain packaging metadata such as `pyproject.toml`.
+2. Build a wheel locally.
+3. Create a Fabric Environment item in a Fabric-enabled workspace.
+4. Upload the wheel as a custom library.
+5. Publish the Environment.
+6. Attach the Environment to each notebook or Spark job.
+7. Run notebooks from the Fabric Pipeline.
+
+This gives versioned package deployment and keeps notebook imports aligned with
+local tests. It requires Fabric Environment support and a rebuild/re-upload
+whenever `src/nem_fabric` changes.
+
+Current project option:
 
 Upload the local folder:
 
@@ -60,6 +79,20 @@ The notebooks add the parent folder to `sys.path`:
 
 If you use a different folder, set `FABRIC_NOTEBOOK_LIB_PATH` to the parent
 folder containing `nem_fabric`.
+
+Notebook bootstrap pattern:
+
+```python
+import os
+import sys
+
+fabric_lib_path = os.getenv("FABRIC_NOTEBOOK_LIB_PATH", "/lakehouse/default/Files/libs")
+if fabric_lib_path not in sys.path:
+    sys.path.insert(0, fabric_lib_path)
+```
+
+Re-upload `src/nem_fabric` whenever files under that folder change. Notebook-only
+changes do not require re-uploading the package.
 
 ## Publish Notebooks
 

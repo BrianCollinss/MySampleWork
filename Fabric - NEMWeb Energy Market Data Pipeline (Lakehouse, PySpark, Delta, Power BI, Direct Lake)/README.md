@@ -83,8 +83,8 @@ Fabric Pipelines do not automatically include local Python source code. The
 notebooks currently use the Lakehouse Files source-library approach for
 `nem_fabric` imports.
 
-See `fabric/python_package_deployment.md` for the available package deployment
-options, exact library path behaviour, and the parameter used by notebooks.
+See `fabric/deployment_steps.md` for the available package deployment options,
+exact library path behaviour, and the parameter used by notebooks.
 
 ## Power BI Output
 
