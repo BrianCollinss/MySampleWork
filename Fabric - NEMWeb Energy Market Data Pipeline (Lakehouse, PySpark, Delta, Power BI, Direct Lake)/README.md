@@ -44,8 +44,6 @@ flowchart LR
     D --> F[Bronze Delta tables]
     F --> G[Silver typed and deduplicated tables]
     G --> H[Gold Power BI-ready tables]
-    H --> I[Power BI semantic model]
-    I --> J[Dashboard pages]
 ```
 
 See `fabric/lakehouse_design.md` for detailed table layout and idempotency
