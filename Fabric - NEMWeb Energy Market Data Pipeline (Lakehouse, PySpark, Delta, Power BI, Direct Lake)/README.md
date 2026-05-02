@@ -59,7 +59,7 @@ The intended production workflow is:
 4. Run environment validation.
 5. Run ingestion, Bronze parsing, Silver transformation, and Gold build notebooks.
 6. Schedule the Fabric Pipeline every 5 minutes.
-7. Build a Power BI semantic model and report from Gold tables.
+7. Build a Power BI semantic model and report from Gold tables (to be done).
 
 See `fabric/deployment_steps.md` for exact deployment steps and
 `fabric/pipeline_design.md` for orchestration details.
