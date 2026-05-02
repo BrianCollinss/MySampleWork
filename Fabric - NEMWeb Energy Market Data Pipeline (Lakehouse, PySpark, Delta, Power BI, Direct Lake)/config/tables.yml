@@ -1,0 +1,36 @@
+# Intended Fabric Lakehouse table inventory.
+# Notebooks use these names to keep medallion layers consistent.
+tables:
+  raw_control:
+    - nem_ingestion_log
+    - nem_raw_zip_manifest
+    - nem_raw_file_audit
+  bronze:
+    - nem_bronze_mmsdm_rows
+    - nem_bronze_dispatchis
+    - nem_bronze_public_prices
+    - nem_bronze_unit_scada
+    - nem_bronze_interconnector
+    - nem_bronze_generation
+    - nem_bronze_gas_prices
+  silver:
+    - nem_silver_price_demand_5min
+    - nem_silver_regional_dispatch
+    - nem_silver_generation_by_unit
+    - nem_silver_generation_by_fuel
+    - nem_silver_interconnector_flows
+    - nem_silver_market_notices
+    - nem_silver_gas_prices
+  gold:
+    - nem_gold_dashboard_current_snapshot
+    - nem_gold_region_5min
+    - nem_gold_region_30min
+    - nem_gold_region_daily
+    - nem_gold_price_spikes
+    - nem_gold_generation_mix_5min
+    - nem_gold_interconnector_flows_5min
+    - nem_gold_renewable_penetration
+    - nem_gold_supply_demand_balance
+    - nem_gold_dashboard_kpis
+    - nem_gold_data_freshness
+    - nem_gold_gas_price_summary

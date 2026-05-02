@@ -1,0 +1,22 @@
+# Local Conda environment for parser development and notebook authoring.
+# Fabric provides Spark at runtime, so pyspark is intentionally not included.
+name: fabric-nem-dashboard
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.10
+  - pandas
+  - requests
+  - beautifulsoup4
+  - lxml
+  - pyarrow
+  - pydantic
+  - python-dotenv
+  - pytest
+  - ruff
+  - black
+  - ipykernel
+  - notebook
+  - jupyter
+  - pyyaml
+  - pip

@@ -1,0 +1,67 @@
+# AEMO NEMWeb source folders used by ingestion notebooks and smoke tests.
+# Disabled entries document future expansion without being processed by default.
+sources:
+  - name: DispatchIS_Reports
+    url: https://nemweb.com.au/Reports/Current/DispatchIS_Reports/
+    market: NEM
+    expected_update_frequency: 5 minutes
+    enabled: true
+    description: Near real-time dispatch interval price and demand reports.
+    priority: 1
+    notes: Primary source for current dashboard price and demand.
+  - name: Public_Prices
+    url: https://nemweb.com.au/Reports/Current/Public_Prices/
+    market: NEM
+    expected_update_frequency: 5 minutes
+    enabled: true
+    description: Public regional price reports.
+    priority: 2
+    notes: Used to validate and enrich price reporting.
+  - name: PredispatchIS_Reports
+    url: https://nemweb.com.au/Reports/Current/PredispatchIS_Reports/
+    market: NEM
+    expected_update_frequency: 30 minutes
+    enabled: false
+    description: Predispatch outlook reports.
+    priority: 4
+    notes: Useful future source for forecast visuals.
+  - name: Next_Day_Dispatch
+    url: https://nemweb.com.au/Reports/Current/Next_Day_Dispatch/
+    market: NEM
+    expected_update_frequency: daily
+    enabled: false
+    description: Next-day dispatch data.
+    priority: 5
+    notes: Useful for backfill and comparison views.
+  - name: UnitScada
+    url: https://nemweb.com.au/Reports/Current/Unit_Scada/
+    market: NEM
+    expected_update_frequency: 5 minutes
+    enabled: true
+    description: Unit-level SCADA generation data where available.
+    priority: 3
+    notes: Folder availability should be validated in Fabric or smoke tests.
+  - name: Intermittent_Generation
+    url: https://nemweb.com.au/Reports/Current/ROOFTOP_PV/ACTUAL/
+    market: NEM
+    expected_update_frequency: 30 minutes
+    enabled: false
+    description: Intermittent or rooftop generation-related current reports.
+    priority: 6
+    notes: Placeholder for generation mix enhancement.
+  - name: STTM
+    url: https://nemweb.com.au/Reports/Current/STTM/
+    market: Gas
+    expected_update_frequency: daily
+    enabled: false
+    description: Short Term Trading Market gas placeholder.
+    priority: 20
+    notes: Future gas extension.
+  - name: VicGas
+    url: https://nemweb.com.au/Reports/Current/VicGas/
+    market: Gas
+    expected_update_frequency: daily
+    enabled: false
+    description: Victorian gas market placeholder.
+    priority: 21
+    notes: Future gas extension.

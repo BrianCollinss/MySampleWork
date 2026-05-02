@@ -1,0 +1,29 @@
+Copyright (c) 2026 Dr Brian Collins
+
+All rights reserved.
+
+This repository and all associated source code, documentation, architecture
+notes, configuration examples, notebooks, Power BI design artefacts, and other
+materials are proprietary to Dr Brian Collins.
+
+This project is designed to ingest and model public National Electricity Market
+data published by the Australian Energy Market Operator (AEMO) through NEMWeb,
+including current-report ZIP and CSV files from https://nemweb.com.au/.
+
+Dr Brian Collins does not own the AEMO/NEMWeb source data. Any rights in those
+source datasets remain with AEMO and/or the relevant original publisher, owner,
+or licensor and may be subject to separate terms, conditions, attribution
+requirements, disclaimers, or reuse restrictions.
+
+No permission is granted to use, copy, modify, merge, publish, distribute,
+sublicense, sell, share, or create derivative works from any part of this
+repository without prior written permission from Dr Brian Collins.
+
+Any unauthorised access, reproduction, disclosure, redistribution, or reuse of
+these materials is strictly prohibited.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

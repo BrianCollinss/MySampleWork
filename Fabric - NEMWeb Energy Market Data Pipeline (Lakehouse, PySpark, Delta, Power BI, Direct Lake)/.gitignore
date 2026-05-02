@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Environments
+.env
+.venv/
+venv/
+env/
+.conda/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Local-only project notes
+AGENTS.md
+.codex/
+
+# OS and editors
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local data and logs
+data/
+landing/
+tmp/
+temp/
+logs/
+*.log
+*.zip
+*.parquet
+
+# Secrets
+*.pem
+*.key
+*secret*
+*token*
+credentials.json
