@@ -35,6 +35,19 @@ mapping, deduplication, and table-specific shaping. Gold tables are designed for
 Power BI with clean names, date/time helpers, price bands, event flags, KPI
 tables, and data freshness outputs.
 
+```mermaid
+flowchart LR
+    A[AEMO NEMWeb current reports] --> B[Fabric Pipeline schedule]
+    B --> C[Ingestion notebook]
+    C --> D[Lakehouse Files: raw ZIP archive]
+    C --> E[Ingestion manifest and run log]
+    D --> F[Bronze Delta tables]
+    F --> G[Silver typed and deduplicated tables]
+    G --> H[Gold Power BI-ready tables]
+    H --> I[Power BI semantic model]
+    I --> J[Dashboard pages]
+```
+
 See `fabric/lakehouse_design.md` for detailed table layout and idempotency
 strategy.
 
