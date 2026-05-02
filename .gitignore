@@ -36,3 +36,7 @@ build/
 *.log
 
 R and Python - Test/
+
+.stubs/
+.vfscache/
+.vfsmeta/

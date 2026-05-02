@@ -10,7 +10,6 @@ import re
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from pathlib import PurePosixPath
 from urllib.parse import urljoin, urlparse
