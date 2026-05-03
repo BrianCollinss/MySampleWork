@@ -23,6 +23,7 @@ tables:
     - nem_silver_gas_prices
   gold:
     - nem_gold_dashboard_current_snapshot
+    - nem_gold_dashboard_supply_demand_components
     - nem_gold_region_5min
     - nem_gold_region_30min
     - nem_gold_region_daily

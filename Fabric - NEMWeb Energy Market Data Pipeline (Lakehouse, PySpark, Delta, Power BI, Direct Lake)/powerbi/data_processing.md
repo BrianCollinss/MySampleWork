@@ -203,6 +203,8 @@ Five-minute interconnector flow records from Bronze `DISPATCH` /
 | `flow_mw` | Numeric cast from `mwflow`. |
 | `losses_mw` | Numeric cast from `mwlosses`. |
 | `marginal_value` | Numeric cast from `marginalvalue`. |
+| `export_limit_mw` | Numeric cast from `exportlimit`. |
+| `import_limit_mw` | Numeric cast from `importlimit`. |
 | `trading_date` | Date from `settlement_datetime`. |
 | `silver_loaded_datetime` | Silver load timestamp. |
 | `run_id` | Silver notebook run ID. |
@@ -263,6 +265,10 @@ Main Power BI regional fact table. Built from
 | `dispatchable_load_mw` | Raw `dispatchableload`; cast to numeric in Silver; carried to Gold. |
 | `net_interchange_mw` | Raw `netinterchange`; cast to numeric in Silver; carried to Gold. |
 | `excess_generation_mw` | Raw `excessgeneration`; cast to numeric in Silver; carried to Gold. |
+| `dashboard_demand_mw` | Raw `clearedsupply`; aligns the NEM dashboard demand bar. |
+| `semi_scheduled_generation_mw` | Raw `semischedule_clearedmw`; aligns NEM dashboard semi-scheduled generation. |
+| `scheduled_generation_mw` | `dispatchable_generation_mw - semi_scheduled_generation_mw`. |
+| `dashboard_generation_mw` | `dispatchable_generation_mw`; aligns the NEM dashboard total generation bar. |
 | `price_band` | Derived in Gold from `price_aud_mwh`: `< 0` Negative, `0-299.99` Normal, `300-999.99` High, `>= 1000` Extreme. |
 | `is_negative_price` | `price_aud_mwh < 0`. |
 | `is_high_price` | `price_aud_mwh >= 300`. |
@@ -278,6 +284,25 @@ Latest interval per region from `nem_gold_region_5min`.
 
 Columns are the same as `nem_gold_region_5min`. Processing selects the latest
 `settlement_datetime` for each `region`.
+
+### `nem_gold_dashboard_supply_demand_components`
+
+Current long-format supply and demand component table from
+`nem_gold_dashboard_current_snapshot`. It supports AEMO-style regional stacked
+bar visuals.
+
+| Gold column | Processing |
+| --- | --- |
+| `settlement_datetime` | Carried from current snapshot. |
+| `trading_date` | Carried from current snapshot. |
+| `region` | Carried from current snapshot. |
+| `region_name` | Carried from current snapshot. |
+| `metric_group` | `Demand` or `Generation`. |
+| `component` | `Demand`, `Scheduled Generation`, or `Semi-scheduled Generation`. |
+| `component_sort_order` | Sort key for component display. |
+| `value_mw` | Demand or generation component MW value. |
+| `gold_loaded_datetime` | Carried from current snapshot. |
+| `run_id` | Carried from current snapshot. |
 
 ### `nem_gold_region_30min`
 
@@ -363,6 +388,8 @@ Optional interconnector reporting table from `nem_silver_interconnector_flows`.
 | `flow_mw` | Carried from Silver. |
 | `losses_mw` | Carried from Silver. |
 | `marginal_value` | Carried from Silver. |
+| `export_limit_mw` | Carried from Silver for export limit monitoring. |
+| `import_limit_mw` | Carried from Silver for import limit monitoring. |
 | `trading_date` | Carried from Silver. |
 | `silver_loaded_datetime` | Carried from Silver. |
 | `run_id` | Carried from Silver in local output; Fabric output keeps source columns and adds derived fields. |
@@ -403,4 +430,3 @@ currently writes them:
 - Raw ZIP paths are deterministic from source name, file date, and filename.
 - Silver tables are deduplicated by natural keys in local helpers.
 - Gold tables are deterministic aggregates and are overwritten on each Gold run.
-

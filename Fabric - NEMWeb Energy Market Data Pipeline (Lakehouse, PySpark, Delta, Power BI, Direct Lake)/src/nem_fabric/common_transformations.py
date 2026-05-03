@@ -175,6 +175,8 @@ def build_silver_price_demand(
             "dispatchableload": "dispatchable_load_mw",
             "netinterchange": "net_interchange_mw",
             "excessgeneration": "excess_generation_mw",
+            "clearedsupply": "dashboard_demand_mw",
+            "semischedule_clearedmw": "semi_scheduled_generation_mw",
             "row_hash": "regionsum_row_hash",
         }
         regionsum = regionsum.rename(
@@ -191,8 +193,24 @@ def build_silver_price_demand(
             "dispatchable_load_mw",
             "net_interchange_mw",
             "excess_generation_mw",
+            "dashboard_demand_mw",
+            "semi_scheduled_generation_mw",
         ]
         regionsum = cast_numeric_fields(regionsum, numeric_columns)
+        if {
+            "dispatchable_generation_mw",
+            "semi_scheduled_generation_mw",
+        }.issubset(regionsum.columns):
+            regionsum["scheduled_generation_mw"] = (
+                regionsum["dispatchable_generation_mw"]
+                - regionsum["semi_scheduled_generation_mw"]
+            )
+            regionsum["dashboard_generation_mw"] = regionsum[
+                "dispatchable_generation_mw"
+            ]
+            numeric_columns.extend(
+                ["scheduled_generation_mw", "dashboard_generation_mw"]
+            )
         regionsum_columns = [
             "settlement_datetime",
             "region",
@@ -241,12 +259,21 @@ def build_silver_interconnector_flows(
             "mwflow": "flow_mw",
             "mwlosses": "losses_mw",
             "marginalvalue": "marginal_value",
+            "exportlimit": "export_limit_mw",
+            "importlimit": "import_limit_mw",
         }
     )
     rows["intervention"] = _numeric_column(rows, "intervention")
     rows = cast_numeric_fields(
         rows,
-        ["metered_flow_mw", "flow_mw", "losses_mw", "marginal_value"],
+        [
+            "metered_flow_mw",
+            "flow_mw",
+            "losses_mw",
+            "marginal_value",
+            "export_limit_mw",
+            "import_limit_mw",
+        ],
     )
     rows = add_interval_fields(rows)
     rows["silver_loaded_datetime"] = pd.Timestamp.now("UTC").isoformat()
@@ -259,6 +286,8 @@ def build_silver_interconnector_flows(
         "flow_mw",
         "losses_mw",
         "marginal_value",
+        "export_limit_mw",
+        "import_limit_mw",
         "trading_date",
         "silver_loaded_datetime",
         "run_id",
@@ -312,6 +341,56 @@ def build_current_snapshot(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def build_dashboard_supply_demand_components(snapshot: pd.DataFrame) -> pd.DataFrame:
+    """Build current dashboard demand/generation components for stacked bars."""
+
+    columns = [
+        "settlement_datetime",
+        "trading_date",
+        "region",
+        "region_name",
+        "dashboard_demand_mw",
+        "scheduled_generation_mw",
+        "semi_scheduled_generation_mw",
+        "gold_loaded_datetime",
+        "run_id",
+    ]
+    if snapshot.empty:
+        return pd.DataFrame(columns=columns + ["metric_group", "component", "value_mw"])
+
+    available = snapshot[[column for column in columns if column in snapshot.columns]].copy()
+    rows: list[pd.DataFrame] = []
+    component_specs = [
+        ("Demand", "Demand", "dashboard_demand_mw", 1),
+        ("Generation", "Scheduled Generation", "scheduled_generation_mw", 1),
+        ("Generation", "Semi-scheduled Generation", "semi_scheduled_generation_mw", 2),
+    ]
+    id_columns = [
+        column
+        for column in available.columns
+        if column
+        not in {
+            "dashboard_demand_mw",
+            "scheduled_generation_mw",
+            "semi_scheduled_generation_mw",
+        }
+    ]
+    for metric_group, component, value_column, sort_order in component_specs:
+        if value_column not in available.columns:
+            continue
+        component_frame = available[id_columns].copy()
+        component_frame["metric_group"] = metric_group
+        component_frame["component"] = component
+        component_frame["component_sort_order"] = sort_order
+        component_frame["value_mw"] = pd.to_numeric(
+            available[value_column], errors="coerce"
+        )
+        rows.append(component_frame)
+    if not rows:
+        return pd.DataFrame(columns=columns + ["metric_group", "component", "value_mw"])
+    return pd.concat(rows, ignore_index=True)
+
+
 def build_gold_region_5min(silver: pd.DataFrame, run_id: str) -> pd.DataFrame:
     """Build the local Gold 5-minute regional fact from Silver price/demand."""
 
@@ -335,6 +414,10 @@ def build_gold_region_5min(silver: pd.DataFrame, run_id: str) -> pd.DataFrame:
             "dispatchable_load_mw",
             "net_interchange_mw",
             "excess_generation_mw",
+            "dashboard_demand_mw",
+            "semi_scheduled_generation_mw",
+            "scheduled_generation_mw",
+            "dashboard_generation_mw",
         ],
     )
     result = add_interval_fields(result)
@@ -387,6 +470,10 @@ def build_gold_region_5min(silver: pd.DataFrame, run_id: str) -> pd.DataFrame:
         "dispatchable_load_mw",
         "net_interchange_mw",
         "excess_generation_mw",
+        "dashboard_demand_mw",
+        "semi_scheduled_generation_mw",
+        "scheduled_generation_mw",
+        "dashboard_generation_mw",
         "price_band",
         "is_negative_price",
         "is_high_price",
@@ -517,7 +604,9 @@ def build_gold_interconnector_flows(interconnector: pd.DataFrame) -> pd.DataFram
     result["settlement_datetime"] = pd.to_datetime(
         result["settlement_datetime"], errors="coerce"
     )
-    result = cast_numeric_fields(result, ["flow_mw"])
+    result = cast_numeric_fields(
+        result, ["flow_mw", "export_limit_mw", "import_limit_mw"]
+    )
     result["flow_direction"] = "Reverse"
     result.loc[
         result["flow_mw"].notna() & (result["flow_mw"] >= 0), "flow_direction"

@@ -5,6 +5,7 @@ import pandas as pd
 from nem_fabric.common_transformations import (
     build_30min_region_aggregation,
     build_dashboard_kpis,
+    build_dashboard_supply_demand_components,
     build_data_freshness,
     build_gold_region_5min,
     build_silver_interconnector_flows,
@@ -58,6 +59,9 @@ def test_build_silver_price_demand_joins_price_and_regionsum() -> None:
                 "regionid": "NSW1",
                 "intervention": "0",
                 "totaldemand": "8000",
+                "dispatchablegeneration": "7000",
+                "clearedsupply": "8050",
+                "semischedule_clearedmw": "1500",
                 "row_hash": "regionsum-hash",
             },
         ]
@@ -69,6 +73,10 @@ def test_build_silver_price_demand_joins_price_and_regionsum() -> None:
     assert result["price_aud_mwh"].iloc[0] == 100.50
     assert result["demand_mw"].iloc[0] == 8000
     assert result["region_name"].iloc[0] == "New South Wales"
+    assert result["dashboard_demand_mw"].iloc[0] == 8050
+    assert result["semi_scheduled_generation_mw"].iloc[0] == 1500
+    assert result["scheduled_generation_mw"].iloc[0] == 5500
+    assert result["dashboard_generation_mw"].iloc[0] == 7000
 
 
 def test_build_silver_interconnector_flows_casts_numeric_fields() -> None:
@@ -86,6 +94,8 @@ def test_build_silver_interconnector_flows_casts_numeric_fields() -> None:
                 "mwflow": "11.5",
                 "mwlosses": "1.0",
                 "marginalvalue": "2.0",
+                "exportlimit": "100.0",
+                "importlimit": "-90.0",
             }
         ]
     )
@@ -94,6 +104,8 @@ def test_build_silver_interconnector_flows_casts_numeric_fields() -> None:
 
     assert result["interconnector_id"].iloc[0] == "N-Q-MNSP1"
     assert result["flow_mw"].iloc[0] == 11.5
+    assert result["export_limit_mw"].iloc[0] == 100.0
+    assert result["import_limit_mw"].iloc[0] == -90.0
 
 
 def test_build_gold_region_5min_adds_power_bi_fields() -> None:
@@ -166,3 +178,33 @@ def test_build_gold_aggregates_and_freshness() -> None:
     assert aggregate["high_price_interval_count"].iloc[0] == 1
     assert kpis["regions_available"].iloc[0] == 1
     assert freshness["status"].iloc[0] in {"Fresh", "Delayed", "Stale"}
+
+
+def test_build_dashboard_supply_demand_components_returns_long_format() -> None:
+    """Current snapshot should reshape into demand and generation components."""
+
+    snapshot = pd.DataFrame(
+        [
+            {
+                "settlement_datetime": pd.Timestamp("2026-01-01 00:05:00"),
+                "trading_date": pd.Timestamp("2026-01-01").date(),
+                "region": "NSW1",
+                "region_name": "New South Wales",
+                "dashboard_demand_mw": 8050.0,
+                "scheduled_generation_mw": 5500.0,
+                "semi_scheduled_generation_mw": 1500.0,
+                "gold_loaded_datetime": "2026-01-01T00:06:00+00:00",
+                "run_id": "run-1",
+            }
+        ]
+    )
+
+    result = build_dashboard_supply_demand_components(snapshot)
+
+    assert set(result["metric_group"]) == {"Demand", "Generation"}
+    assert set(result["component"]) == {
+        "Demand",
+        "Scheduled Generation",
+        "Semi-scheduled Generation",
+    }
+    assert result["value_mw"].sum() == 15050.0

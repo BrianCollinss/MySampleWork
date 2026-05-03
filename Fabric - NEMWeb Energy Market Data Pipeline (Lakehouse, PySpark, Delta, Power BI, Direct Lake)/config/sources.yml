@@ -21,34 +21,50 @@ sources:
     url: https://nemweb.com.au/Reports/Current/PredispatchIS_Reports/
     market: NEM
     expected_update_frequency: 30 minutes
-    enabled: false
+    enabled: true
     description: Predispatch outlook reports.
     priority: 4
-    notes: Useful future source for forecast visuals.
+    notes: Required for forecast price and demand visuals.
+  - name: Trading_Cumulative_Price
+    url: https://nemweb.com.au/Reports/Current/Trading_Cumulative_Price/
+    market: NEM
+    expected_update_frequency: 5 minutes
+    enabled: true
+    description: Trading cumulative price reports.
+    priority: 5
+    notes: Required for cumulative price and administered price cap reporting.
+  - name: Seven_Day_Outlook_Full
+    url: https://nemweb.com.au/Reports/Current/SEVENDAYOUTLOOK_FULL/
+    market: NEM
+    expected_update_frequency: 30 minutes
+    enabled: true
+    description: Seven-day regional outlook reports.
+    priority: 6
+    notes: Required for scheduled demand, capacity, reserve, net interchange, and trading interval outlook visuals.
   - name: Next_Day_Dispatch
     url: https://nemweb.com.au/Reports/Current/Next_Day_Dispatch/
     market: NEM
     expected_update_frequency: daily
-    enabled: false
+    enabled: true
     description: Next-day dispatch data.
-    priority: 5
-    notes: Useful for backfill and comparison views.
-  - name: UnitScada
-    url: https://nemweb.com.au/Reports/Current/Unit_Scada/
+    priority: 7
+    notes: Required for next-day actual dispatch history and average price comparison views.
+  - name: Dispatch_SCADA
+    url: https://nemweb.com.au/Reports/Current/Dispatch_SCADA/
     market: NEM
     expected_update_frequency: 5 minutes
-    enabled: false
-    description: Unit-level SCADA generation data where available.
+    enabled: true
+    description: Unit-level dispatch SCADA generation data where available.
     priority: 3
-    notes: Disabled by default because this public current-report folder can return 404; validate availability before enabling.
+    notes: Required for fuel mix and generation-by-fuel visuals after DUID fuel mapping is available.
   - name: Intermittent_Generation
     url: https://nemweb.com.au/Reports/Current/ROOFTOP_PV/ACTUAL/
     market: NEM
     expected_update_frequency: 30 minutes
-    enabled: false
+    enabled: true
     description: Intermittent or rooftop generation-related current reports.
-    priority: 6
-    notes: Placeholder for generation mix enhancement.
+    priority: 8
+    notes: Required for rooftop PV, renewable contribution, and renewable penetration visuals.
   - name: STTM
     url: https://nemweb.com.au/Reports/Current/STTM/
     market: Gas

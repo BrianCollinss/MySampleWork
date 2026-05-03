@@ -45,6 +45,8 @@ INTERCONNECTOR_COLUMNS = [
     "from_region",
     "to_region",
     "flow_mw",
+    "export_limit_mw",
+    "import_limit_mw",
 ]
 
 INGESTION_LOG_COLUMNS = [
