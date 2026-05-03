@@ -12,6 +12,7 @@ dependencies:
   - pyarrow
   - pydantic
   - python-dotenv
+  - azure-identity
   - pytest
   - ruff
   - black

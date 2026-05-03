@@ -1,10 +1,10 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import io
 import zipfile
 from pathlib import Path
 
-from nem_fabric.mmsdm_parser import parse_mmsdm_csv_bytes, parse_zip_bytes
+from nem_fabric.common_mmsdm_parser import parse_mmsdm_csv_bytes, parse_zip_bytes
 
 # Shared fixture values keep parser tests focused on MMSDM behaviour rather than
 # repeated setup.

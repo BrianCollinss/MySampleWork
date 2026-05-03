@@ -37,10 +37,10 @@ sources:
     url: https://nemweb.com.au/Reports/Current/Unit_Scada/
     market: NEM
     expected_update_frequency: 5 minutes
-    enabled: true
+    enabled: false
     description: Unit-level SCADA generation data where available.
     priority: 3
-    notes: Folder availability should be validated in Fabric or smoke tests.
+    notes: Disabled by default because this public current-report folder can return 404; validate availability before enabling.
   - name: Intermittent_Generation
     url: https://nemweb.com.au/Reports/Current/ROOFTOP_PV/ACTUAL/
     market: NEM

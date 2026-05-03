@@ -1,4 +1,4 @@
-"""Local smoke test for NEMWeb listing, download, and MMSDM parsing.
+﻿"""Local smoke test for NEMWeb listing, download, and MMSDM parsing.
 
 This script validates the public HTTP client and parser before Fabric is
 available. It reads only the latest DispatchIS ZIPs in memory and deliberately
@@ -7,10 +7,10 @@ does not write raw source data into the repository.
 
 from __future__ import annotations
 
-from nem_fabric.config import load_settings
-from nem_fabric.logging_config import configure_logging
-from nem_fabric.mmsdm_parser import parse_zip_bytes
-from nem_fabric.nemweb_client import get_zip_bytes, list_zip_links
+from nem_fabric.common_config import load_settings
+from nem_fabric.common_logging_config import configure_logging
+from nem_fabric.common_mmsdm_parser import parse_zip_bytes
+from nem_fabric.common_nemweb_client import get_zip_bytes, list_zip_links
 
 
 def main() -> None:

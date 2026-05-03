@@ -54,12 +54,13 @@ strategy.
 The intended production workflow is:
 
 1. Configure local and Fabric prerequisites.
-2. Upload the reusable `nem_fabric` package to the Fabric notebook runtime path.
-3. Publish notebooks and attach a Lakehouse.
-4. Run environment validation.
-5. Run ingestion, Bronze parsing, Silver transformation, and Gold build notebooks.
-6. Schedule the Fabric Pipeline every 5 minutes.
-7. Build a Power BI semantic model and report from Gold tables (to be done).
+2. Create and publish a Fabric Environment with required Python libraries.
+3. Upload the reusable `nem_fabric` package to the Fabric notebook runtime path.
+4. Publish notebooks and attach a Lakehouse and the Fabric Environment.
+5. Run environment validation.
+6. Run ingestion, Bronze parsing, Silver transformation, and Gold build notebooks.
+7. Schedule the Fabric Pipeline every 5 minutes.
+8. Build a Power BI semantic model and report from Gold tables (to be done).
 
 See `fabric/deployment_steps.md` for exact deployment steps and
 `fabric/pipeline_design.md` for orchestration details.
@@ -82,6 +83,10 @@ Key references:
 Fabric Pipelines do not automatically include local Python source code. The
 notebooks currently use the Lakehouse Files source-library approach for
 `nem_fabric` imports.
+
+Modules under `src/nem_fabric` use dependency prefixes: `common_` for shared
+local/Fabric code, `fabric_` for Spark and Lakehouse implementations, and
+`local_` for local filesystem implementations.
 
 See `fabric/deployment_steps.md` for the available package deployment options,
 exact library path behaviour, and the parameter used by notebooks.

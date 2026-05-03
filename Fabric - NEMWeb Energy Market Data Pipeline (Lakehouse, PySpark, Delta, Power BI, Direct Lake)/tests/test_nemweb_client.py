@@ -1,8 +1,8 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from nem_fabric.nemweb_client import (
+from nem_fabric.common_nemweb_client import (
     extract_filename,
     extract_timestamp_from_filename,
     filter_zip_links_by_lookback,

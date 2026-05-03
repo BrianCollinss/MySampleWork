@@ -1,9 +1,10 @@
 """Project package for AEMO NEMWeb ingestion and Fabric Lakehouse modelling.
 
-The modules under this package are reusable from both local smoke tests and
-Microsoft Fabric notebooks. Local code handles lightweight HTTP, parsing, and
-pandas checks; Fabric notebooks are expected to use Spark for Lakehouse-scale
-Delta writes.
+Module prefixes describe runtime dependencies:
+
+- `common_`: shared code that can run locally or in Microsoft Fabric.
+- `fabric_`: Fabric/Spark/Lakehouse-specific implementations.
+- `local_`: local filesystem or developer-machine implementations.
 """
 
 __all__ = ["__version__"]

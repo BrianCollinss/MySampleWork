@@ -27,15 +27,44 @@ Parameter sources:
 
 - `FABRIC_WORKSPACE_NAME`: local `.env`; display/documentation only.
 - `FABRIC_LAKEHOUSE_NAME`: local `.env`; display/documentation only.
+- `FABRIC_ONELAKE_ACCESS_TOKEN`: optional local-only bearer token for
+  `scripts/upload_fabric_assets.py` when Azure CLI is unavailable.
+- `FABRIC_API_ACCESS_TOKEN`: optional local-only Fabric REST API bearer token
+  for publishing Notebook workspace items when Azure CLI/device-code auth is
+  unavailable.
 - `FABRIC_NOTEBOOK_LIB_PATH`: optional notebook environment variable; defaults
   to `/lakehouse/default/Files/libs`.
 - NEMWeb URLs and ingestion limits: local `.env` for scripts, notebook
   parameters or checked-in config files for Fabric runs.
 
+## Create Fabric Environment
+
+Create a new Fabric Environment before running the notebooks. In the Environment
+library settings, add these packages from external repositories/PyPI:
+
+- `pydantic`
+- `python-dotenv`
+- `pyyaml`
+- `requests`
+- `beautifulsoup4`
+- `lxml`
+
+Save and publish the Environment. Then attach that published Environment to each
+Fabric notebook. Libraries with status `Saved` are not available to notebook
+sessions until the Environment is published and the notebook session is
+restarted.
+
 ## Deploy Python Package
 
 Fabric Pipelines do not automatically upload or install local source code when
 they run notebooks. Each notebook runtime must be able to import `nem_fabric`.
+
+The package uses filename prefixes to separate runtime dependencies:
+
+- `common_` modules run locally and in Fabric.
+- `fabric_` modules contain Spark/Lakehouse-specific implementations.
+- `local_` modules contain local filesystem implementations for notebook and
+  unit-test runs without Spark.
 
 Recommended production option:
 
@@ -91,8 +120,57 @@ if fabric_lib_path not in sys.path:
     sys.path.insert(0, fabric_lib_path)
 ```
 
-Re-upload `src/nem_fabric` whenever files under that folder change. Notebook-only
-changes do not require re-uploading the package.
+Re-upload whenever local Python package files, checked-in configuration, or
+notebooks change. The upload script clears each managed Lakehouse Files target
+folder before uploading the replacement package/config files, so renamed or
+removed local files are also removed from Lakehouse Files. Notebooks are
+published as Fabric workspace Notebook items and are created or updated by
+display name.
+
+You can upload the package, checked-in YAML configuration, and notebooks with:
+
+```powershell
+# Interactive browser sign-in. Use this for accounts protected by MFA.
+az login --use-device-code --allow-no-subscriptions
+python scripts/upload_fabric_assets.py
+```
+
+If Azure CLI is not installed, use the script's device-code flow instead:
+
+```powershell
+python scripts/upload_fabric_assets.py --device-code
+```
+
+The script uses `FABRIC_WORKSPACE_NAME` and `FABRIC_LAKEHOUSE_NAME` from `.env`
+unless you pass `--workspace` and `--lakehouse`. `--workspace` may be a Fabric
+workspace display name or workspace ID. It uploads:
+
+- `src/nem_fabric` to `Files/libs/nem_fabric`.
+- `config` to `Files/config`.
+- `notebooks/*.ipynb` as Fabric workspace Notebook items.
+
+Use `--dry-run` to preview paths, or `--skip-notebooks` when only package and
+configuration files need uploading. Publishing Fabric Notebook items and
+attaching the Lakehouse still remain Fabric UI or VS Code steps.
+
+You can also provide short-lived bearer tokens through
+`FABRIC_ONELAKE_ACCESS_TOKEN` and `FABRIC_API_ACCESS_TOKEN` in your local shell
+or `.env`, or pass them with `--access-token` and `--fabric-access-token`. Keep
+populated token values out of source control.
+
+If local interactive login is blocked by Conditional Access or MFA policy, sign
+in using the browser/device-code flow from a trusted device, or use a service
+principal that has the required Fabric workspace/Lakehouse access:
+
+```powershell
+az login --service-principal `
+  --username "<app-client-id>" `
+  --password "<client-secret-or-certificate>" `
+  --tenant "<tenant-id>"
+```
+
+Keep service principal secrets out of `.env` and shell history where possible;
+prefer a secure secret store for repeatable automation.
 
 ## Publish Notebooks
 
@@ -114,6 +192,23 @@ This notebook validates:
 - Project config-file visibility where applicable.
 - Lakehouse table write/read access.
 
+If the notebook prints `lakehouse_name=none_attached`, the notebook item is not
+attached to a default Lakehouse. In the Fabric notebook editor, select **Add
+Lakehouse** or **Lakehouse** from the notebook explorer, choose the target
+Lakehouse, save the notebook, and rerun the environment check.
+
+If the notebook reports missing `config/sources.yml`, `config/tables.yml`, or
+`config/dashboard_requirements.yml`, upload the checked-in config folder to
+Lakehouse Files:
+
+```powershell
+az login --use-device-code
+python scripts/upload_fabric_assets.py
+```
+
+The expected Fabric path is `Files/config`. The notebook runtime sees that path
+as `/lakehouse/default/Files/config`.
+
 ## Run Notebooks Manually
 
 Run the notebooks in this order:
@@ -131,12 +226,81 @@ Manual parameter guidance:
 - `lookback_hours`: recent period used for current-report discovery.
 - `dry_run`: set `True` to test discovery without writing ZIP files.
 
+Notebook `01` can also run locally without Spark. Local runs use the same
+`nem_fabric.common_ingestion` algorithm, write raw ZIP files under repo-root
+`data/files`, and append CSV control files under repo-root
+`data/tables`. Fabric runs use the same algorithm with Lakehouse Files and
+Delta control tables.
+
 ## Create Fabric Pipeline
 
 1. Create a new Fabric Data Pipeline.
 2. Add notebook activities for notebooks `01` to `04`.
 3. Set dependencies so each notebook runs only after the previous one succeeds.
 4. Pass pipeline parameters where required.
+
+## Pipeline Troubleshooting
+
+If a notebook succeeds when run manually but fails from a Pipeline with
+`TooManyRequestsForCapacity` or HTTP `430`, Fabric could not create a Spark
+session because the capacity hit a Spark compute, queue, or API admission limit.
+This is capacity contention rather than notebook logic failure.
+
+Immediate actions:
+
+- Check **Monitoring hub** for active or queued Spark jobs and cancel stale runs.
+- In **Workspace settings -> Job management**, review Job Concurrency and Queue
+  Monitoring to see which jobs are consuming the capacity.
+- Rerun the Pipeline after active notebook sessions have stopped.
+- Keep notebook activities sequential unless the capacity SKU can support
+  parallel Spark sessions.
+- Reduce concurrent manual notebook runs while testing scheduled Pipelines.
+- For repeatable production schedules, move the workspace to a larger Fabric
+  capacity SKU if the current SKU regularly reaches the queue limit.
+
+For small capacities that can only admit two Spark sessions, a sequential
+Pipeline can still fail between notebook activities because the previous
+notebook session may not have fully released before the next notebook requests a
+new session. To reduce that handover spike:
+
+- Enable **Workspace settings -> Data Engineering/Science -> Spark settings ->
+  High concurrency -> For pipeline running multiple notebooks**.
+- Set the same **session tag** on notebook activities `01` to `04` in the
+  Pipeline advanced settings, for example `nemweb-medallion`.
+- Confirm all four notebooks use the same default Lakehouse, Spark compute
+  configuration, Environment, and library set so Fabric can pack them into the
+  same high-concurrency session.
+- Add a retry policy to each notebook activity with a short delay, for example
+  2 to 3 retries with a 2 to 5 minute interval, so transient session-admission
+  failures can clear without manual reruns.
+
+If the first notebook activity fails before any notebook code starts, the
+Pipeline handover is not the cause. Check these capacity-level issues:
+
+- The Data Pipeline orchestration itself should not consume a Spark session;
+  the first Notebook activity is the Spark session request.
+- Open the Fabric Capacity Metrics app and check whether Spark usage is already
+  throttled or carrying smoothed utilisation from previous manual notebook
+  tests. Wait for the capacity to cool down before rerunning the Pipeline.
+- Confirm queueing is enabled for Spark jobs on the capacity. When a capacity is
+  already throttled, Fabric can reject new Spark jobs instead of queueing them.
+- Add retry policy to Notebook activity `01` as well as downstream activities.
+  Use a longer delay on small SKUs, for example 3 retries with a 5 to 10 minute
+  interval.
+- Reduce the Spark compute requested by the notebook Environment or workspace
+  Spark settings where possible. Notebook admission is based on Spark vCores,
+  and the session must fit within the capacity's available vCore budget.
+- If the small SKU still rejects the first Notebook activity when no other Spark
+  work is active, pause manual testing and either wait for capacity smoothing to
+  clear or temporarily scale up the Fabric capacity for the Pipeline run.
+
+See Microsoft Fabric's Spark concurrency and queueing documentation for current
+SKU-specific limits and queue behaviour:
+https://learn.microsoft.com/en-us/fabric/data-engineering/spark-job-concurrency-and-queueing
+
+See Fabric's high-concurrency notebook documentation for session sharing in
+Pipelines:
+https://learn.microsoft.com/en-us/fabric/data-engineering/configure-high-concurrency-session-notebooks-in-pipelines
 5. Configure retry policy for transient HTTP or Spark failures.
 6. Configure failure alerts.
 

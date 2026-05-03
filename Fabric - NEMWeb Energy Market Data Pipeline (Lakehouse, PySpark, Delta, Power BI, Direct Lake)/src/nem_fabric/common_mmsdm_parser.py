@@ -1,4 +1,4 @@
-"""Parser for AEMO MMSDM-style CSV files inside NEMWeb ZIP archives.
+﻿"""Parser for AEMO MMSDM-style CSV files inside NEMWeb ZIP archives.
 
 AEMO MMSDM files are not plain single-table CSVs. They use row prefixes:
 `C` for control/comment rows, `I` for table headers, and `D` for data rows.
@@ -19,7 +19,10 @@ from urllib.parse import urlparse
 
 import pandas as pd
 
-from nem_fabric.nemweb_client import extract_filename, extract_timestamp_from_filename
+from nem_fabric.common_nemweb_client import (
+    extract_filename,
+    extract_timestamp_from_filename,
+)
 
 
 @dataclass
@@ -85,17 +88,14 @@ def parse_mmsdm_csv_bytes(
         return []
 
     source_zip_name = extract_filename(source_url)
+    file_datetime = extract_timestamp_from_filename(source_zip_name)
     metadata = {
         "source_url": source_url,
         "source_zip_name": source_zip_name,
         "inner_csv_name": inner_filename,
         "source_folder": PurePosixPath(urlparse(source_url).path).parent.name,
         "ingestion_datetime": datetime.now(timezone.utc).isoformat(),
-        "file_datetime": (
-            extract_timestamp_from_filename(source_zip_name).isoformat()
-            if extract_timestamp_from_filename(source_zip_name)
-            else ""
-        ),
+        "file_datetime": file_datetime.isoformat() if file_datetime else "",
     }
 
     # Group records by package, table, and header shape. Header shape is included
