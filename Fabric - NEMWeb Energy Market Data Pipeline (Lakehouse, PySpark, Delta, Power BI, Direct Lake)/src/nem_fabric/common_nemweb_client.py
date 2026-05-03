@@ -51,9 +51,9 @@ class _ZipLinkParser(HTMLParser):
 
         if tag.lower() != "a":
             return
-        for name, value in attrs:
-            if name.lower() == "href" and value:
-                self.hrefs.append(value)
+        attrs_dict = dict(attrs)
+        if "href" in attrs_dict:
+            self.hrefs.append(str(attrs_dict["href"]))
 
 
 def extract_filename(url: str) -> str:

@@ -17,7 +17,7 @@ Each production notebook depends on successful completion of the previous activi
 
 - Retry transient HTTP and Spark failures.
 - Quarantine malformed files.
-- Write errors to `nem_ingestion_log` and `nem_raw_file_audit`.
+- Write errors to `ingestion_log` and `raw_file_audit`.
 - Alert on repeated failures, stale data, or quarantine growth.
 
 ## Parameters
@@ -26,7 +26,7 @@ Each production notebook depends on successful completion of the previous activi
 
 ## Logging Tables
 
-`nem_ingestion_log`, `nem_raw_zip_manifest`, `nem_raw_file_audit`, and `nem_gold_data_freshness`.
+`ingestion_log`, `raw_zip_manifest`, `raw_file_audit`, and `gold_data_freshness`.
 
 ## Manual Fabric Steps
 

@@ -10,7 +10,7 @@ Bronze preserves raw parsed MMSDM records with metadata. Silver applies typing, 
 
 ## Naming
 
-Use `nem_raw_*`, `nem_bronze_*`, `nem_silver_*`, and `nem_gold_*`.
+Use `raw_*`, `bronze_*`, `silver_*`, and `gold_*`.
 
 ## Partitioning
 

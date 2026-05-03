@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Protocol
@@ -14,8 +15,8 @@ from nem_fabric.common_nemweb_client import (
 )
 
 RAW_ROOT = "Files/nemweb/raw_zip"
-MANIFEST_TABLE = "nem_raw_zip_manifest"
-INGESTION_LOG_TABLE = "nem_ingestion_log"
+MANIFEST_TABLE = "raw_zip_manifest"
+INGESTION_LOG_TABLE = "ingestion_log"
 
 
 @dataclass(frozen=True)
@@ -72,6 +73,16 @@ def select_enabled_sources(
     return sources
 
 
+def source_label(source: dict[str, Any]) -> str:
+    """Return a stable filesystem/table label for a configured source."""
+
+    raw_label = str(source.get("label") or source["name"]).strip().lower()
+    label = re.sub(r"[^a-z0-9]+", "_", raw_label).strip("_")
+    if not label:
+        raise ValueError(f"Source {source['name']!r} has an empty label")
+    return label
+
+
 def ingest_nemweb_zip_files(
     sources: list[dict[str, Any]],
     store: IngestionStore,
@@ -84,6 +95,7 @@ def ingest_nemweb_zip_files(
     log_rows: list[dict[str, Any]] = []
 
     for source in sources:
+        label = source_label(source)
         try:
             links = list_zip_links(source["url"])
         except Exception as exc:
@@ -94,6 +106,7 @@ def ingest_nemweb_zip_files(
                 {
                     "run_id": config.run_id,
                     "source_name": source["name"],
+                    "source_label": label,
                     "source_url": source["url"],
                     "source_zip_name": "",
                     "status": "failed",
@@ -126,7 +139,7 @@ def ingest_nemweb_zip_files(
             byte_count = 0
             target_path = raw_zip_path(
                 config.raw_root,
-                source["name"],
+                label,
                 link.filename,
                 link.file_datetime,
             )
@@ -146,6 +159,7 @@ def ingest_nemweb_zip_files(
                 {
                     "run_id": config.run_id,
                     "source_name": source["name"],
+                    "source_label": label,
                     "source_url": link.url,
                     "source_zip_name": link.filename,
                     "source_folder_url": source["url"],
@@ -168,6 +182,7 @@ def ingest_nemweb_zip_files(
                 {
                     "run_id": config.run_id,
                     "source_name": source["name"],
+                    "source_label": label,
                     "source_url": link.url,
                     "source_zip_name": link.filename,
                     "status": status,
@@ -189,11 +204,11 @@ def ingest_nemweb_zip_files(
 
 def raw_zip_path(
     raw_root: str,
-    source: str,
+    source_label_value: str,
     filename: str,
     file_dt: datetime | None,
 ) -> str:
     """Build a raw ZIP path partitioned by source and date."""
 
     dt = file_dt or datetime.now(timezone.utc)
-    return f"{raw_root}/{source}/{dt:%Y/%m/%d}/{filename}"
+    return f"{raw_root}/{source_label_value}/{dt:%Y/%m/%d}/{filename}"

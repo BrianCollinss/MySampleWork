@@ -320,19 +320,24 @@ See `fabric/schedule_design.md`.
 
 After the first successful run, confirm these tables exist:
 
-- `nem_raw_zip_manifest`
-- `nem_ingestion_log`
-- `nem_raw_file_audit`
-- `nem_bronze_mmsdm_rows`
-- `nem_silver_price_demand_5min`
-- `nem_gold_region_5min`
-- `nem_gold_dashboard_kpis`
-- `nem_gold_data_freshness`
+- `raw_zip_manifest`
+- `ingestion_log`
+- `raw_file_audit`
+- `bronze_dispatchis`
+- `silver_price_demand_5min`
+- `gold_region_5min`
+- `gold_kpis`
+- `gold_data_freshness`
 
 ## Build Power BI Report
 
+The repository includes an initial Power BI Desktop report at
+`powerbi/powerbi.pbix`. This PBIX is work in progress and more report pages will
+be added.
+
 Create a Direct Lake semantic model from the Gold tables where available. Use
-Import mode only if Direct Lake is unavailable.
+Import mode if Direct Lake is unavailable. The current PBIX was created in Power
+BI Desktop because the available Fabric licence was nearing expiry.
 
 See:
 

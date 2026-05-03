@@ -56,6 +56,37 @@ def _numeric_column(df: pd.DataFrame, column: str) -> pd.Series:
     return pd.Series([pd.NA] * len(df), index=df.index, dtype="Float64")
 
 
+def _first_existing_column(df: pd.DataFrame, candidates: list[str]) -> str | None:
+    """Return the first candidate column present in a DataFrame."""
+
+    for column in candidates:
+        resolved = _resolve_column(df, column)
+        if resolved:
+            return resolved
+    return None
+
+
+def _source_rows(bronze: pd.DataFrame, source_name: str) -> pd.DataFrame:
+    """Filter Bronze rows from a configured source folder or source name."""
+
+    source_mask = pd.Series(False, index=bronze.index)
+    for column in ["source_folder", "source_name"]:
+        if column in bronze.columns:
+            source_mask = source_mask | bronze[column].str.contains(
+                source_name, case=False, na=False
+            )
+    return bronze[source_mask].copy()
+
+
+def _normalise_region_from_any(df: pd.DataFrame) -> pd.DataFrame:
+    """Add region fields from common AEMO region column variants."""
+
+    for column in ["regionid", "region", "region_id"]:
+        if _resolve_column(df, column):
+            return standardise_region_names(df, column)
+    return df.copy()
+
+
 def standardise_region_names(
     df: pd.DataFrame, column: str = "regionid"
 ) -> pd.DataFrame:
@@ -175,7 +206,7 @@ def build_silver_price_demand(
             "dispatchableload": "dispatchable_load_mw",
             "netinterchange": "net_interchange_mw",
             "excessgeneration": "excess_generation_mw",
-            "clearedsupply": "dashboard_demand_mw",
+            "clearedsupply": "cleared_supply_mw",
             "semischedule_clearedmw": "semi_scheduled_generation_mw",
             "row_hash": "regionsum_row_hash",
         }
@@ -193,7 +224,7 @@ def build_silver_price_demand(
             "dispatchable_load_mw",
             "net_interchange_mw",
             "excess_generation_mw",
-            "dashboard_demand_mw",
+            "cleared_supply_mw",
             "semi_scheduled_generation_mw",
         ]
         regionsum = cast_numeric_fields(regionsum, numeric_columns)
@@ -205,12 +236,7 @@ def build_silver_price_demand(
                 regionsum["dispatchable_generation_mw"]
                 - regionsum["semi_scheduled_generation_mw"]
             )
-            regionsum["dashboard_generation_mw"] = regionsum[
-                "dispatchable_generation_mw"
-            ]
-            numeric_columns.extend(
-                ["scheduled_generation_mw", "dashboard_generation_mw"]
-            )
+            numeric_columns.append("scheduled_generation_mw")
         regionsum_columns = [
             "settlement_datetime",
             "region",
@@ -304,7 +330,10 @@ def build_silver_generation_by_unit(
 ) -> pd.DataFrame:
     """Build local Silver generation-by-unit records when source columns exist."""
 
-    if not {"duid", "dispatchablegeneration"}.issubset(bronze.columns):
+    generation_column = _first_existing_column(
+        bronze, ["dispatchablegeneration", "scadavalue", "generation_mw"]
+    )
+    if "duid" not in bronze.columns or generation_column is None:
         return pd.DataFrame()
 
     rows = bronze[bronze["duid"].fillna("") != ""].copy()
@@ -312,7 +341,7 @@ def build_silver_generation_by_unit(
         return pd.DataFrame()
 
     rows = normalise_timestamps(rows)
-    rows = rows.rename(columns={"dispatchablegeneration": "generation_mw"})
+    rows = rows.rename(columns={generation_column: "generation_mw"})
     rows["generation_mw"] = pd.to_numeric(rows["generation_mw"], errors="coerce")
     rows = add_interval_fields(rows)
     rows["silver_loaded_datetime"] = pd.Timestamp.now("UTC").isoformat()
@@ -331,6 +360,194 @@ def build_silver_generation_by_unit(
     )
 
 
+def build_silver_predispatch_forecast(
+    bronze: pd.DataFrame,
+    run_id: str,
+) -> pd.DataFrame:
+    """Build Silver pre-dispatch regional forecast rows where available."""
+
+    rows = _source_rows(bronze, "Predispatch")
+    if rows.empty:
+        return pd.DataFrame()
+
+    rows = normalise_timestamps(rows)
+    rows = _normalise_region_from_any(rows)
+    price_col = _first_existing_column(rows, ["rrp", "price", "forecast_price"])
+    demand_col = _first_existing_column(
+        rows, ["demand", "totaldemand", "demandforecast", "forecast_demand"]
+    )
+    if price_col is None and demand_col is None:
+        return pd.DataFrame()
+
+    result = rows.copy()
+    result["forecast_run_datetime"] = pd.to_datetime(
+        result.get("file_datetime", pd.Series([pd.NA] * len(result))),
+        errors="coerce",
+    )
+    result["forecast_settlement_datetime"] = result["settlement_datetime"]
+    if price_col:
+        result["forecast_price_aud_mwh"] = pd.to_numeric(
+            result[price_col], errors="coerce"
+        )
+    if demand_col:
+        result["forecast_demand_mw"] = pd.to_numeric(result[demand_col], errors="coerce")
+    value_columns = [
+        column
+        for column in ["forecast_price_aud_mwh", "forecast_demand_mw"]
+        if column in result.columns
+    ]
+    result = result[
+        result["forecast_settlement_datetime"].notna()
+        & result.get("region", pd.Series("", index=result.index)).fillna("").ne("")
+        & result[value_columns].notna().any(axis=1)
+    ]
+    if result.empty:
+        return pd.DataFrame()
+    result["silver_loaded_datetime"] = pd.Timestamp.now("UTC").isoformat()
+    result["run_id"] = run_id
+    output_columns = [
+        "forecast_run_datetime",
+        "forecast_settlement_datetime",
+        "region",
+        "region_name",
+        "forecast_price_aud_mwh",
+        "forecast_demand_mw",
+        "source_url",
+        "source_zip_name",
+        "row_hash",
+        "silver_loaded_datetime",
+        "run_id",
+    ]
+    return remove_duplicate_rows(
+        result[[column for column in output_columns if column in result.columns]],
+        subset=["forecast_run_datetime", "forecast_settlement_datetime", "region"],
+    )
+
+
+def build_silver_cumulative_price(bronze: pd.DataFrame, run_id: str) -> pd.DataFrame:
+    """Build Silver trading cumulative price rows."""
+
+    rows = _source_rows(bronze, "Trading_Cumulative_Price")
+    if rows.empty:
+        return pd.DataFrame()
+    rows = normalise_timestamps(rows)
+    rows = _normalise_region_from_any(rows)
+    price_col = _first_existing_column(
+        rows, ["cumulativeprice", "cumul_price", "cumulative_price", "periodcumulativeprice"]
+    )
+    if price_col is None:
+        return pd.DataFrame()
+    result = rows.copy()
+    result["cumulative_price_aud_mwh"] = pd.to_numeric(result[price_col], errors="coerce")
+    apc_col = _first_existing_column(result, ["apcflag", "administeredpricecap", "apc_status"])
+    result["administered_price_cap_status"] = (
+        result[apc_col].replace({"0": "Inactive", "1": "Active"}) if apc_col else "Unknown"
+    )
+    result = add_interval_fields(result)
+    result["silver_loaded_datetime"] = pd.Timestamp.now("UTC").isoformat()
+    result["run_id"] = run_id
+    output_columns = [
+        "settlement_datetime",
+        "trading_date",
+        "region",
+        "region_name",
+        "cumulative_price_aud_mwh",
+        "administered_price_cap_status",
+        "source_url",
+        "source_zip_name",
+        "row_hash",
+        "silver_loaded_datetime",
+        "run_id",
+    ]
+    return remove_duplicate_rows(
+        result[[column for column in output_columns if column in result.columns]],
+        subset=["settlement_datetime", "region"],
+    )
+
+
+def build_silver_seven_day_outlook(bronze: pd.DataFrame, run_id: str) -> pd.DataFrame:
+    """Build Silver seven-day outlook rows from available regional outlook fields."""
+
+    rows = _source_rows(bronze, "Seven_Day_Outlook")
+    if rows.empty:
+        rows = _source_rows(bronze, "SEVENDAYOUTLOOK")
+    if rows.empty:
+        return pd.DataFrame()
+    rows = normalise_timestamps(rows)
+    rows = _normalise_region_from_any(rows)
+    metric_map = {
+        "scheduled_demand_mw": ["scheduleddemand", "demand", "demand10", "maximumdemand"],
+        "scheduled_capacity_mw": ["scheduledcapacity", "capacity", "availablegeneration"],
+        "scheduled_reserve_mw": ["scheduledreserve", "reserve", "reserverequirement"],
+        "net_interchange_mw": ["netinterchange", "interchange"],
+    }
+    result = rows.copy()
+    for output, candidates in metric_map.items():
+        column = _first_existing_column(result, candidates)
+        if column:
+            result[output] = pd.to_numeric(result[column], errors="coerce")
+    if not any(column in result.columns for column in metric_map):
+        return pd.DataFrame()
+    result = add_interval_fields(result)
+    result["outlook_date"] = result["settlement_datetime"].dt.date
+    result["silver_loaded_datetime"] = pd.Timestamp.now("UTC").isoformat()
+    result["run_id"] = run_id
+    output_columns = [
+        "settlement_datetime",
+        "outlook_date",
+        "region",
+        "region_name",
+        *metric_map.keys(),
+        "source_url",
+        "source_zip_name",
+        "row_hash",
+        "silver_loaded_datetime",
+        "run_id",
+    ]
+    return remove_duplicate_rows(
+        result[[column for column in output_columns if column in result.columns]],
+        subset=["settlement_datetime", "region"],
+    )
+
+
+def build_silver_rooftop_pv(bronze: pd.DataFrame, run_id: str) -> pd.DataFrame:
+    """Build Silver rooftop PV actual rows for renewable reporting."""
+
+    rows = _source_rows(bronze, "Intermittent_Generation")
+    if rows.empty:
+        rows = _source_rows(bronze, "ROOFTOP")
+    if rows.empty:
+        return pd.DataFrame()
+    rows = normalise_timestamps(rows)
+    rows = _normalise_region_from_any(rows)
+    pv_col = _first_existing_column(
+        rows, ["power", "rooftoppv", "rooftop_pv", "measurement", "scadavalue", "actualmw"]
+    )
+    if pv_col is None:
+        return pd.DataFrame()
+    result = rows.copy()
+    result["rooftop_pv_mw"] = pd.to_numeric(result[pv_col], errors="coerce")
+    result = add_interval_fields(result)
+    result["silver_loaded_datetime"] = pd.Timestamp.now("UTC").isoformat()
+    result["run_id"] = run_id
+    output_columns = [
+        "settlement_datetime",
+        "trading_date",
+        "region",
+        "region_name",
+        "rooftop_pv_mw",
+        "source_url",
+        "source_zip_name",
+        "row_hash",
+        "silver_loaded_datetime",
+        "run_id",
+    ]
+    return remove_duplicate_rows(
+        result[[column for column in output_columns if column in result.columns]],
+        subset=["settlement_datetime", "region"],
+    )
+
+
 def build_current_snapshot(df: pd.DataFrame) -> pd.DataFrame:
     """Return the latest interval per region for snapshot KPI cards."""
 
@@ -341,7 +558,7 @@ def build_current_snapshot(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def build_dashboard_supply_demand_components(snapshot: pd.DataFrame) -> pd.DataFrame:
+def build_supply_demand_components(snapshot: pd.DataFrame) -> pd.DataFrame:
     """Build current dashboard demand/generation components for stacked bars."""
 
     columns = [
@@ -349,7 +566,8 @@ def build_dashboard_supply_demand_components(snapshot: pd.DataFrame) -> pd.DataF
         "trading_date",
         "region",
         "region_name",
-        "dashboard_demand_mw",
+        "demand_mw",
+        "cleared_supply_mw",
         "scheduled_generation_mw",
         "semi_scheduled_generation_mw",
         "gold_loaded_datetime",
@@ -359,9 +577,21 @@ def build_dashboard_supply_demand_components(snapshot: pd.DataFrame) -> pd.DataF
         return pd.DataFrame(columns=columns + ["metric_group", "component", "value_mw"])
 
     available = snapshot[[column for column in columns if column in snapshot.columns]].copy()
+    if "cleared_supply_mw" in available.columns and "demand_mw" in available.columns:
+        available["demand_component_mw"] = pd.to_numeric(
+            available["cleared_supply_mw"], errors="coerce"
+        ).fillna(pd.to_numeric(available["demand_mw"], errors="coerce"))
+    elif "cleared_supply_mw" in available.columns:
+        available["demand_component_mw"] = pd.to_numeric(
+            available["cleared_supply_mw"], errors="coerce"
+        )
+    elif "demand_mw" in available.columns:
+        available["demand_component_mw"] = pd.to_numeric(
+            available["demand_mw"], errors="coerce"
+        )
     rows: list[pd.DataFrame] = []
     component_specs = [
-        ("Demand", "Demand", "dashboard_demand_mw", 1),
+        ("Demand", "Demand", "demand_component_mw", 1),
         ("Generation", "Scheduled Generation", "scheduled_generation_mw", 1),
         ("Generation", "Semi-scheduled Generation", "semi_scheduled_generation_mw", 2),
     ]
@@ -370,7 +600,9 @@ def build_dashboard_supply_demand_components(snapshot: pd.DataFrame) -> pd.DataF
         for column in available.columns
         if column
         not in {
-            "dashboard_demand_mw",
+            "cleared_supply_mw",
+            "demand_mw",
+            "demand_component_mw",
             "scheduled_generation_mw",
             "semi_scheduled_generation_mw",
         }
@@ -414,10 +646,9 @@ def build_gold_region_5min(silver: pd.DataFrame, run_id: str) -> pd.DataFrame:
             "dispatchable_load_mw",
             "net_interchange_mw",
             "excess_generation_mw",
-            "dashboard_demand_mw",
+            "cleared_supply_mw",
             "semi_scheduled_generation_mw",
             "scheduled_generation_mw",
-            "dashboard_generation_mw",
         ],
     )
     result = add_interval_fields(result)
@@ -470,10 +701,9 @@ def build_gold_region_5min(silver: pd.DataFrame, run_id: str) -> pd.DataFrame:
         "dispatchable_load_mw",
         "net_interchange_mw",
         "excess_generation_mw",
-        "dashboard_demand_mw",
+        "cleared_supply_mw",
         "semi_scheduled_generation_mw",
         "scheduled_generation_mw",
-        "dashboard_generation_mw",
         "price_band",
         "is_negative_price",
         "is_high_price",
@@ -541,7 +771,7 @@ def build_price_spikes(df: pd.DataFrame) -> pd.DataFrame:
     return df[df["is_high_price"] | df["is_negative_price"]].copy()
 
 
-def build_dashboard_kpis(snapshot: pd.DataFrame, run_id: str) -> pd.DataFrame:
+def build_kpis(snapshot: pd.DataFrame, run_id: str) -> pd.DataFrame:
     """Build single-row dashboard KPI values from the current snapshot."""
 
     loaded_datetime = pd.Timestamp.now("UTC").isoformat()
@@ -613,4 +843,140 @@ def build_gold_interconnector_flows(interconnector: pd.DataFrame) -> pd.DataFram
     ] = "Forward"
     result["interval_hour"] = result["settlement_datetime"].dt.hour
     result["interval_minute"] = result["settlement_datetime"].dt.minute
+    return result
+
+
+def build_gold_predispatch_forecast(silver: pd.DataFrame, run_id: str) -> pd.DataFrame:
+    """Build Power BI-ready pre-dispatch forecast rows."""
+
+    if silver.empty:
+        return pd.DataFrame()
+    result = silver.copy()
+    result["forecast_run_datetime"] = pd.to_datetime(
+        result["forecast_run_datetime"], errors="coerce", utc=True
+    )
+    result["forecast_settlement_datetime"] = pd.to_datetime(
+        result["forecast_settlement_datetime"], errors="coerce", utc=True
+    )
+    result["forecast_horizon_minutes"] = (
+        result["forecast_settlement_datetime"] - result["forecast_run_datetime"]
+    ).dt.total_seconds() / 60.0
+    result["trading_date"] = result["forecast_settlement_datetime"].dt.date
+    result["interval_hour"] = result["forecast_settlement_datetime"].dt.hour
+    result["interval_minute"] = result["forecast_settlement_datetime"].dt.minute
+    result["gold_loaded_datetime"] = pd.Timestamp.now("UTC").isoformat()
+    result["run_id"] = run_id
+    return result
+
+
+def build_gold_cumulative_price(silver: pd.DataFrame, run_id: str) -> pd.DataFrame:
+    """Build Power BI-ready cumulative price and APC status rows."""
+
+    if silver.empty:
+        return pd.DataFrame()
+    result = silver.copy()
+    result["settlement_datetime"] = pd.to_datetime(
+        result["settlement_datetime"], errors="coerce"
+    )
+    result["cumulative_price_aud_mwh"] = pd.to_numeric(
+        result["cumulative_price_aud_mwh"], errors="coerce"
+    )
+    result = add_interval_fields(result)
+    result["gold_loaded_datetime"] = pd.Timestamp.now("UTC").isoformat()
+    result["run_id"] = run_id
+    return result
+
+
+def build_gold_seven_day_outlook(silver: pd.DataFrame, run_id: str) -> pd.DataFrame:
+    """Build Power BI-ready seven-day outlook rows."""
+
+    if silver.empty:
+        return pd.DataFrame()
+    result = silver.copy()
+    result["settlement_datetime"] = pd.to_datetime(
+        result["settlement_datetime"], errors="coerce"
+    )
+    result = cast_numeric_fields(
+        result,
+        [
+            "scheduled_demand_mw",
+            "scheduled_capacity_mw",
+            "scheduled_reserve_mw",
+            "net_interchange_mw",
+        ],
+    )
+    result = add_interval_fields(result)
+    result["gold_loaded_datetime"] = pd.Timestamp.now("UTC").isoformat()
+    result["run_id"] = run_id
+    return result
+
+
+def build_gold_generation_mix(
+    generation_by_unit: pd.DataFrame,
+    rooftop_pv: pd.DataFrame | None,
+    run_id: str,
+) -> pd.DataFrame:
+    """Build a conservative generation mix table from available generation sources."""
+
+    frames: list[pd.DataFrame] = []
+    if not generation_by_unit.empty:
+        unit = generation_by_unit.copy()
+        unit["settlement_datetime"] = pd.to_datetime(
+            unit["settlement_datetime"], errors="coerce"
+        )
+        unit["generation_mw"] = pd.to_numeric(unit["generation_mw"], errors="coerce")
+        unit["fuel_type"] = "Unmapped"
+        unit["is_renewable"] = False
+        frames.append(
+            unit[["settlement_datetime", "fuel_type", "is_renewable", "generation_mw"]]
+        )
+    if rooftop_pv is not None and not rooftop_pv.empty:
+        pv = rooftop_pv.copy()
+        pv["settlement_datetime"] = pd.to_datetime(
+            pv["settlement_datetime"], errors="coerce"
+        )
+        pv["generation_mw"] = pd.to_numeric(pv["rooftop_pv_mw"], errors="coerce")
+        pv["fuel_type"] = "Solar"
+        pv["is_renewable"] = True
+        frames.append(
+            pv[["settlement_datetime", "fuel_type", "is_renewable", "generation_mw"]]
+        )
+    if not frames:
+        return pd.DataFrame()
+    result = pd.concat(frames, ignore_index=True)
+    result = (
+        result.groupby(["settlement_datetime", "fuel_type", "is_renewable"], dropna=False)
+        .agg(generation_mw=("generation_mw", "sum"))
+        .reset_index()
+    )
+    result = add_interval_fields(result)
+    result["renewable_generation_mw"] = result["generation_mw"].where(
+        result["is_renewable"], 0.0
+    )
+    result["gold_loaded_datetime"] = pd.Timestamp.now("UTC").isoformat()
+    result["run_id"] = run_id
+    return result
+
+
+def build_gold_renewable_penetration(
+    generation_mix: pd.DataFrame,
+    run_id: str,
+) -> pd.DataFrame:
+    """Build renewable penetration by interval from generation mix."""
+
+    if generation_mix.empty:
+        return pd.DataFrame()
+    result = (
+        generation_mix.groupby(["settlement_datetime", "trading_date"], dropna=False)
+        .agg(
+            renewable_generation_mw=("renewable_generation_mw", "sum"),
+            total_generation_mw=("generation_mw", "sum"),
+        )
+        .reset_index()
+    )
+    result["renewable_penetration_pct"] = (
+        result["renewable_generation_mw"] / result["total_generation_mw"] * 100.0
+    )
+    result["gold_loaded_datetime"] = pd.Timestamp.now("UTC").isoformat()
+    result["run_id"] = run_id
     return result

@@ -2,6 +2,7 @@
 # Disabled entries document future expansion without being processed by default.
 sources:
   - name: DispatchIS_Reports
+    label: dispatchis
     url: https://nemweb.com.au/Reports/Current/DispatchIS_Reports/
     market: NEM
     expected_update_frequency: 5 minutes
@@ -10,62 +11,70 @@ sources:
     priority: 1
     notes: Primary source for current dashboard price and demand.
   - name: Public_Prices
+    label: public_prices
     url: https://nemweb.com.au/Reports/Current/Public_Prices/
     market: NEM
     expected_update_frequency: 5 minutes
-    enabled: true
+    enabled: false
     description: Public regional price reports.
     priority: 2
     notes: Used to validate and enrich price reporting.
   - name: PredispatchIS_Reports
+    label: predispatchis
     url: https://nemweb.com.au/Reports/Current/PredispatchIS_Reports/
     market: NEM
     expected_update_frequency: 30 minutes
-    enabled: true
+    enabled: false
     description: Predispatch outlook reports.
     priority: 4
     notes: Required for forecast price and demand visuals.
   - name: Trading_Cumulative_Price
+    label: trading_cumulative_price
     url: https://nemweb.com.au/Reports/Current/Trading_Cumulative_Price/
     market: NEM
     expected_update_frequency: 5 minutes
-    enabled: true
+    enabled: false
     description: Trading cumulative price reports.
     priority: 5
     notes: Required for cumulative price and administered price cap reporting.
   - name: Seven_Day_Outlook_Full
+    label: seven_day_outlook
     url: https://nemweb.com.au/Reports/Current/SEVENDAYOUTLOOK_FULL/
     market: NEM
     expected_update_frequency: 30 minutes
-    enabled: true
+    enabled: false
     description: Seven-day regional outlook reports.
     priority: 6
     notes: Required for scheduled demand, capacity, reserve, net interchange, and trading interval outlook visuals.
   - name: Next_Day_Dispatch
+    label: next_day_dispatch
     url: https://nemweb.com.au/Reports/Current/Next_Day_Dispatch/
     market: NEM
     expected_update_frequency: daily
-    enabled: true
+    enabled: false
     description: Next-day dispatch data.
     priority: 7
     notes: Required for next-day actual dispatch history and average price comparison views.
   - name: Dispatch_SCADA
+    label: dispatch_scada
     url: https://nemweb.com.au/Reports/Current/Dispatch_SCADA/
     market: NEM
     expected_update_frequency: 5 minutes
-    enabled: true
+    enabled: false
     description: Unit-level dispatch SCADA generation data where available.
     priority: 3
     notes: Required for fuel mix and generation-by-fuel visuals after DUID fuel mapping is available.
   - name: Intermittent_Generation
+    label: rooftop_pv_actual
     url: https://nemweb.com.au/Reports/Current/ROOFTOP_PV/ACTUAL/
     market: NEM
     expected_update_frequency: 30 minutes
-    enabled: true
+    enabled: false
     description: Intermittent or rooftop generation-related current reports.
     priority: 8
     notes: Required for rooftop PV, renewable contribution, and renewable penetration visuals.
   - name: STTM
+    label: sttm
     url: https://nemweb.com.au/Reports/Current/STTM/
     market: Gas
     expected_update_frequency: daily
@@ -74,6 +83,7 @@ sources:
     priority: 20
     notes: Future gas extension.
   - name: VicGas
+    label: vicgas
     url: https://nemweb.com.au/Reports/Current/VicGas/
     market: Gas
     expected_update_frequency: daily

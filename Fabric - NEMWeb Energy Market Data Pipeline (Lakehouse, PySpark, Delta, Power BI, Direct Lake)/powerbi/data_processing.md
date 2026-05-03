@@ -10,13 +10,13 @@ Files for raw ZIPs and Delta tables for curated data.
 | --- | --- | --- | --- |
 | Raw ZIP files | `data/Files/nemweb/raw_zip/{source}/yyyy/mm/dd/*.zip` | `Files/nemweb/raw_zip/{source}/yyyy/mm/dd/*.zip` | Immutable downloaded NEMWeb ZIP payloads. |
 | Control tables | `data/tables/*.csv` | Lakehouse Delta tables | Ingestion manifest, run log, and raw file audit. |
-| Bronze tables | `data/tables/nem_bronze_*.csv` | Lakehouse Delta tables | Parsed MMSDM rows with source metadata and source-shaped columns. |
-| Silver tables | `data/tables/nem_silver_*.csv` | Lakehouse Delta tables | Typed, deduplicated market facts at useful grains. |
-| Gold tables | `data/tables/nem_gold_*.csv` | Lakehouse Delta tables | Power BI-ready facts, aggregates, KPIs, and freshness tables. |
+| Bronze tables | `data/tables/bronze_*.parquet` | Lakehouse Delta tables | Parsed MMSDM rows with source metadata and source-shaped columns. |
+| Silver tables | `data/tables/silver_*.parquet` | Lakehouse Delta tables | Typed, deduplicated market facts at useful grains. |
+| Gold tables | `data/tables/gold_*.parquet` | Lakehouse Delta tables | Power BI-ready facts, aggregates, KPIs, and freshness tables. |
 
 Local CSV tables mirror Fabric table names. For example,
-`data/tables/nem_gold_region_5min.csv` is the local equivalent of Fabric table
-`nem_gold_region_5min`.
+`data/tables/gold_region_5min.parquet` is the local equivalent of Fabric table
+`gold_region_5min`.
 
 ## Raw and Control Data
 
@@ -31,7 +31,7 @@ The raw file contains the original AEMO ZIP bytes. It is not transformed before
 landing. The checksum is calculated from the ZIP bytes and recorded in control
 tables.
 
-### `nem_raw_zip_manifest`
+### `raw_zip_manifest`
 
 One row per discovered ZIP file.
 
@@ -52,7 +52,7 @@ One row per discovered ZIP file.
 | `status` | `downloaded`, `dry_run`, or `failed`. |
 | `error_message` | Truncated failure message when discovery/download fails. |
 
-### `nem_ingestion_log`
+### `ingestion_log`
 
 Run-level log rows for each ZIP discovery/download attempt.
 
@@ -71,7 +71,7 @@ Run-level log rows for each ZIP discovery/download attempt.
 | `row_count_silver` | Reserved count of Silver rows from the ZIP. |
 | `error_message` | Truncated error details. |
 
-### `nem_raw_file_audit`
+### `raw_file_audit`
 
 One row per parsed raw ZIP/file group written by the Bronze notebook.
 
@@ -103,10 +103,11 @@ Bronze parsing uses MMSDM row prefixes:
 Header names are lower-case and deduplicated. Extra trailing values are kept as
 `extra_column_1`, `extra_column_2`, and so on to make schema drift visible.
 
-### `nem_bronze_mmsdm_rows`
+### Source-Labelled Bronze Tables
 
-The canonical Bronze table. It contains all parsed MMSDM `D` rows from all
-supported ZIPs and table groups.
+Bronze tables are written per configured source label rather than as one wide
+catch-all table. This keeps source schemas separate and avoids repeatedly
+rewriting a sparse local CSV.
 
 Columns vary by source MMSDM table. Common metadata columns are always added:
 
@@ -123,25 +124,23 @@ Columns vary by source MMSDM table. Common metadata columns are always added:
 | `table_name` | MMSDM table name from the `I` row. |
 | `row_hash` | SHA-256 hash of raw row values plus source identity. |
 
-### Bronze Convenience Tables
-
-Configured Bronze convenience names include:
+Configured Bronze names include:
 
 | Table | Intended content |
 | --- | --- |
-| `nem_bronze_dispatchis` | Dispatch interval data parsed from DispatchIS reports. |
-| `nem_bronze_public_prices` | Public price table extracts where available. |
-| `nem_bronze_unit_scada` | Unit SCADA source rows where available. |
-| `nem_bronze_interconnector` | Interconnector source rows where available. |
-| `nem_bronze_generation` | Generation source rows where available. |
-| `nem_bronze_gas_prices` | Gas price source rows where available. |
+| `bronze_dispatchis` | Dispatch interval data parsed from DispatchIS reports. |
+| `bronze_public_prices` | Public price table extracts where available. |
+| `bronze_predispatchis` | Pre-dispatch price and demand forecast rows. |
+| `bronze_trading_cumulative_price` | Trading cumulative price and APC source rows. |
+| `bronze_seven_day_outlook` | Seven-day outlook source rows. |
+| `bronze_dispatch_scada` | Dispatch SCADA unit generation rows. |
+| `bronze_rooftop_pv_actual` | Rooftop PV actual rows. |
 
-The implemented Silver and Gold notebooks currently read from
-`nem_bronze_mmsdm_rows`.
+The Silver notebook reads only the source-labelled Bronze tables it needs.
 
 ## Silver Tables
 
-### `nem_silver_price_demand_5min`
+### `silver_price_demand_5min`
 
 Five-minute regional price and demand fact. Built from Bronze rows where
 `package_name = DISPATCH`.
@@ -183,13 +182,13 @@ Natural key: `settlement_datetime`, `region`, `intervention`.
 | `silver_loaded_datetime` | Silver load timestamp. |
 | `run_id` | Silver notebook run ID. |
 
-### `nem_silver_regional_dispatch`
+### `silver_regional_dispatch`
 
 Currently written with the same rows and columns as
-`nem_silver_price_demand_5min`. It is available as a semantic alias for regional
+`silver_price_demand_5min`. It is available as a semantic alias for regional
 dispatch reporting.
 
-### `nem_silver_interconnector_flows`
+### `silver_interconnector_flows`
 
 Five-minute interconnector flow records from Bronze `DISPATCH` /
 `INTERCONNECTORRES`.
@@ -209,7 +208,7 @@ Five-minute interconnector flow records from Bronze `DISPATCH` /
 | `silver_loaded_datetime` | Silver load timestamp. |
 | `run_id` | Silver notebook run ID. |
 
-### `nem_silver_generation_by_unit`
+### `silver_generation_by_unit`
 
 Optional unit generation table. Built when Bronze data contains both `duid` and
 `dispatchablegeneration`.
@@ -230,19 +229,19 @@ currently writes them:
 
 | Table | Intended content |
 | --- | --- |
-| `nem_silver_generation_by_fuel` | Generation aggregated or mapped to fuel type. |
-| `nem_silver_market_notices` | Market notice source records. |
-| `nem_silver_gas_prices` | Typed gas price records. |
+| `silver_generation_by_fuel` | Generation aggregated or mapped to fuel type. |
+| `silver_market_notices` | Market notice source records. |
+| `silver_gas_prices` | Typed gas price records. |
 
 ## Gold Tables
 
 Gold tables are deterministic reporting tables. Fabric writes Delta tables.
 Local runs overwrite matching CSV files in `data/tables`.
 
-### `nem_gold_region_5min`
+### `gold_region_5min`
 
 Main Power BI regional fact table. Built from
-`nem_silver_price_demand_5min`.
+`silver_price_demand_5min`.
 
 | Gold column | Raw-to-Gold processing |
 | --- | --- |
@@ -265,10 +264,9 @@ Main Power BI regional fact table. Built from
 | `dispatchable_load_mw` | Raw `dispatchableload`; cast to numeric in Silver; carried to Gold. |
 | `net_interchange_mw` | Raw `netinterchange`; cast to numeric in Silver; carried to Gold. |
 | `excess_generation_mw` | Raw `excessgeneration`; cast to numeric in Silver; carried to Gold. |
-| `dashboard_demand_mw` | Raw `clearedsupply`; aligns the NEM dashboard demand bar. |
+| `cleared_supply_mw` | Raw `clearedsupply`; dispatch-cleared supply quantity. Use for supply/demand balance visuals where populated, not as the canonical demand field. |
 | `semi_scheduled_generation_mw` | Raw `semischedule_clearedmw`; aligns NEM dashboard semi-scheduled generation. |
 | `scheduled_generation_mw` | `dispatchable_generation_mw - semi_scheduled_generation_mw`. |
-| `dashboard_generation_mw` | `dispatchable_generation_mw`; aligns the NEM dashboard total generation bar. |
 | `price_band` | Derived in Gold from `price_aud_mwh`: `< 0` Negative, `0-299.99` Normal, `300-999.99` High, `>= 1000` Extreme. |
 | `is_negative_price` | `price_aud_mwh < 0`. |
 | `is_high_price` | `price_aud_mwh >= 300`. |
@@ -278,17 +276,34 @@ Main Power BI regional fact table. Built from
 | `gold_loaded_datetime` | Gold load timestamp. |
 | `run_id` | Gold notebook run ID. |
 
-### `nem_gold_dashboard_current_snapshot`
+#### Dispatch and Demand Terminology
 
-Latest interval per region from `nem_gold_region_5min`.
+In this dataset, dispatch means AEMO's five-minute market/system process that
+sets targets or limits for scheduled generators, semi-scheduled generators,
+scheduled loads, batteries, and interconnectors.
 
-Columns are the same as `nem_gold_region_5min`. Processing selects the latest
+- `demand_mw` is regional operational demand from `REGIONSUM.totaldemand`. Use
+  it for demand cards, demand trends, and regional demand comparisons.
+- `cleared_*` values are dispatch outcomes accepted by AEMO's dispatch process.
+  They are not general synonyms for total regional demand.
+- Cleared demand/load refers only to controllable demand that participated in
+  dispatch, such as scheduled load or battery charging. Most ordinary customer
+  consumption is included in `demand_mw`, not in cleared demand/load.
+- Scheduled generation/load can receive direct dispatch targets. Semi-scheduled
+  generation, typically wind and solar farms, can be capped or curtailed by
+  AEMO but cannot be forced above available resource conditions.
+
+### `gold_current_snapshot`
+
+Latest interval per region from `gold_region_5min`.
+
+Columns are the same as `gold_region_5min`. Processing selects the latest
 `settlement_datetime` for each `region`.
 
-### `nem_gold_dashboard_supply_demand_components`
+### `gold_supply_demand_components`
 
 Current long-format supply and demand component table from
-`nem_gold_dashboard_current_snapshot`. It supports AEMO-style regional stacked
+`gold_current_snapshot`. It supports AEMO-style regional stacked
 bar visuals.
 
 | Gold column | Processing |
@@ -300,18 +315,18 @@ bar visuals.
 | `metric_group` | `Demand` or `Generation`. |
 | `component` | `Demand`, `Scheduled Generation`, or `Semi-scheduled Generation`. |
 | `component_sort_order` | Sort key for component display. |
-| `value_mw` | Demand or generation component MW value. |
+| `value_mw` | Demand or generation component MW value. Demand uses `cleared_supply_mw` where populated and falls back to `demand_mw`. |
 | `gold_loaded_datetime` | Carried from current snapshot. |
 | `run_id` | Carried from current snapshot. |
 
-### `nem_gold_region_30min`
+### `gold_region_30min`
 
-Thirty-minute regional aggregate from `nem_gold_region_5min`.
+Thirty-minute regional aggregate from `gold_region_5min`.
 
 | Gold column | Processing |
 | --- | --- |
-| `region` | Grouping column from `nem_gold_region_5min`. |
-| `region_name` | Grouping column from `nem_gold_region_5min`. |
+| `region` | Grouping column from `gold_region_5min`. |
+| `region_name` | Grouping column from `gold_region_5min`. |
 | `settlement_30min` | `settlement_datetime` floored/windowed to a 30-minute interval. |
 | `price_aud_mwh` | Average `price_aud_mwh` in the 30-minute region group. |
 | `demand_mw` | Average `demand_mw` in the 30-minute region group. |
@@ -323,15 +338,15 @@ Thirty-minute regional aggregate from `nem_gold_region_5min`.
 | `interval_hour` | Hour from `settlement_30min`. |
 | `interval_minute` | Minute from `settlement_30min`. |
 
-### `nem_gold_region_daily`
+### `gold_region_daily`
 
-Daily regional summary from `nem_gold_region_5min`.
+Daily regional summary from `gold_region_5min`.
 
 | Gold column | Processing |
 | --- | --- |
-| `region` | Grouping column from `nem_gold_region_5min`. |
-| `region_name` | Grouping column from `nem_gold_region_5min`. |
-| `trading_date` | Grouping date from `nem_gold_region_5min`. |
+| `region` | Grouping column from `gold_region_5min`. |
+| `region_name` | Grouping column from `gold_region_5min`. |
+| `trading_date` | Grouping date from `gold_region_5min`. |
 | `daily_avg_price` | Average daily `price_aud_mwh`. |
 | `daily_max_price` | Maximum daily `price_aud_mwh`. |
 | `daily_min_price` | Minimum daily `price_aud_mwh`. |
@@ -342,17 +357,17 @@ Daily regional summary from `nem_gold_region_5min`.
 | `extreme_price_interval_count` | Count of extreme-price five-minute intervals. |
 | `negative_price_interval_count` | Count of negative-price five-minute intervals. |
 
-### `nem_gold_price_spikes`
+### `gold_price_spikes`
 
-Drill-through event table from `nem_gold_region_5min`.
+Drill-through event table from `gold_region_5min`.
 
-Columns are the same as `nem_gold_region_5min`. Processing keeps rows where
+Columns are the same as `gold_region_5min`. Processing keeps rows where
 `is_high_price` or `is_negative_price` is true. Extreme price rows are included
 because every extreme row also has `is_high_price = true`.
 
-### `nem_gold_dashboard_kpis`
+### `gold_kpis`
 
-Single-row dashboard KPI table from `nem_gold_dashboard_current_snapshot`.
+Single-row dashboard KPI table from `gold_current_snapshot`.
 
 | Gold column | Processing |
 | --- | --- |
@@ -363,21 +378,21 @@ Single-row dashboard KPI table from `nem_gold_dashboard_current_snapshot`.
 | `run_id` | Gold notebook run ID. |
 | `gold_loaded_datetime` | Gold load timestamp. |
 
-### `nem_gold_data_freshness`
+### `gold_data_freshness`
 
-Operational freshness table from `nem_gold_dashboard_kpis`.
+Operational freshness table from `gold_kpis`.
 
 | Gold column | Processing |
 | --- | --- |
-| `latest_settlement_datetime` | Copied from `nem_gold_dashboard_kpis`. |
+| `latest_settlement_datetime` | Copied from `gold_kpis`. |
 | `last_successful_ingestion_datetime` | `gold_loaded_datetime` renamed from KPI table. |
-| `run_id` | Copied from `nem_gold_dashboard_kpis`. |
+| `run_id` | Copied from `gold_kpis`. |
 | `freshness_minutes` | Difference in minutes between current/load time and `latest_settlement_datetime`. |
 | `status` | `Fresh` when `<= 15` minutes, `Delayed` when `<= 60`, otherwise `Stale`. |
 
-### `nem_gold_interconnector_flows_5min`
+### `gold_interconnector_flows_5min`
 
-Optional interconnector reporting table from `nem_silver_interconnector_flows`.
+Optional interconnector reporting table from `silver_interconnector_flows`.
 
 | Gold column | Processing |
 | --- | --- |
@@ -404,10 +419,10 @@ currently writes them:
 
 | Table | Intended content |
 | --- | --- |
-| `nem_gold_generation_mix_5min` | Five-minute generation mix by fuel or technology. |
-| `nem_gold_renewable_penetration` | Renewable share and penetration metrics. |
-| `nem_gold_supply_demand_balance` | Supply, demand, reserve, and balance metrics. |
-| `nem_gold_gas_price_summary` | Gas price reporting summary. |
+| `gold_generation_mix_5min` | Five-minute generation mix by fuel or technology. |
+| `gold_renewable_penetration` | Renewable share and penetration metrics. |
+| `gold_supply_demand_balance` | Supply, demand, reserve, and balance metrics. |
+| `gold_gas_price_summary` | Gas price reporting summary. |
 
 ## End-to-End Processing Flow
 
@@ -415,8 +430,8 @@ currently writes them:
    filters ZIPs by lookback window, skips already successful manifest URLs, and
    lands unseen ZIP bytes.
 2. `02_parse_bronze_tables.ipynb` reads unparsed raw ZIPs, parses MMSDM `I` and
-   `D` rows, writes `nem_bronze_mmsdm_rows`, writes available Bronze convenience
-   tables, and records parse audit rows.
+   `D` rows, writes source-labelled Bronze tables, and records parse audit
+   rows.
 3. `03_build_silver_tables.ipynb` converts source-shaped Bronze rows into typed
    Silver facts for regional price/demand, interconnector flows, and optional
    generation by unit.

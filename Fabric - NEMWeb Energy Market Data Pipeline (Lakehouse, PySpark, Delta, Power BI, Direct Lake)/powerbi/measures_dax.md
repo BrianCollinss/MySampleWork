@@ -1,5 +1,9 @@
 # DAX Measures
 
+These measures describe the intended semantic model. The current PBIX is a
+Power BI Desktop work-in-progress file, and more report measures may be added as
+new pages are built.
+
 ```DAX
 Current Price AUD/MWh = MAX(fact_region_5min_price_demand[price_aud_mwh])
 Current Demand MW = MAX(fact_region_5min_price_demand[demand_mw])
@@ -19,6 +23,6 @@ Solar Generation MW = CALCULATE(SUM(fact_generation_mix_5min[generation_mw]), di
 Wind Generation MW = CALCULATE(SUM(fact_generation_mix_5min[generation_mw]), dim_fuel_type[fuel_type] = "Wind")
 Battery Generation MW = CALCULATE(SUM(fact_generation_mix_5min[generation_mw]), dim_fuel_type[fuel_type] = "Battery")
 Net Interconnector Flow MW = SUM(fact_interconnector_flows_5min[flow_mw])
-Data Freshness Minutes = MIN(nem_gold_data_freshness[freshness_minutes])
-Last Successful Ingestion Time = MAX(nem_gold_data_freshness[last_successful_ingestion_datetime])
+Data Freshness Minutes = MIN(gold_data_freshness[freshness_minutes])
+Last Successful Ingestion Time = MAX(gold_data_freshness[last_successful_ingestion_datetime])
 ```

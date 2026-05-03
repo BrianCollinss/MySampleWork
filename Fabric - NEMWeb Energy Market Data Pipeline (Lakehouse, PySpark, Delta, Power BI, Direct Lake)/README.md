@@ -1,6 +1,6 @@
 # Fabric NEMWeb Energy Market Data Pipeline
 
-Production-style Microsoft Fabric Lakehouse solution for ingesting public AEMO
+Work-in-progress Microsoft Fabric Lakehouse solution for ingesting public AEMO
 NEMWeb current reports and preparing Power BI-ready Gold tables for a dashboard
 similar to AEMO's NEM data dashboard.
 
@@ -13,6 +13,7 @@ electricity market data:
 - Parse MMSDM-style CSV content.
 - Store raw, Bronze, Silver, and Gold data in a Fabric Lakehouse pattern.
 - Prepare clean Gold tables for Direct Lake or Import-mode Power BI reporting.
+- Build an initial Power BI Desktop report, with more pages and visuals planned.
 - Document manual Fabric setup where workspace binding cannot be represented in
   source control.
 
@@ -60,7 +61,7 @@ The intended production workflow is:
 5. Run environment validation.
 6. Run ingestion, Bronze parsing, Silver transformation, and Gold build notebooks.
 7. Schedule the Fabric Pipeline every 5 minutes.
-8. Build a Power BI semantic model and report from Gold tables (to be done).
+8. Build a Power BI semantic model and report from Gold tables.
 
 See `fabric/deployment_steps.md` for exact deployment steps and
 `fabric/pipeline_design.md` for orchestration details.
@@ -93,7 +94,21 @@ exact library path behaviour, and the parameter used by notebooks.
 
 ## Power BI Output
 
-Gold tables are intended to support report pages for:
+The repository includes an initial Power BI Desktop report at
+`powerbi/powerbi.pbix`. The report is a work in progress: the current file
+demonstrates the first dashboard outputs, and more pages and visuals will be
+added as the Gold tables and semantic model mature.
+
+Due to the nearing expiry date of the available Fabric licence, the Power BI
+file was created in Power BI Desktop rather than fully authored and published
+through Fabric/Direct Lake. Gold tables are still shaped to support Direct Lake
+where a Fabric-enabled workspace is available.
+
+### Screenshots
+
+![Power BI report screenshot](screenshots/powerbi_1.png)
+
+Gold tables support or are intended to support report pages for:
 
 - NEM Overview.
 - Regional Prices.
@@ -103,14 +118,19 @@ Gold tables are intended to support report pages for:
 - Price Events and Volatility.
 - Data Operations.
 
-See `powerbi/dashboard_pages.md`, `powerbi/semantic_model_tables.md`, and
-`powerbi/measures_dax.md` for report design details.
+See `powerbi/dashboard_pages.md`, `powerbi/semantic_model_tables.md`,
+`powerbi/measures_dax.md`, and `powerbi/data_processing.md` for report design
+and data-processing details.
 
 ## Current Limitations
 
 - Fabric workspace, Lakehouse, notebook, Environment, Pipeline, and semantic
   model binding require manual Fabric UI steps.
 - Fabric items are unavailable in Power BI Pro-only workspaces.
+- The included PBIX was created in Power BI Desktop because the available
+  Fabric licence was nearing expiry.
+- Power BI report development is still in progress; more report pages will be
+  added to the PBIX.
 - Some NEMWeb folders may vary over time and should be validated in the target
   environment.
 - Generation fuel classification depends on source availability or future
@@ -118,7 +138,7 @@ See `powerbi/dashboard_pages.md`, `powerbi/semantic_model_tables.md`, and
 
 ## Future Enhancements
 
-- Power BI dashboard development and public sharing.
+- Additional Power BI report pages, screenshots, and public sharing.
 - Archive backfill.
 - Delta table optimisation and compaction.
 - Automated semantic model deployment.

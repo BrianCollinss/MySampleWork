@@ -1,5 +1,9 @@
 # Semantic Model Tables
 
+The semantic model is currently maintained in `powerbi/powerbi.pbix` as a
+Power BI Desktop work-in-progress file. Direct Lake remains the preferred target
+when Fabric workspace access is available.
+
 ## Dimensions
 
 - `dim_region`: NEM region code and region name.
@@ -10,13 +14,13 @@
 
 ## Facts
 
-- `fact_region_5min_price_demand`: from `nem_gold_region_5min`.
-- `fact_region_30min_price_demand`: from `nem_gold_region_30min`.
-- `fact_region_daily`: from `nem_gold_region_daily`.
-- `fact_price_spikes`: from `nem_gold_price_spikes`.
-- `fact_generation_mix_5min`: from `nem_gold_generation_mix_5min`.
-- `fact_interconnector_flows_5min`: from `nem_gold_interconnector_flows_5min`.
-- `fact_dashboard_kpis`: from `nem_gold_dashboard_kpis`.
+- `fact_region_5min_price_demand`: from `gold_region_5min`.
+- `fact_region_30min_price_demand`: from `gold_region_30min`.
+- `fact_region_daily`: from `gold_region_daily`.
+- `fact_price_spikes`: from `gold_price_spikes`.
+- `fact_generation_mix_5min`: from `gold_generation_mix_5min`.
+- `fact_interconnector_flows_5min`: from `gold_interconnector_flows_5min`.
+- `fact_kpis`: from `gold_kpis`.
 
 ## Relationships
 

@@ -1,5 +1,11 @@
 # Dashboard Pages
 
+The included `powerbi/powerbi.pbix` is a work-in-progress Power BI Desktop
+report. More pages and visuals will be added as the Gold tables and semantic
+model mature. The Desktop file was used because the available Fabric licence was
+nearing expiry; the model design still supports Direct Lake where Fabric is
+available.
+
 ## Page 1: NEM Overview
 
 - KPI cards: latest price by selected region, latest demand, daily average price, daily max price, and data freshness.
